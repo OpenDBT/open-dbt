@@ -13,7 +13,7 @@ public interface RunAnswerService {
 
 	public void getSchemaConnection(UserInfo loginUser, int sceneId, int exerciseId, SchemaConnection schemaConnection, int exerciseSource) throws Exception;
 
-	public void getResultSetColumnAndData(ResultSet resultSet, List<String> columnList, List<DataTypeAndImg> dataTypeAndImgList, List<Map<Object, Object>> resultList) throws Exception;
+  public void getResultSetColumnAndData(ResultSet resultSet, List<String> columnList, List<DataTypeAndImg> dataTypeAndImgList, List<Map<Object, Object>> resultList) throws Exception;
 
 	public ResultSetInfo resultSetConvertList(ResultSet resultSet) throws Exception;
 

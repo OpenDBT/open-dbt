@@ -249,7 +249,12 @@
             <artifactId>easypoi-spring-boot-starter</artifactId>
             <version>4.3.0</version>
         </dependency>
-
+      <!-- BeanUtils的依赖 -->
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.9.4</version>
+      </dependency>
     </dependencies>
     <repositories>
         <repository>

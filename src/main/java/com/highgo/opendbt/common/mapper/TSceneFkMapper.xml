@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.highgo.opendbt.exercise.mapper.TSceneFkMapper">
+
+    <resultMap id="BaseResultMap" type="com.highgo.opendbt.verificationSetup.domain.entity.TSceneFk">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="sceneDetailId" column="scene_detail_id" jdbcType="BIGINT"/>
+            <result property="fkName" column="fk_name" jdbcType="VARCHAR"/>
+            <result property="fkFields" column="fk_fields" jdbcType="VARCHAR"/>
+            <result property="reference" column="reference" jdbcType="VARCHAR"/>
+            <result property="referenceFields" column="reference_fields" jdbcType="VARCHAR"/>
+            <result property="updateRule" column="update_rule" jdbcType="VARCHAR"/>
+            <result property="deleteRule" column="delete_rule" jdbcType="VARCHAR"/>
+            <result property="sortNum" column="sort_num" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,scene_detail_id,fk_name,
+        fk_fields,reference,reference_fields,
+        update_rule,delete_rule,sort_num
+    </sql>
+</mapper>

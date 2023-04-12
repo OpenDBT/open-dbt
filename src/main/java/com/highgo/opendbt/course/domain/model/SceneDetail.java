@@ -64,4 +64,10 @@ public class SceneDetail {
 		this.tableName = tableName;
 	}
 
+  public SceneDetail(int sceneId, String tableName, String tableDesc) {
+    super();
+    this.sceneId = sceneId;
+    this.tableName = tableName;
+    this.tableDesc = tableDesc;
+  }
 }

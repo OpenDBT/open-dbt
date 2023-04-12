@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.highgo.opendbt.verificationSetup.mapper.TCheckSeqMapper">
+
+    <resultMap id="BaseResultMap" type="com.highgo.opendbt.verificationSetup.domain.entity.TCheckSeq">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="sceneSeqId" column="scene_seq_id" jdbcType="BIGINT"/>
+            <result property="checkStatus" column="check_status" jdbcType="VARCHAR"/>
+            <result property="sortNum" column="sort_num" jdbcType="INTEGER"/>
+            <result property="seqName" column="seq_name" jdbcType="VARCHAR"/>
+            <result property="step" column="step" jdbcType="BIGINT"/>
+            <result property="minValue" column="min_value" jdbcType="BIGINT"/>
+            <result property="maxValue" column="max_value" jdbcType="BIGINT"/>
+            <result property="latestValue" column="latest_value" jdbcType="BIGINT"/>
+            <result property="cycle" column="cycle" jdbcType="BOOLEAN"/>
+            <result property="field" column="field" jdbcType="VARCHAR"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="tableName" column="table_name" jdbcType="VARCHAR"/>
+            <result property="typeName" column="type_name" jdbcType="VARCHAR"/>
+            <result property="startValue" column="start_value" jdbcType="BIGINT"/>
+            <result property="cacheSize" column="cache_size" jdbcType="BIGINT"/>
+            <result property="exerciseId" column="exercise_id" jdbcType="INTEGER"/>
+            <result property="sceneDetailId" column="scene_detail_id" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,scene_seq_id,check_status,
+        sort_num,seq_name,step,
+        min_value,max_value,latest_value,
+        cycle,field,remark,
+        table_name,type_name,start_value,
+        cache_size,exercise_id,scene_detail_id
+    </sql>
+</mapper>
