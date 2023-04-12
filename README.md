@@ -5,8 +5,8 @@
 
 <h4 align="center">基于SpringBoot+React+Postgresql前后端分离的数据库实训平台</h4>
 <p align="center">
-	<a href="https://github.com/Open-DBT/open-dbt"><img src="https://img.shields.io/badge/opendbt-v2.0.0-brightgreen.svg"></a>
-	<a href="https://github.com/Open-DBT/open-dbt/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
+	<a href="https://github.com/OpenDBT/open-dbt"><img src="https://img.shields.io/badge/opendbt-v2.0.0-brightgreen.svg"></a>
+	<a href="https://github.com/OpenDBT/open-dbt/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
 </p>
 
 
@@ -19,7 +19,7 @@
 * 后端采用Spring Boot、Mybatis-Plus、Jwt
 * 权限认证使用Jwt安全可控
 * 支持Postgresql数据库
-* 前端地址: https://github.com/Open-DBT/open-dbt-web
+* 前端地址: https://github.com/OpenDBT/open-dbt-web
 ## 内置功能
 * 用户管理: 完成平台用户的配置管理
 * 角色管理: 角色权限分配
@@ -37,7 +37,7 @@
 ## 在线体验
 * 演示地址：http://124.133.18.222:59005/user/login
 * 账号密码: admin/admin
-* 文档地址：https://github.com/Open-DBT/open-dbt/wiki
+* 文档地址：https://github.com/OpenDBT/open-dbt/wiki
 ## 项目结构
 ```
 ─src
@@ -199,7 +199,7 @@
 <br />&emsp;2.windows：双击startup.bat开启服务器
 <br />&emsp;3.linux：执行命令&emsp;`./startup.sh`
 ### 访问
-* 部署启动前端项目，请参考前端相关文档，前端项目地址：https://github.com/Open-DBT/open-dbt-web
+* 部署启动前端项目，请参考前端相关文档，前端项目地址：https://github.com/OpenDBT/open-dbt-web
 * 登录地址: http://XXXX:XX/user/login
 * 账号密码：admin/admin, js/js
 ## 如何贡献
