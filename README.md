@@ -37,7 +37,7 @@
 ## 在线体验
 * 演示地址：http://124.133.18.222:59005/user/login
 * 账号密码: admin/admin
-* 文档地址：https://github.com/OpenDBT/open-dbt/wiki
+* 文档地址：https://github.com/OpenDBT/opendbt/wiki
 ## 项目结构
 ```
 ─src
@@ -174,7 +174,7 @@
 ## 本地部署
 ### 开发环境搭建
 * 1.git源码下载
-`git clone https://github.com/Open-DBT/open-dbt.git`
+`git clone https://github.com/OpenDBT/open-dbt.git`
 * 2.lombok插件安装
 <br />&emsp;idea File->setting->plugins->Marketplace 搜索 lombok ->install->Apply->OK->重启idea。
 * 3.第三方包支持 
