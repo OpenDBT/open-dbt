@@ -37,7 +37,7 @@
 ## 在线体验
 * 演示地址：http://124.133.18.222:59005/user/login
 * 账号密码: admin/admin
-* 文档地址：https://github.com/OpenDBT/opendbt/wiki
+* 文档地址：https://github.com/OpenDBT/open-dbt/wiki
 ## 项目结构
 ```
 ─src
