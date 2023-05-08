@@ -28,7 +28,12 @@
         <result property="deleteFlag" column="delete_flag" jdbcType="INTEGER"/>
         <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
         <result property="deleteUser" column="delete_user" jdbcType="INTEGER"/>
-        <association property="childrens"
+        <result property="exerciseStatus" column="exercise_status" jdbcType="INTEGER"/>
+        <result property="showAnswer" column="show_answer" jdbcType="INTEGER"/>
+        <result property="executeSql" column="execute_sql" jdbcType="VARCHAR"/>
+        <result property="verySql" column="very_sql" jdbcType="VARCHAR"/>
+
+      <association property="childrens"
                      select="com.highgo.opendbt.exercise.mapper.TNewExerciseMapper.getExerciseCatalogueTreeChildren"
                      column="id"/>
     </resultMap>
@@ -56,7 +61,12 @@
         <result property="deleteFlag" column="delete_flag" jdbcType="INTEGER"/>
         <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
         <result property="deleteUser" column="delete_user" jdbcType="INTEGER"/>
-        <collection property="exerciseInfos" ofType="com.highgo.opendbt.exercise.domain.entity.TExerciseInfo"
+        <result property="exerciseStatus" column="exercise_status" jdbcType="INTEGER"/>
+        <result property="showAnswer" column="show_answer" jdbcType="INTEGER"/>
+        <result property="executeSql" column="execute_sql" jdbcType="VARCHAR"/>
+        <result property="verySql" column="very_sql" jdbcType="VARCHAR"/>
+
+      <collection property="exerciseInfos" ofType="com.highgo.opendbt.exercise.domain.entity.TExerciseInfo"
                     select="com.highgo.opendbt.exercise.mapper.TExerciseInfoMapper.getExerciseInfo" column="id"/>
         <collection property="knowledges" ofType="com.highgo.opendbt.course.domain.entity.Knowledge"
                     select="com.highgo.opendbt.course.mapper.KnowledgeMapper.getKnowledgeByNewExerciseId" column="id"/>
@@ -87,7 +97,12 @@
         <result property="deleteFlag" column="delete_flag" jdbcType="INTEGER"/>
         <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
         <result property="deleteUser" column="delete_user" jdbcType="INTEGER"/>
-        <collection property="exerciseInfos" ofType="com.highgo.opendbt.exercise.domain.entity.TExerciseInfo"
+        <result property="exerciseStatus" column="exercise_status" jdbcType="INTEGER"/>
+        <result property="showAnswer" column="show_answer" jdbcType="INTEGER"/>
+        <result property="executeSql" column="execute_sql" jdbcType="VARCHAR"/>
+        <result property="verySql" column="very_sql" jdbcType="VARCHAR"/>
+
+      <collection property="exerciseInfos" ofType="com.highgo.opendbt.exercise.domain.entity.TExerciseInfo"
                     select="com.highgo.opendbt.exercise.mapper.TExerciseInfoMapper.getExerciseInfo" column="id"/>
         <collection property="knowledges" ofType="com.highgo.opendbt.course.domain.entity.Knowledge"
                     select="com.highgo.opendbt.course.mapper.KnowledgeMapper.getKnowledgeByNewExerciseId" column="id"/>
@@ -131,15 +146,17 @@
         <collection property="exerciseInfos" ofType="com.highgo.opendbt.exercise.domain.entity.TExerciseInfo"
                     select="com.highgo.opendbt.exercise.mapper.TExerciseInfoMapper.getExerciseInfoExcel" column="id"/>
     </resultMap>
+
     <sql id="Base_Column_List">
-        id,course_id,parent_id,sort_num,
+        id,course_id,parent_id,
         scene_id,scene_name,element_type,
         exercise_name,exercise_desc,auth_type,
         exercise_type,exercise_level,stem,
         standard_answser,answer,exercise_analysis,
-        create_user,create_time,update_time,
-        update_user,delete_flag,delete_time,
-        delete_user
+        sort_num,create_user,create_time,
+        update_time,update_user,delete_flag,
+        delete_time,delete_user,exercise_status,
+        show_answer,execute_sql,very_sql
     </sql>
     <select id="listExercises" resultType="com.highgo.opendbt.exercise.domain.entity.TNewExercise">
         select t.* from(select

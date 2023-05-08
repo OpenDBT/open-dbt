@@ -9,6 +9,7 @@ import com.highgo.opendbt.teacher.domain.model.ExamClass;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface StudentExamService {
     //根据班级和课程id获取学生可见作业
@@ -21,7 +22,7 @@ public interface StudentExamService {
     StudentExamExercise getExamExerciseById(HttpServletRequest request, int sclassId, int examId, int examClassId, int exerciseId);
 
     //学生测试运行作业的题目答案，不会记录成绩
-    SubmitResult startVerifyAnswerThread(HttpServletRequest request, Score score, boolean isSaveSubmitData);
+    SubmitResult startVerifyAnswerThread(HttpServletRequest request, Score score, boolean isSaveSubmitData) throws ExecutionException, InterruptedException;
 
     //取习题列表并获取作业详细信息
     StudentReportCard exerciseReportCard(HttpServletRequest request, int examClassId);

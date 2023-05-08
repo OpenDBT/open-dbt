@@ -3,6 +3,7 @@ package com.highgo.opendbt.verificationSetup.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
+import com.highgo.opendbt.common.utils.Authentication;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
 import com.highgo.opendbt.verificationSetup.domain.entity.*;
 import com.highgo.opendbt.verificationSetup.domain.model.CheckDetailAndFields;
@@ -54,10 +55,8 @@ public class TCheckDetailServiceImpl extends ServiceImpl<TCheckDetailMapper, TCh
    * @return: boolean
    **/
   @Override
-  public boolean saveCheckDetail(HttpServletRequest request, TCheckDetail detail) throws Exception {
-    // UserInfo userInfo = Authentication.getCurrentUser(request);
-    UserInfo userInfo = new UserInfo();
-    userInfo.setCode("003");
+  public boolean saveCheckDetail(HttpServletRequest request, TCheckDetail detail) {
+    UserInfo userInfo = Authentication.getCurrentUser(request);
     //根据校验点生成答案并验证答案
     generatorTableAnswer(detail, userInfo);
     return detailSave(detail);

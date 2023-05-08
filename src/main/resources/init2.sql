@@ -205,5 +205,9 @@ COMMENT ON COLUMN t_new_exercise.exercise_status IS '练习题状态 0：是练�
 ALTER TABLE t_new_exercise ADD show_answer int4 NULL DEFAULT 0;
 COMMENT ON COLUMN t_new_exercise.show_answer IS '是否显示答案 0：显示答案 1：不显示答案' ;
 
+ALTER TABLE t_new_exercise ADD execute_sql varchar;
+COMMENT ON COLUMN t_new_exercise.execute_sql IS '函数执行语句' ;
 
+ALTER TABLE t_new_exercise ADD very_sql varchar;
+COMMENT ON COLUMN t_new_exercise.very_sql IS '函数验证语句' ;
 

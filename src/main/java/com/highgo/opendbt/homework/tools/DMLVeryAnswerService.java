@@ -1,148 +1,53 @@
-package com.highgo.opendbt.score.service.impl;
+package com.highgo.opendbt.homework.tools;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.highgo.opendbt.common.bean.ResultSetInfo;
 import com.highgo.opendbt.common.bean.SchemaConnection;
 import com.highgo.opendbt.common.constant.Constant;
 import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
 import com.highgo.opendbt.common.service.RunAnswerService;
-import com.highgo.opendbt.common.utils.Authentication;
 import com.highgo.opendbt.common.utils.CloseUtil;
 import com.highgo.opendbt.common.utils.Message;
-import com.highgo.opendbt.common.utils.TimeUtil;
-import com.highgo.opendbt.course.domain.entity.Course;
-import com.highgo.opendbt.course.domain.entity.Exercise;
-import com.highgo.opendbt.course.domain.entity.Knowledge;
-import com.highgo.opendbt.course.domain.model.ExercisePage;
 import com.highgo.opendbt.course.domain.model.SceneDetail;
-import com.highgo.opendbt.course.mapper.CourseMapper;
-import com.highgo.opendbt.course.mapper.ExerciseMapper;
-import com.highgo.opendbt.course.mapper.KnowledgeMapper;
 import com.highgo.opendbt.course.mapper.SceneDetailMapper;
 import com.highgo.opendbt.exercise.domain.entity.TNewExercise;
-import com.highgo.opendbt.exercise.service.TNewExerciseService;
-import com.highgo.opendbt.score.domain.model.*;
-import com.highgo.opendbt.score.mapper.ScoreMapper;
-import com.highgo.opendbt.score.service.ScoreService;
+import com.highgo.opendbt.score.domain.model.Score;
+import com.highgo.opendbt.score.domain.model.StudentAndTeacherResult;
+import com.highgo.opendbt.score.domain.model.SubmitResult;
+import com.highgo.opendbt.score.domain.model.UpdateRowAndResultSetTO;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * @Description: DML习题答案验证
+ * @Title: VeryAnswerUtil
+ * @Package com.highgo.opendbt.homework.tools
+ * @Author: highgo
+ * @Copyright 版权归HIGHGO企业所有
+ * @CreateTime: 2023/4/20 18:09
+ */
 @Service
-@RequiredArgsConstructor
-public class ScoreServiceImpl implements ScoreService {
+public class DMLVeryAnswerService {
+  static Logger logger = LoggerFactory.getLogger(DMLVeryAnswerService.class);
 
-  Logger logger = LoggerFactory.getLogger(getClass());
-  @Autowired
-  private ScoreMapper scoreMapper;
-  @Autowired
-  private ExerciseMapper exerciseMapper;
-  @Autowired
-  private KnowledgeMapper knowledgeMapper;
+
   @Autowired
   private RunAnswerService runAnswerService;
   @Autowired
   private SceneDetailMapper sceneDetailMapper;
-  @Autowired
-  private CourseMapper courseMapper;
-  @Autowired
-  private TNewExerciseService exerciseService;
 
 
-  @Override
-  public PageInfo<Exercise> getStuExercise(HttpServletRequest request, ExercisePage exercisePage) {
-    // 获取用户信息
-    UserInfo loginUser = Authentication.getCurrentUser(request);
-    // 分页查询习题列表
-    PageHelper.startPage(exercisePage.getCurrent(), exercisePage.getPageSize());
-    List<Exercise> exerciseList = exerciseMapper.getExerciseByStu(exercisePage.getCourseId(), loginUser.getUserId());
-    return new PageInfo<>(exerciseList);
-
-  }
-
-  @Override
-  public StuExerciseInfo getExerciseInfoByStu(HttpServletRequest request, int sclassId, int courseId, int knowledgeId) {
-    // 获取用户信息
-    UserInfo loginUser = Authentication.getCurrentUser(request);
-    // 获取课程信息
-    Course course = courseMapper.getCourseByCourseId(courseId);
-    // 获取知识点信息
-    Knowledge knowledge = knowledgeMapper.getKnowledgeByKnowledgeId(knowledgeId);
-    // 获取习题列表
-    List<Exercise> exerciseList = exerciseMapper.getExerciseInfoByStu(loginUser.getUserId(), sclassId, courseId, knowledgeId);
-
-    // 获取做过的习题个数
-    int doneExerciseNumber = 0;
-    for (Exercise exercise : exerciseList) {
-      if (!exercise.getScore().equals("-1")) {
-        doneExerciseNumber++;
-      }
-    }
-    return new StuExerciseInfo(exerciseList.size(), doneExerciseNumber, course, knowledge, exerciseList);
-
-  }
-
-
-  @Override
-  public SubmitResult submitAnswer(UserInfo loginUser, Score score, int exerciseSource, boolean isSaveSubmitData, int entranceType) {
-    try {
-      List<Knowledge> coverageKnowledgeList = new ArrayList<>();
-      SubmitResult result = new SubmitResult(coverageKnowledgeList, score.getUsageTime(), 0);
-
-      // 查询习题信息
-      TNewExercise exercise;
-      exercise = exerciseService.getById(score.getExerciseId());
-      BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, score.getExerciseId());
-      // 验证老师和学生的答案是否是同一类型
-      String[] teacherAnswerArray = exercise.getStandardAnswser().trim().split(" ");
-      String[] studentAnswerArray = score.getAnswer().trim().split(" ");
-      if (!teacherAnswerArray[0].toLowerCase().equals(studentAnswerArray[0].toLowerCase())) {
-        result.setExecuteRs(false);
-        result.setScoreRs(false);
-        result.setLog(Message.get("SQLNotMatchKnowledge"));
-      } else {
-        // 验证答案
-        boolean answerRs = verifyAnswer(loginUser, exercise, score, result, exerciseSource, isSaveSubmitData);
-        result.setScoreRs(answerRs);// 结果集是否正确
-      }
-
-      // 提交答案才会保存，测试运行不需要保存
-      if (isSaveSubmitData) {
-        // 保存提交数据
-        Date date = new Date(System.currentTimeMillis() - score.getUsageTime() * 1000);
-        score.setCreateTime(TimeUtil.convertDateTime(date));
-        score.setScore(result.isScoreRs() ? 100 : 0);
-        score.setUserId(loginUser.getUserId());
-        score.setAnswerExecuteTime(result.getAnswerExecuteTime());
-
-        if (entranceType == 1) {
-          scoreMapper.addExamScore(score);
-        } else {
-          scoreMapper.add(score);
-        }
-      }
-
-      return result;
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      throw new APIException(e.getMessage());
-    }
-  }
-
-
-  private boolean verifyAnswer(UserInfo loginUser, TNewExercise exercise, Score score, SubmitResult result, int exerciseSource, boolean isSaveSubmitData) {
+  public boolean verifyAnswer(UserInfo loginUser, TNewExercise exercise, Score score, SubmitResult result, int exerciseSource, boolean isSaveSubmitData) {
     if (exercise.getStandardAnswser().toLowerCase().startsWith("select")) {
       // 验证查询
       StudentAndTeacherResult studentAndTeacherResult = getStudentAndTeacherResult(loginUser,
@@ -178,7 +83,7 @@ public class ScoreServiceImpl implements ScoreService {
       }
 
       // 有多个结果集，通过表名，对比结果集
-      for (Entry<String, ResultSetInfo> entry : teacherData.getResultSetInfoMap().entrySet()) {
+      for (Map.Entry<String, ResultSetInfo> entry : teacherData.getResultSetInfoMap().entrySet()) {
         Map<String, ResultSetInfo> studentResultSetListMap = studentData.getResultSetInfoMap();
         if (studentResultSetListMap.get(entry.getKey()) == null) {
           return false;
@@ -191,6 +96,7 @@ public class ScoreServiceImpl implements ScoreService {
       return true;
     }
   }
+
 
   private StudentAndTeacherResult getStudentAndTeacherResult(UserInfo loginUser, int sceneId, int exerciseId, String referAnswer, String studentAnswer, SubmitResult result, int exerciseSource, boolean isSaveSubmitData) {
     StudentAndTeacherResult studentAndTeacherResult = new StudentAndTeacherResult();
@@ -403,7 +309,7 @@ public class ScoreServiceImpl implements ScoreService {
    * @return boolean
    */
   private boolean compareData(Map<Object, Object> sourceData, Map<Object, Object> targetData) {
-    for (Entry<Object, Object> entry : sourceData.entrySet()) {
+    for (Map.Entry<Object, Object> entry : sourceData.entrySet()) {
       // 如果该字段老师和学生的数据都等于null，说明该字段数据就是null，所以也是相同的
       if (null == entry.getValue() && null == targetData.get(entry.getKey())) {
         continue;
@@ -421,5 +327,4 @@ public class ScoreServiceImpl implements ScoreService {
     }
     return true;
   }
-
 }

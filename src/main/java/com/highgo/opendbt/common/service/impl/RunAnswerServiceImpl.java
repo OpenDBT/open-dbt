@@ -52,7 +52,7 @@ public class RunAnswerServiceImpl implements RunAnswerService {
   public void getSchemaConnection(UserInfo loginUser, int sceneId, int exerciseId, SchemaConnection schemaConnection, int exerciseSource) throws Exception {
     // 根据场景id获取场景信息
     String initShell = "";
-    if (sceneId != -1) {
+    if (sceneId != -1 && sceneId != 0) {
       // 习题来源exerciseSource为1是公题库
       if (exerciseSource == 1) {
         PublicScene scene = publicSceneMapper.getSceneDetail(sceneId);
@@ -72,7 +72,7 @@ public class RunAnswerServiceImpl implements RunAnswerService {
 
     try {
       // 拼接具有唯一标识的schema名，并创建schema
-      String schemaName = "schema_" + exerciseSource + "_" + loginUser.getCode() + "_" + exerciseId;
+      String schemaName = "schema_" + exerciseSource + "_" + loginUser.getCode() + "_" + exerciseId + "_" + Thread.currentThread().getId();
       schemaName = PostgresqlKeyWord.convertorToPostgresql(schemaName);
 
       schemaConnection.setSchemaName(schemaName);
@@ -87,7 +87,7 @@ public class RunAnswerServiceImpl implements RunAnswerService {
       Connection connection = DriverManager.getConnection(schemaUrl, dataSourceBean.username, dataSourceBean.password);
 
       schemaConnection.setConnection(connection);
-      if (sceneId != -1) {
+      if (sceneId != -1 && sceneId != 0) {
         statement = connection.createStatement();
         // 执行初始化场景的sql脚本
         statement.executeUpdate(initShell);
@@ -99,6 +99,7 @@ public class RunAnswerServiceImpl implements RunAnswerService {
       CloseUtil.close(statement);
     }
   }
+
   private void setColumnAndData(ResultSet resultSet, List<String> columnList, List<DataTypeAndImg> dataTypeAndImgList, List<Map<Object, Object>> resultList) throws Exception {
 
     int columnCount = resultSet.getMetaData().getColumnCount();
@@ -157,10 +158,11 @@ public class RunAnswerServiceImpl implements RunAnswerService {
   public void dropSchema(String schemaName) {
     try {
       if (null != schemaName) {
-        jdbcTemplate.execute("drop schema " + schemaName + " cascade;");
+        jdbcTemplate.execute("drop schema IF EXISTS " + schemaName + " cascade;");
         logger.info("drop schema success");
       }
     } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

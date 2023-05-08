@@ -2,6 +2,9 @@ package com.highgo.opendbt.test;
 
 import com.alibaba.fastjson.JSONObject;
 import com.highgo.opendbt.common.bean.DataTypeAndImg;
+import com.highgo.opendbt.common.exception.APIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -19,7 +22,7 @@ import java.util.Map;
  * @CreateTime: 2023/3/9 16:42
  */
 public class Demo {
-
+  static Logger logger = LoggerFactory.getLogger(Demo.class);
   private static DbUtil dbUtil = new DbUtil();
 
   /**
@@ -29,36 +32,49 @@ public class Demo {
    * @return
    * @throws Exception
    */
-  private static void getBookNameById(String id) throws Exception {
-    java.util.List<String> columnList = new ArrayList<>();
-    List<DataTypeAndImg> dataTypeAndImgList = new ArrayList<>();
-    List<Map<String, Object>> resultList = new ArrayList<>();
+  public static void getBookNameById(String id) throws Exception {
+
     Connection con = dbUtil.getCon();
-    con.setAutoCommit(false);
-    String sql = "select  test_p2();";
-    CallableStatement cstmt = con.prepareCall(sql);
-     //cstmt.setObject(1, 1);//设置第一个参数
-    // cstmt.setObject(2, 2);//设置第一个参数
-    //cstmt.registerOutParameter(1, Types.INTEGER);//设置返回类型
-    //cstmt.registerOutParameter(2, Types.INTEGER);//设置返回类型
-    boolean execute = cstmt.execute();
-    System.out.println("execute=" + execute);
-    while (execute) {
-      ResultSet resultSet = cstmt.getResultSet();//取得第一个结果集
-      resultList = DataTableHelper.rs2MapList(resultSet);
-      System.out.println("result=" + JSONObject.toJSONString(resultList));
-      if (resultSet.next()) {
-        System.out.println("打印结果集第一个字段");//打印出结果集的第一个字段
+    try {
+      con.setAutoCommit(false);
+      String sql = "select  my_function3(5);";
+      List<List<Map<String, Object>>> lists = executeSql(sql, con);
+      logger.info("ALL_RESULT=" + JSONObject.toJSONString(lists));
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (con != null) {
+        con.close();
       }
-      execute = cstmt.getMoreResults();//继续去取结果集，若还还能取到结果集，则bl=true了。然后回去循环。
     }
-
-
-    dbUtil.close(cstmt, con);
   }
 
   public static void main(String[] args) throws Exception {
     getBookNameById("444444");
   }
 
+
+  public static List<List<Map<String, Object>>> executeSql(String sql, Connection con) throws Exception {
+    List<List<Map<String, Object>>> lists = new ArrayList<>();
+    con.setAutoCommit(false);
+    CallableStatement statement = con.prepareCall(sql);
+    try {
+      boolean execute = statement.execute();
+      while (execute) {
+        ResultSet resultSet = statement.getResultSet();//取得第一个结果集
+        List<Map<String, Object>> resultList = DataTableHelper.rs2MapList(resultSet);
+        logger.info("result=" + JSONObject.toJSONString(resultList));
+        lists.add(resultList);
+        execute = statement.getMoreResults();//继续去取结果集，若还还能取到结果集，则bl=true了。然后回去循环。
+      }
+    } catch (Exception e) {
+      throw new APIException("执行sql获取结果异常");
+    } finally {
+      if (statement != null) {
+        statement.close();
+      }
+    }
+    return lists;
+
+  }
 }

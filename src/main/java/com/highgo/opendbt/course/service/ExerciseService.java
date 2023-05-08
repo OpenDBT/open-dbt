@@ -6,12 +6,16 @@ import com.highgo.opendbt.course.domain.entity.Exercise;
 import com.highgo.opendbt.course.domain.model.ExerciseDisplay;
 import com.highgo.opendbt.course.domain.model.ExercisePage;
 import com.highgo.opendbt.course.domain.model.ImportExerciseTO;
+import com.highgo.opendbt.verificationSetup.domain.model.ResponseModel;
+import com.highgo.opendbt.verificationSetup.domain.model.TestRunModel;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
+@Service
 public interface ExerciseService extends IService<Exercise> {
 
 	 List<Exercise> getExerciseList(ExercisePage exercisePage);
@@ -26,7 +30,7 @@ public interface ExerciseService extends IService<Exercise> {
 
 	 Integer copyExerciseToMyCourse(HttpServletRequest request, int exerciseId, int courseId);
 
-	 Map<String, Object> testRunAnswer(HttpServletRequest request, Exercise exercise);
+	 ResponseModel testRunAnswer(HttpServletRequest request, TestRunModel exercise);
 
 	 List<Exercise> getExerciseInfoList(HttpServletRequest request, int sclassId, int courseId, int knowledgeId);
 

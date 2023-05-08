@@ -26,6 +26,8 @@ public class SubmitResult {
 
 	private Map<String, Object> studentResultMap = new LinkedHashMap<String, Object>(); // 学生答案结果集
 
+
+
 	public boolean isExecuteRs() {
 		return executeRs;
 	}

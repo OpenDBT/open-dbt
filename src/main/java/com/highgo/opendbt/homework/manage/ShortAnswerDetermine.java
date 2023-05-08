@@ -9,17 +9,17 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * @Description: 判断题判定
- * @Title: SingleChoiceDetermine
+ * @Description: 简答题判定
+ * @Title: ShortAnswerDetermine
  * @Package com.highgo.opendbt.homework.manage.determine
  * @Author:
  * @Copyright 版权归HIGHGO企业所有
  * @CreateTime: 2022/9/22 15:35
  */
-@Component("JudgmentDetermine")
-@DetermineEventAnnotation(ExerciseTypeEvent.JUDGMENT)
+@Component("ShortAnswerDetermine")
+@DetermineEventAnnotation(ExerciseTypeEvent.SHORT_ANSWER)
 @NoArgsConstructor
-public class JudgmentDetermine extends Determine {
+public class ShortAnswerDetermine extends Determine {
 
   @Override
   public void determineExercise(UserInfo loginUser, TStuHomeworkInfo stuHomeworkInfo, String exerciseResult) {
@@ -52,6 +52,5 @@ public class JudgmentDetermine extends Determine {
     // 提交答案才会保存，测试运行不需要保存
     saveSubmitDate(loginUser, score, isSaveSubmitData, result);
     return result;
-
   }
 }

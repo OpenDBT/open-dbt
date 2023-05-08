@@ -191,14 +191,6 @@ public class VerificationSetupAPI {
     return verifyCommonService.generatesAnswer(request, sceneId, exerciseId);
   }
 
-  @ApiOperation(value = "测试运行")
-  @PostMapping("/testRun")
-  public boolean testRun(HttpServletRequest request, @RequestBody @Valid TestRunModel model, BindingResult result) {
-    logger.debug("Enter,");
-    //校验
-    ValidationUtil.Validation(result);
-    return verifyCommonService.testRun(request, model);
-  }
 
   @ApiOperation(value = "一键恢复,只适用于场景表恢复，新增表只可删除不可一键恢复")
   @PostMapping("/recovery")

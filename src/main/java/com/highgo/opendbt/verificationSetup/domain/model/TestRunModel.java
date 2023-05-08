@@ -33,4 +33,7 @@ public class TestRunModel {
   //类型(试题类型 1：单选2：多选3：判断4：填空5：简答6：DML7:DDL8:VIEW_DDL9:FUNCTION)
   @NotNull(message = "习题类型不能为空")
   private Integer exerciseType;
+  //校验sql
+  //@NotBlank(message = "校验sql")
+  private String verySql;
 }

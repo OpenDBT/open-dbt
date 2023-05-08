@@ -91,7 +91,7 @@ public class TNewExerciseVo implements Serializable {
     /**
      * 选择题为prefix，多选逗号隔开。判断题答案只有true false,简答程序题答具体案描
      */
-    @NotBlank(message = "答案不能为空")
+    //@NotBlank(message = "答案不能为空")
     private String standardAnswser;
 
     /**

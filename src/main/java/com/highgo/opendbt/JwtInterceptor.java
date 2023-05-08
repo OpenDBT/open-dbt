@@ -51,7 +51,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 			if (requestTokenHeader != null && requestTokenHeader.startsWith(JwtUtil.TOKEN_PREFIX)) {
 				JwtUtil.verify(requestTokenHeader.replace(JwtUtil.TOKEN_PREFIX, ""));
 				return true;
-			}
+			}else return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

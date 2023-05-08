@@ -6,6 +6,7 @@ import com.highgo.opendbt.feedback.model.Feedback;
 import com.highgo.opendbt.feedback.service.FeedbackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 public class FeedbackApi {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
-
-	private final FeedbackService feedbackService;
-
-	public FeedbackApi(FeedbackService feedbackService) {
-		this.feedbackService = feedbackService;
-	}
+  @Autowired
+	private  FeedbackService feedbackService;
 
 	/**
 	 * 新增反馈

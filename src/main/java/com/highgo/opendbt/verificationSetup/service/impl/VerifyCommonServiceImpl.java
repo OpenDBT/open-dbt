@@ -1,7 +1,7 @@
 package com.highgo.opendbt.verificationSetup.service.impl;
 
-import cn.hutool.poi.word.TableUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.highgo.opendbt.common.bean.ResultSetInfo;
 import com.highgo.opendbt.common.bean.SchemaConnection;
 import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
@@ -14,6 +14,7 @@ import com.highgo.opendbt.verificationSetup.domain.entity.*;
 import com.highgo.opendbt.verificationSetup.domain.model.*;
 import com.highgo.opendbt.verificationSetup.service.*;
 import com.highgo.opendbt.verificationSetup.tools.CheckStatus;
+import com.highgo.opendbt.verificationSetup.tools.FunctionUtil;
 import com.highgo.opendbt.verificationSetup.tools.ResultSetMapper;
 import com.highgo.opendbt.verificationSetup.tools.TableInfoUtil;
 import com.highgo.opendbt.verificationSetup.tools.answerverVerificationModule.CheckEventProcessFactory;
@@ -36,9 +37,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -190,7 +189,7 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
   }
 
   /**
-   * @description: 测试运行
+   * @description: 学生端测试运行
    * 表与表用###间隔，key与value用@@@间隔
    * @author:
    * @date: 2023/3/30 18:22
@@ -198,12 +197,12 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
    * @return: com.highgo.opendbt.verificationSetup.domain.model.StoreAnswer
    **/
   @Override
-  public boolean testRun(HttpServletRequest request, TestRunModel model) {
+  public Object testRun(HttpServletRequest request, TestRunModel model) {
     // UserInfo userInfo = Authentication.getCurrentUser(request);
     UserInfo userInfo = new UserInfo();
     userInfo.setCode("003");
 
-    //DML类型题目
+    //DDL类型题目
     if (model.getExerciseType() == 7) {
       veryDDLTypeExercise(model, userInfo);
     }
@@ -211,13 +210,89 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
     if (model.getExerciseType() == 8) {
       veryVIEWDDLTypeExercise(model, userInfo);
     }
+    //函数类型题目
+    if (model.getExerciseType() == 9) {
+      veryFUNCTIONDDLTypeExercise(model, userInfo);
+    }
     return true;
   }
 
+  //函数类型题目
+  private void veryFUNCTIONDDLTypeExercise(TestRunModel model, UserInfo userInfo) {
+    ResponseModel teacherAnswerResultMap = new ResponseModel();
+    ResponseModel studentAnswerResultMap = new ResponseModel();
+    //查询习题标准答案
+    TNewExercise exercise = exerciseService.getById(model.getExerciseId());
+    //习题不能为空
+    BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
+    model.setVerySql(exercise.getVerySql());
+    //执行学生答案返回
+    FunctionUtil.executeFunctionSql(userInfo, model, studentAnswerResultMap);
+    model.setStandardAnswer(exercise.getStandardAnswser());
+    //执行标准答案返回
+    FunctionUtil.executeFunctionSql(userInfo, model, teacherAnswerResultMap);
+    //比较返回结果
+    compareFunction(teacherAnswerResultMap, studentAnswerResultMap);
+  }
+
+  //比较返回结果
+  private void compareFunction(ResponseModel teacherAnswerResultMap, ResponseModel studentAnswerResultMap) {
+    //判断是否是校验sql查询
+    Boolean select = teacherAnswerResultMap.isSelect();
+    if (select) {
+      //是校验sql查询
+      ResultSetInfo teacherResultSetInfo = teacherAnswerResultMap.getResultSetInfo();
+      ResultSetInfo studentResultSetInfo = studentAnswerResultMap.getResultSetInfo();
+      //比较教师和学生的结果集是否一样
+      FunctionUtil.compareResultSet(teacherResultSetInfo, studentResultSetInfo);
+    } else {
+      List<List<Map<String, Object>>> teacherLists = teacherAnswerResultMap.getFunctionResult();
+      List<List<Map<String, Object>>> studentLists = studentAnswerResultMap.getFunctionResult();
+      //判断教师和学生得到的结果集个数是否相同
+      BusinessResponseEnum.RESULTNUMDIFFENT.assertIsTrue(teacherLists.size() == studentLists.size(), teacherLists.size());
+      for (int i = 0; i < teacherLists.size(); i++) {
+        //比较两个结果
+        compareResult(teacherLists.get(0), studentLists.get(0));
+      }
+    }
+  }
+
+  private void compareResult(List<Map<String, Object>> teachResult, List<Map<String, Object>> studentResult) {
+    //结果中的个数不同抛出异常
+    BusinessResponseEnum.RESULTNUMDIFFENT.assertIsTrue(teachResult.size() == studentResult.size(), teachResult.size());
+    for (int i = 0; i < teachResult.size(); i++) {
+      Map<String, Object> teacherMap = teachResult.get(i);
+      Map<String, Object> studentMap = studentResult.get(i);
+      //比较key是否相同
+      BusinessResponseEnum.COLUMNNAMEDIFF.assertIsTrue(studentMap.keySet().equals(teacherMap.keySet()));
+
+      for (Map.Entry<?, ?> entry : teacherMap.entrySet()) {
+        BusinessResponseEnum.COLUMNNAMEDIFF.assertIsTrue(studentMap.containsKey(entry.getKey()));
+        //教师value
+        Object value = entry.getValue();
+        //学生value
+        Object studentValue = studentMap.get(entry.getKey());
+        if (value instanceof ResultSetInfo) {
+          //比较结果集
+          FunctionUtil.compareResultSet((ResultSetInfo) value, (ResultSetInfo) studentValue);
+        } else {
+          //单个值或record比较是否相同
+          BusinessResponseEnum.COLUMNVALUEDIFF.assertIsTrue(Objects.equals(value, studentValue), value, studentValue);
+        }
+
+      }
+    }
+  }
+
+
   //视图类型题目
-  private void veryVIEWDDLTypeExercise(TestRunModel model, UserInfo userInfo) {
+  public void veryVIEWDDLTypeExercise(TestRunModel model, UserInfo userInfo) {
+    //根据习题id查询标准答案
+    TNewExercise exercise = exerciseService.getById(model.getExerciseId());
+    //习题不存在抛出异常
+    BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
     //解析答案获取key：视图名称和value:操作类型
-    Map<String, String> answer = generatorViewNameAndType(model.getStandardAnswer());
+    Map<String, String> answer = generatorViewNameAndType(exercise.getStandardAnswser());
     //循环map
     answer.entrySet().forEach(item -> {
       //视图名称
@@ -233,8 +308,6 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
 
       //新增和修改类型
       if (CheckStatus.INSERT.toString().equalsIgnoreCase(viewType) || CheckStatus.UPDATE.toString().equalsIgnoreCase(viewType)) {
-        //根据习题id查询标准答案
-        TNewExercise exercise = exerciseService.getById(model.getExerciseId());
         //执行学生答案的到视图结构
         List<TSceneField> studentFields = TableInfoUtil.getInfo(userInfo, model.getSceneId(), model.getExerciseId(), model.getStandardAnswer(), viewName, TableInfoEvent.FIELD, TSceneField.class);
         //执行正确答案得到视图结构
@@ -242,8 +315,6 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
         //比较视图结构，不同抛出异常
         compareView(teacherFields, studentFields);
       }
-
-
     });
   }
 
@@ -294,31 +365,72 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
   private Map<String, String> generatorViewNameAndType(String standardAnswer) {
     Map<String, String> map = new HashMap<>();
     String[] answers = standardAnswer.trim().split(";");
+    //判断是否为视图语句
+    String lowerAnswer = standardAnswer.toLowerCase().replaceAll(" ", "").replaceAll("[\r\n]+", "");
+    boolean isView = lowerAnswer.contains("createview")
+      || lowerAnswer.contains("createorreplaceview")
+      || lowerAnswer.contains("alterview")
+      || lowerAnswer.contains("dropview");
+    BusinessResponseEnum.ISVIEW.assertIsTrue(isView);
     for (String answer : answers) {
-      String answerTrim=answer.toLowerCase().replaceAll(" ", "");
-      //判断是否为视图语句
-      boolean isView = answerTrim.startsWith("createview") || answerTrim.startsWith("alterview") || answerTrim.startsWith("dropview");
-      BusinessResponseEnum.ISVIEW.assertIsTrue(isView);
+      String answerTrim = answer.toLowerCase().replaceAll(" ", "").replaceAll("[\r\n]+", "");
+
       //新增的视图
       if (answerTrim.startsWith("createview")) {
-        map.put(answerTrim.substring(answer.indexOf("createview") + 11, answerTrim.indexOf("asselect")), CheckStatus.INSERT.toString());
+        map.put(answerTrim.substring(answerTrim.indexOf("createview") + 10, answerTrim.indexOf("asselect")), CheckStatus.INSERT.toString());
+      }
+      if (answerTrim.startsWith("createorreplaceview")) {
+        map.put(answerTrim.substring(answerTrim.indexOf("createorreplaceview") + 19, answerTrim.indexOf("asselect")), CheckStatus.INSERT.toString());
       }
       //修改的视图
       if (answerTrim.startsWith("alterview")) {
-        map.put(answerTrim.substring(answerTrim.indexOf("alterview") + 10, answerTrim.indexOf("asselect")), CheckStatus.UPDATE.toString());
+        map.put(answerTrim.substring(answerTrim.indexOf("alterview") + 9, answerTrim.indexOf("asselect")), CheckStatus.UPDATE.toString());
       }
       //删除的视图
       if (answerTrim.startsWith("dropview")) {
-        map.put(answerTrim.substring(answer.indexOf("dropview") + 9, answerTrim.indexOf(";")), CheckStatus.DEL.toString());
+        map.put(answerTrim.substring(answerTrim.indexOf("dropview") + 8, answerTrim.indexOf(";")), CheckStatus.DEL.toString());
       }
     }
     return map;
 
   }
 
+
+  //视图类型题目
+  public void testRunVIEWDDLTypeExercise(TestRunModel model, ResponseModel responseModel, UserInfo userInfo) {
+    //查询到的视图结果
+    HashMap<String, List<TSceneField>> map = new HashMap<>();
+    //解析答案获取key：视图名称和value:操作类型
+    Map<String, String> answer = generatorViewNameAndType(model.getStandardAnswer());
+    //循环map
+    answer.entrySet().forEach(item -> {
+      //视图名称
+      String viewName = item.getKey();
+      //视图类型
+      String viewType = item.getValue();
+      //删除类型
+      if (CheckStatus.DEL.toString().equalsIgnoreCase(viewType)) {
+        List<ViewModel> info = TableInfoUtil.getInfo(userInfo, model.getSceneId(), model.getExerciseId(), model.getStandardAnswer(), viewName, TableInfoEvent.TABLE_EXISTS, ViewModel.class);
+        //删除失败提示
+        BusinessResponseEnum.FAILDELETEVIEW.assertIsFalse(info.get(0).getExists(), viewName);
+      }
+
+      //新增和修改类型
+      if (CheckStatus.INSERT.toString().equalsIgnoreCase(viewType) || CheckStatus.UPDATE.toString().equalsIgnoreCase(viewType)) {
+        //执行正确答案得到视图结构
+        List<TSceneField> teacherFields = FunctionUtil.getViewInfo(userInfo, model, viewName, TableInfoEvent.FIELD, TSceneField.class, responseModel);
+        map.put(viewName, teacherFields);
+      }
+
+    });
+
+    responseModel.setViewInfo(map);
+
+  }
+
   //DML类型题目
-  private void veryDDLTypeExercise(TestRunModel model, UserInfo userInfo) {
-    {
+  public void veryDDLTypeExercise(TestRunModel model, UserInfo userInfo) {
+
       //解析答案
       StoreAnswer storeAnswer = gengratorAnswer(model.getStandardAnswer());
       //非新增表答案
@@ -355,7 +467,7 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
         }
       }
 
-    }
+
   }
 
   /**

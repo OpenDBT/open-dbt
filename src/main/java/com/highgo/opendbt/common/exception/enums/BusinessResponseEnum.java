@@ -1,10 +1,8 @@
 package com.highgo.opendbt.common.exception.enums;
 
-import com.highgo.opendbt.common.exception.assertion.Assert;
 import com.highgo.opendbt.common.exception.assertion.BusinessExceptionAssert;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.bytedeco.librealsense.error;
 
 /**
  * <p>业务</p>
@@ -121,6 +119,17 @@ public enum BusinessResponseEnum implements BusinessExceptionAssert {
   ISVIEW(5101,"不支持的视图相关语句"),
   NOTFOUNDVIEW(5102,"未查询到相关视图结构"),
   FAILDELETEVIEW(5103,"视图{0}删除失败"),
+  RESULTSETISEMPTY(5104,"学生或教师的结果集为空"),
+  ROWNUMBERDIFF(5105,"请检查答案的结果集行数，正确答案的结果集行数为{0}行"),
+  COLUMNNUMBERDIFF(5106,"请检查答案的结果集列数，正确答案的结果集列数为{0}列"),
+  COLUMNNAMEDIFF(5107,"请检查答案的字段名称和顺序是否正确"),
+  COLUMNNAMENULL(5108,"字段名称为空"),
+  DATADIFF(5109,"答案的行数、列数、字段名称均已正确，请检查答案过滤条件、排序等是否正确"),
+  RESULTNUMDIFFENT(5110,"结果个数不同，教师端答案个数为{0}"),
+  COLUMNVALUEDIFF(5111,"字段值不同，正确答案中值为{0}，实际答案中值为{1}"),
+  VERYSQLNULL(5112,"校验查询sql不能为空"),
+  ISTRIGGER(5113,"不支持的触发器相关语句"),
+  ISFUNCTION(5114,"不支持的函数相关语句"),
 
   SAVEFAIL(6001, "保存失败"),
   UPDATEFAIL(6002, "更新失败"),
