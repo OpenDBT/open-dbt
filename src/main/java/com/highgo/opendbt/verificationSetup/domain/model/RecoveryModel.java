@@ -1,5 +1,7 @@
 package com.highgo.opendbt.verificationSetup.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.highgo.opendbt.verificationSetup.tools.generatorSqlModule.TableInfoEvent;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
@@ -26,7 +28,8 @@ public class RecoveryModel {
   private Integer sceneDetailId;
   //习题id
   @NotNull(message = "习题id不能为空")
-  private Integer exerciseId;
+  @JsonSerialize(using = ToStringSerializer.class)
+  private Long exerciseId;
   //  TABLE
   //  FIELD
   //  INDEX
@@ -36,5 +39,7 @@ public class RecoveryModel {
   //  ALL
   @NotNull(message = "类型不能为空")
   private String recoverType;
+  //表名称
+  private String tableName;
 
 }

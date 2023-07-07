@@ -43,6 +43,7 @@ public class AsyncSubmitExerciseAnswer {
   public CompletableFuture<ResponseModel> testRunAnswer(UserInfo loginUser, TestRunModel model) {
     logger.info("thread start.");
     ResponseModel responseModel = determineService.testRunAnswer(loginUser, model);
+    logger.info("responseModel="+responseModel.toString());
     CompletableFuture<ResponseModel> submitResultCompletableFuture = CompletableFuture.completedFuture(responseModel);
     logger.info("thread end.");
     return submitResultCompletableFuture;
@@ -51,11 +52,17 @@ public class AsyncSubmitExerciseAnswer {
   @Async("threadPoolTaskExecutor")
   //学生练习不同题目提交答案
   public CompletableFuture<SubmitResult> testSubmitAnswer(UserInfo loginUser, Score score) {
-    logger.info("thread start.");
-    SubmitResult submitResult = determineService.testSubmitAnswer(loginUser, score);
-    CompletableFuture<SubmitResult> submitResultCompletableFuture = CompletableFuture.completedFuture(submitResult);
-    logger.info("thread end.");
-    return submitResultCompletableFuture;
+    CompletableFuture<SubmitResult> future = new CompletableFuture<>();
+    try {
+      logger.info("thread start.");
+      SubmitResult submitResult = determineService.testSubmitAnswer(loginUser, score);
+      logger.info("thread end.");
+      return CompletableFuture.completedFuture(submitResult);
+    } catch (Exception ex) {
+      future.completeExceptionally(ex);
+    }
+      return future;
+
   }
 
 }

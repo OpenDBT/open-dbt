@@ -3,6 +3,8 @@ package com.highgo.opendbt.verificationSetup.domain.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -20,12 +22,14 @@ public class TCheckField implements Serializable {
      * 主键
      */
     @TableId(value = "id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
      * 场景字段表id
      */
     @TableField(value = "scene_field_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneFieldId;
 
     /**
@@ -64,7 +68,7 @@ public class TCheckField implements Serializable {
      * 非空t：是f:否
      */
     @TableField(value = "field_non_null")
-    private Boolean fieldNonNull;
+    private Boolean fieldNonNull=false;
 
     /**
      * 字段描述
@@ -109,7 +113,8 @@ public class TCheckField implements Serializable {
      */
     @NotNull(message = "题目id不能为空")
     @TableField(value = "exercise_id")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 场景详情id

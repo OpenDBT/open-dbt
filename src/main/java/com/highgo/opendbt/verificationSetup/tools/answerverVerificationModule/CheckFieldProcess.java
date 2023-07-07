@@ -70,7 +70,7 @@ public class CheckFieldProcess implements CheckProcess<TCheckField, TCheckField>
    **/
   private void fieldComparison(TCheckField field, TCheckField tCheckField) {
     //判断字段类型是否相同
-    BusinessResponseEnum.DIFFERENTFIELDTYPES.assertIsTrue(field.getFieldType().equalsIgnoreCase(tCheckField.getFieldType())
+    BusinessResponseEnum.DIFFERENTFIELDTYPES.assertIsTrue(field.getFieldType().equalsIgnoreCase(tCheckField.getFieldType())||(field.getFieldType().equalsIgnoreCase("char")&&tCheckField.getFieldType().equalsIgnoreCase("bpchar"))
       , field.getFieldName(), field.getFieldType(), tCheckField.getFieldType());
     //判断字段长度是否相同
     if("varchar".equalsIgnoreCase(field.getFieldType())){

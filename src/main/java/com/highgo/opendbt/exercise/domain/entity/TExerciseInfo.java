@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -18,7 +20,7 @@ import lombok.experimental.Accessors;
 @Data
 @ToString
 @Accessors(chain = true)
-public class TExerciseInfo extends BaseEntity {
+public class TExerciseInfo extends MyBaseEntity {
     /**
      * 主键
      */
@@ -29,7 +31,8 @@ public class TExerciseInfo extends BaseEntity {
      * 试题id
      */
     @TableField(value = "exercise_id")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 选项前缀

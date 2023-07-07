@@ -1,5 +1,7 @@
 package com.highgo.opendbt.verificationSetup.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.ToString;
@@ -26,5 +28,6 @@ public class GeneratorDescription {
   private Integer sceneId=-1;
   //习题id
   @NotNull(message = "习题id不能为空")
-  private Integer exerciseId;
+  @JsonSerialize(using = ToStringSerializer.class)
+  private Long exerciseId;
 }

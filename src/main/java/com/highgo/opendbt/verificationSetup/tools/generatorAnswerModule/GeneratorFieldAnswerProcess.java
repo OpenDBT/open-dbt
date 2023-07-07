@@ -1,5 +1,7 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule;
 
+import com.highgo.opendbt.common.utils.EqualityUtils;
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckField;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneField;
 import com.highgo.opendbt.verificationSetup.service.TSceneFieldService;
@@ -58,7 +60,7 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
           builder.append(")");
         }
         //设置是否为空
-        if (field.getFieldNonNull() == true) {
+        if (Boolean.TRUE.equals(field.getFieldNonNull())) {
           builder.append(" not null ");
         }
         //设置默认值
@@ -74,7 +76,7 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
             builder.append(field.getFieldDefault());
           }
         }
-        builder.append(" ; ");
+        WrapUtil.addWrapper(builder);
         //设置字段描述
         if (StringUtils.isNotBlank(field.getFieldComment())) {
           builder.append(" COMMENT ON COLUMN ");
@@ -90,7 +92,7 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
             builder.append(field.getFieldComment());
             builder.append("'");
           }
-          builder.append(";");
+          WrapUtil.addWrapper(builder);
         }
       }
       //修改
@@ -98,9 +100,9 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
         TSceneField sceneField = sceneFieldService.getById(field.getSceneFieldId());
 
         //字段类型修改
-        if (!Objects.equals(sceneField.getFieldType(), field.getFieldType())
-          || !Objects.equals(sceneField.getFieldLength(), field.getFieldLength())
-          || !Objects.equals(sceneField.getDecimalNum(), field.getDecimalNum())) {
+        if (!EqualityUtils.areEqual(sceneField.getFieldType(), field.getFieldType())
+          || (field.getFieldLength()!=null&&!Objects.equals(sceneField.getFieldLength(), field.getFieldLength()))
+          || (field.getDecimalNum()!=null&&!Objects.equals(sceneField.getDecimalNum(), field.getDecimalNum()))) {
           builder.append(" ALTER TABLE ");
           builder.append(field.getTableName());
           builder.append(" ALTER COLUMN ");
@@ -124,7 +126,7 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
           builder.append(sceneField.getFieldName());
           builder.append("::");
           builder.append(field.getFieldType());
-          builder.append(";");
+          WrapUtil.addWrapper(builder);
         }
         //非空修改
         if (!Objects.equals(sceneField.getFieldNonNull(), field.getFieldNonNull())) {
@@ -138,10 +140,10 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
             builder.append(" SET ");
           }
           builder.append(" NOT NULL ");
-          builder.append(";");
+          WrapUtil.addWrapper(builder);
         }
         //默认值修改
-        if (!Objects.equals(sceneField.getFieldDefault(), field.getFieldDefault())) {
+        if (!EqualityUtils.areEqual(sceneField.getFieldDefault(), field.getFieldDefault())) {
           builder.append(" ALTER TABLE ");
           builder.append(field.getTableName());
           builder.append(" ALTER COLUMN ");
@@ -154,10 +156,10 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
             builder.append(" DEFAULT ");
             builder.append(field.getFieldDefault());
           }
-          builder.append(";");
+          WrapUtil.addWrapper(builder);
         }
         //字段描述修改
-        if (!Objects.equals(sceneField.getFieldComment(), field.getFieldComment())) {
+        if (!EqualityUtils.areEqual(sceneField.getFieldComment(), field.getFieldComment())) {
           builder.append(" COMMENT ON COLUMN ");
           builder.append(field.getTableName());
           builder.append(".");
@@ -171,17 +173,17 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
             builder.append(field.getFieldComment());
             builder.append("'");
           }
-          builder.append(";");
+          WrapUtil.addWrapper(builder);
         }
         //表名修改
-        if (!Objects.equals(sceneField.getFieldName(), field.getFieldName())) {
+        if (!EqualityUtils.areEqual(sceneField.getFieldName(), field.getFieldName())) {
           builder.append(" ALTER TABLE ");
           builder.append(field.getTableName());
           builder.append(" RENAME COLUMN ");
           builder.append(sceneField.getFieldName());
           builder.append(" TO ");
           builder.append(field.getFieldName());
-          builder.append(";");
+          WrapUtil.addWrapper(builder);
         }
       }
       //删除
@@ -190,7 +192,8 @@ public class GeneratorFieldAnswerProcess implements GeneratorAnswerProcess<TChec
         builder.append(field.getTableName());
         builder.append(" DROP COLUMN ");
         builder.append(field.getFieldName());
-        builder.append(";");
+        builder.append(" CASCADE");
+        WrapUtil.addWrapper(builder);
       }
     }
 

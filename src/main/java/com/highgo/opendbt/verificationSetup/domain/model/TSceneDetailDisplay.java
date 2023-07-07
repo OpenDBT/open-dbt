@@ -2,6 +2,8 @@ package com.highgo.opendbt.verificationSetup.domain.model;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckDetail;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneDetail;
 import lombok.Data;
@@ -15,7 +17,8 @@ import lombok.Data;
  * @CreateTime: 2023/4/6 16:22
  */
 @Data
-public class TSceneDetailModel {
+public class TSceneDetailDisplay {
+  @JsonSerialize(using = ToStringSerializer.class)
   private Long id;
 
   private Integer sceneId;

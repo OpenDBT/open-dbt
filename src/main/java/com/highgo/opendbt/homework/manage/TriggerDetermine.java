@@ -35,7 +35,7 @@ public class TriggerDetermine extends Determine {
       return;
     }
     String answer = exerciseResult == null ? "" : exerciseResult.replaceAll("<p>", "").replaceAll("</p>", "");
-    Integer exerciseId = stuHomeworkInfo.getExerciseId();
+    Long exerciseId = stuHomeworkInfo.getExerciseId();
     //根据习题id查询场景id
     TNewExercise exercise = exerciseService.getById(exerciseId);
 
@@ -98,15 +98,14 @@ public class TriggerDetermine extends Determine {
     //转换参数实体类
     TestRunModel model = new TestRunModel();
     model.setStandardAnswer(score.getAnswer());
-    model.setVerySql(score.getVerySql());
     model.setExerciseType(score.getExerciseType());
     model.setExerciseId(score.getExerciseId());
-    model.setSceneId(score.getSceneId());
     //查询习题标准答案
     TNewExercise exercise = exerciseService.getById(score.getExerciseId());
     //习题不能为空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, score.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
     //判断是否为视图相关DDL语句
     determineIsTrggerSql(model);
     //若没有校验查询sql则返回答案中的查询sql结果集
@@ -136,7 +135,7 @@ public class TriggerDetermine extends Determine {
     TNewExercise exercise = exerciseService.getById(model.getExerciseId());
     //习题不能为空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
     //校验查询sql不能为空
     BusinessResponseEnum.VERYSQLNULL.assertIsTrue(StringUtils.isNotBlank(model.getVerySql()));
     model.setVerySql(exercise.getVerySql());

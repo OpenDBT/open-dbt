@@ -1,5 +1,7 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule;
 
+import com.highgo.opendbt.common.utils.EqualityUtils;
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckDetail;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneDetail;
 import com.highgo.opendbt.verificationSetup.service.TSceneDetailService;
@@ -43,17 +45,17 @@ public class GeneratorTableAnswerProcess implements GeneratorAnswerProcess<TChec
           builder.append(sceneDetail.getTableName());
           builder.append(" RENAME TO ");
           builder.append(detail.getTableName());
-          builder.append("; ");
+          WrapUtil.addWrapper(builder);
         }
         //表描述不同添加修改表描述语句
-        if (!Objects.equals(sceneDetail.getTableDesc(), detail.getDescribe())) {
+        if (!EqualityUtils.areEqual(sceneDetail.getTableDesc(), detail.getDescribe())) {
           builder.append(" COMMENT ON TABLE ");
           builder.append(detail.getTableName());
           builder.append(" IS ");
           builder.append("'");
           builder.append(detail.getDescribe());
           builder.append("'");
-          builder.append(";");
+          WrapUtil.addWrapper(builder);
         }
       }
       if (CheckStatus.DEL.toString().equals(detail.getCheckStatus())) {
@@ -61,7 +63,13 @@ public class GeneratorTableAnswerProcess implements GeneratorAnswerProcess<TChec
         TSceneDetail sceneDetail = sceneDetailService.getById(detail.getSceneDetailId());
         builder.append(" DROP TABLE ");
         builder.append(sceneDetail.getTableName());
-        builder.append(";");
+        WrapUtil.addWrapper(builder);
+      }
+      if (CheckStatus.INSERT.toString().equals(detail.getCheckStatus())) {
+        builder.append(" CREATE TABLE ");
+        builder.append(detail.getTableName());
+        builder.append("()");
+        WrapUtil.addWrapper(builder);
       }
     }
     return builder;

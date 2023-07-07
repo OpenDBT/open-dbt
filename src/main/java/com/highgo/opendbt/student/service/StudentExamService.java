@@ -19,7 +19,7 @@ public interface StudentExamService {
     List<StudentExamExercise> getExamExerciseList(HttpServletRequest request, int sclassId, int examId);
 
     //获取作业题目的详细信息，包括是否做对与已做答案
-    StudentExamExercise getExamExerciseById(HttpServletRequest request, int sclassId, int examId, int examClassId, int exerciseId);
+    StudentExamExercise getExamExerciseById(HttpServletRequest request, int sclassId, int examId, int examClassId, Long exerciseId);
 
     //学生测试运行作业的题目答案，不会记录成绩
     SubmitResult startVerifyAnswerThread(HttpServletRequest request, Score score, boolean isSaveSubmitData) throws ExecutionException, InterruptedException;

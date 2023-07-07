@@ -158,95 +158,204 @@
         delete_time,delete_user,exercise_status,
         show_answer,execute_sql,very_sql
     </sql>
-    <select id="listExercises" resultType="com.highgo.opendbt.exercise.domain.entity.TNewExercise">
-        select t.* from(select
-        e.*,
-        u.user_name
-        from
-        t_new_exercise e
-        left join t_sys_user u on e.create_user=u.id
-        where
-        e.course_id in
-        <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
-            '${item}'
-        </foreach>
-        and e.element_type = 1
-        and e.delete_flag = 0
-        and e.parent_id = #{param.parentId}
-        union all
-        select
-        e1.*,
-        u.user_name
-        from
-        t_new_exercise e1
-        left join t_sys_user u on e1.create_user=u.id
-        where
-        e1.course_id in
-        <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
-            '${item}'
-        </foreach>
+  <sql id ="exercise_screen1">
+    course_id IN
+    <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+      '${item}'
+    </foreach>
+    <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
+      AND exercise_type IN
+      <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+    </if>
+    <if test="param.exerciseName != null and param.exerciseName != ''">
+      AND exercise_name LIKE '%${param.exerciseName}%'
+    </if>
+    <if test="param.knowledge != null and param.knowledge != ''">
+      AND id IN (
+      SELECT b.exercise_id
+      FROM t_course_knowledge a
+      JOIN t_exercise_knowledge b ON a.id = b.knowledge_id
+      WHERE
+      a.course_id IN
+      <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+      AND a.name LIKE '%${param.knowledge}%'
+      )
+    </if>
+  </sql>
 
-        <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
-            and e1.exercise_type in
-            <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
-                '${item}'
-            </foreach>
-        </if>
+  <sql id="exercise_screen2">
+    e.course_id IN
+    <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+      '${item}'
+    </foreach>
+    <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
+      AND e.exercise_type IN
+      <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+    </if>
+    <if test="param.exerciseName != null and param.exerciseName != ''">
+      AND e.exercise_name LIKE '%${param.exerciseName}%'
+    </if>
+    <if test="param.knowledge != null and param.knowledge != ''">
+      AND e.id IN (
+      SELECT b.exercise_id
+      FROM t_course_knowledge a
+      JOIN t_exercise_knowledge b ON a.id = b.knowledge_id
+      WHERE
+      a.course_id IN
+      <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+      AND a.name LIKE '%${param.knowledge}%'
+      )
+    </if>
+  </sql>
+  <select id="listExercises" resultType="com.highgo.opendbt.exercise.domain.entity.TNewExercise">
+   select se.* from(
+    select
+    e.*,
+    u.user_name,
+    coalesce((
+    WITH RECURSIVE RecursiveQuery AS (
+    SELECT *
+    FROM t_new_exercise
+    WHERE parent_id=e.id AND e.element_type=1
+    UNION ALL
+    SELECT ec.*
+    FROM t_new_exercise ec
+    JOIN RecursiveQuery r ON ec.parent_id = r.id)
 
-        <if test="param.exerciseName!=null and param.exerciseName!=''">
-            and e1.exercise_name like '%${param.exerciseName}%'
-        </if>
-        and e1.parent_id= #{param.parentId}
-        and e1.delete_flag = 0
-        and e1.element_type = 0
-        <if test="param.knowledge!=null and param.knowledge!=''">
-            and e1.id in(
-            select b.exercise_id from t_course_knowledge a join t_exercise_knowledge b on a.id=b.knowledge_id where
-            a.course_id in
-            <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
-                '${item}'
-            </foreach>
-            and a.name like '%${param.knowledge}%'
-            )
-        </if>
-        ) as t
-    </select>
+    SELECT COUNT(*) AS totalExercises
+    FROM RecursiveQuery
+    WHERE element_type = 0 -- 只统计题目
+    AND ( course_id in
+    <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+      '${item}'
+    </foreach>
 
-    <select id="selectExerciseCount" resultType="int">
-        WITH RECURSIVE T AS(
-        SELECT id,parent_id,course_id,delete_flag,element_type,exercise_name,exercise_type FROM t_new_exercise where
-        id=#{exercise.id}
-        UNION ALL
-        SELECT T1.id,T1.parent_id,T1.course_id,T1.delete_flag,T1.element_type,T1.exercise_name,T1.exercise_type
-        FROM t_new_exercise T1 JOIN T ON T1.parent_id=T.ID
-        and T1.course_id =#{exercise.courseId}
-        and T1.delete_flag = 0
-        )
-        select count(id) as child_count FROM T where 1=1
-        and T.element_type=0
-        <if test="param.exerciseName!=null and param.exerciseName!=''">
-            and T.exercise_name like '%${param.exerciseName}%'
-        </if>
+    <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
+      and exercise_type in
+      <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+    </if>
 
-        <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
-            and T.exercise_type in
-            <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
-                '${item}'
-            </foreach>
-        </if>
-        <if test="param.knowledge!=null and param.knowledge!=''">
-            and T.id in(
-            select b.exercise_id from t_course_knowledge a join t_exercise_knowledge b on a.id=b.knowledge_id where
-            a.course_id in
-            <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
-                '${item}'
-            </foreach>
-            and a.name like '%${param.knowledge}%'
-            )
-        </if>
-    </select>
+    <if test="param.exerciseName!=null and param.exerciseName!=''">
+      and exercise_name like '%${param.exerciseName}%'
+    </if>
+
+    <if test="param.knowledge!=null and param.knowledge!=''">
+      and id in(
+      select b.exercise_id from t_course_knowledge a join t_exercise_knowledge b on a.id=b.knowledge_id where
+      a.course_id in
+      <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+      and a.name like '%${param.knowledge}%'
+      )
+    </if>)
+
+    ),0) AS childCount
+
+    from
+    t_new_exercise e
+    left join t_sys_user u on e.create_user=u.id
 
 
+
+    where  1=1
+
+    AND (
+    (e.element_type = 0
+    AND
+    ( e.course_id in
+    <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+      '${item}'
+    </foreach>
+
+    <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
+      and e.exercise_type in
+      <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+    </if>
+
+    <if test="param.exerciseName!=null and param.exerciseName!=''">
+      and e.exercise_name like '%${param.exerciseName}%'
+    </if>
+
+    <if test="param.knowledge!=null and param.knowledge!=''">
+      and e.id in(
+      select b.exercise_id from t_course_knowledge a join t_exercise_knowledge b on a.id=b.knowledge_id where
+      a.course_id in
+      <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+      and a.name like '%${param.knowledge}%'
+      )
+    </if>)
+
+    )
+
+    OR e.element_type = 1
+
+    )
+    and e.delete_flag = 0
+    and e.parent_id = #{param.parentId}
+    ) se
+    where
+    (se.element_type=0 or se.childCount>0)
+  </select>
+
+
+
+
+
+
+
+
+
+
+
+
+  <select id="selectExerciseCount" resultType="int">
+    WITH RECURSIVE T AS(
+    SELECT id,parent_id,course_id,delete_flag,element_type,exercise_name,exercise_type FROM t_new_exercise where
+    id=#{exercise.id}
+    UNION ALL
+    SELECT T1.id,T1.parent_id,T1.course_id,T1.delete_flag,T1.element_type,T1.exercise_name,T1.exercise_type
+    FROM t_new_exercise T1 JOIN T ON T1.parent_id=T.ID
+    and T1.course_id =#{exercise.courseId}
+    and T1.delete_flag = 0
+    )
+    select count(id) as child_count FROM T where 1=1
+    and T.element_type=0
+    <if test="param.exerciseName!=null and param.exerciseName!=''">
+      and T.exercise_name like '%${param.exerciseName}%'
+    </if>
+
+    <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
+      and T.exercise_type in
+      <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+    </if>
+    <if test="param.knowledge!=null and param.knowledge!=''">
+      and T.id in(
+      select b.exercise_id from t_course_knowledge a join t_exercise_knowledge b on a.id=b.knowledge_id where
+      a.course_id in
+      <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
+        '${item}'
+      </foreach>
+      and a.name like '%${param.knowledge}%'
+      )
+    </if>
+  </select>
     <select id="countExercises" resultType="java.lang.Integer">
         select
         count(*)

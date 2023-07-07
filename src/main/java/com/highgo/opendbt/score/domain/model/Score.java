@@ -1,5 +1,7 @@
 package com.highgo.opendbt.score.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -13,8 +15,9 @@ public class Score {
 
   private int scoreId = -1;
   private int userId; // 用户id
+  @JsonSerialize(using = ToStringSerializer.class)
   @NotNull(message = "习题id不能为空")
-  private Integer exerciseId; // 习题id
+  private Long exerciseId; // 习题id
   private String exerciseName; // 习题名称
   private String createTime; // 答题时间
   private int usageTime; // 答题用时

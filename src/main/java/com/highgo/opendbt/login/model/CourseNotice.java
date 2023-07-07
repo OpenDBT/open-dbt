@@ -1,5 +1,8 @@
 package com.highgo.opendbt.login.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 public class CourseNotice {
 
 	private int courseNoticeId;
@@ -12,7 +15,8 @@ public class CourseNotice {
 	private String createTime;
 	private int courseId;
 	private int sceneId;
-	private int exerciseId;
+  @JsonSerialize(using = ToStringSerializer.class)
+	private Long exerciseId;
 
 	private boolean read;// 是否已读
 
@@ -96,11 +100,11 @@ public class CourseNotice {
 		this.sceneId = sceneId;
 	}
 
-	public int getExerciseId() {
+	public Long getExerciseId() {
 		return exerciseId;
 	}
 
-	public void setExerciseId(int exerciseId) {
+	public void setExerciseId(Long exerciseId) {
 		this.exerciseId = exerciseId;
 	}
 
@@ -117,7 +121,7 @@ public class CourseNotice {
 	}
 
 	public CourseNotice(int senderId, int senderType, int receiverId, int receiverType,
-			String noticeContent, int noticeType, String createTime, int courseId, int sceneId, int exerciseId) {
+			String noticeContent, int noticeType, String createTime, int courseId, int sceneId, Long exerciseId) {
 		super();
 		this.senderId = senderId;
 		this.senderType = senderType;

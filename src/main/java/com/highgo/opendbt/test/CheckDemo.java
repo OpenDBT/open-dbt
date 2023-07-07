@@ -33,7 +33,7 @@ public class CheckDemo {
     final TCheckDetail detail = new TCheckDetail();
     detail.setId(0L);
     detail.setSceneDetailId(0L);
-    detail.setExerciseId(0);
+    detail.setExerciseId(0L);
     detail.setCheckStatus("INSERT");
     detail.setTableName("tableName");
     detail.setDescribe("describe");
@@ -41,7 +41,7 @@ public class CheckDemo {
     final TCheckDetail detail1 = new TCheckDetail();
     detail1.setId(0L);
     detail1.setSceneDetailId(0L);
-    detail1.setExerciseId(0);
+    detail1.setExerciseId(0L);
     detail1.setCheckStatus("INSERT");
     detail1.setTableName("tableName");
     detail1.setDescribe("describe");

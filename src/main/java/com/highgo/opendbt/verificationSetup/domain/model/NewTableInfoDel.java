@@ -1,5 +1,7 @@
 package com.highgo.opendbt.verificationSetup.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.ToString;
@@ -26,7 +28,8 @@ import java.util.List;
 public class NewTableInfoDel {
   //习题id
   @NotNull(message = "习题id不能为空")
-  private Integer exerciseId;
+  @JsonSerialize(using = ToStringSerializer.class)
+  private Long exerciseId;
   //类型
   @NotBlank(message = "类型不能为空")
   private String types;

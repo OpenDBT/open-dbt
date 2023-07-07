@@ -26,6 +26,8 @@ import com.highgo.opendbt.homeworkmodel.domain.entity.TModelExercise;
 import com.highgo.opendbt.homeworkmodel.service.THomeworkModelService;
 import com.highgo.opendbt.homeworkmodel.service.TModelExerciseService;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
+import com.highgo.opendbt.temp.service.TCheckDetailTempService;
+import com.highgo.opendbt.verificationSetup.service.VerifyCommonService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +66,8 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
   private THomeworkModelService homeworkModelService;
   @Autowired
   private TExerciseTypeService exerciseTypeService;
+  @Autowired
+  private VerifyCommonService verifyCommonService;
 
   /**
    * @description: 获取习题列表
@@ -123,10 +127,10 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
   public boolean sortExercise(HttpServletRequest request, int oid, int tid) {
     //要移动的习题
     TNewExercise oexercise = exerciseService.getById(oid);
-    Integer oSortNum = oexercise.getSortNum();
+    Long oSortNum = oexercise.getSortNum();
     //目标习题
     TNewExercise texercise = exerciseService.getById(tid);
-    Integer tSortNum = texercise.getSortNum();
+    Long tSortNum = texercise.getSortNum();
     oexercise.setSortNum(tSortNum);
     texercise.setSortNum(oSortNum);
     List<TNewExercise> tNewExercises = new ArrayList<>();
@@ -151,10 +155,10 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
     List<TNewExercise> exerciseCatalogueTree = exerciseMapper.getExerciseCatalogueTree(param);
     //添加根节点
     TNewExercise exercise = (TNewExercise) new TNewExercise()
-      .setId(0)
+      .setId(0L)
       .setExerciseName("根节点")
       .setChildrens(exerciseCatalogueTree)
-      .setSortNum(0)
+      .setSortNum(0L)
       .setDeleteFlag(0);
     //放入集合中
     List<TNewExercise> tNewExercises = new ArrayList<>();
@@ -249,7 +253,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @return: boolean
    **/
   @Override
-  public TNewExercise getExerciseInfo(HttpServletRequest request, int exerciseId) {
+  public TNewExercise getExerciseInfo(HttpServletRequest request, Long exerciseId) {
     TNewExercise exercise = exerciseMapper.getExercise(exerciseId);
     //习题为空抛异常
     BusinessResponseEnum.UNEXERCISEiNFO.assertNotNull(exercise, exerciseId);
@@ -258,7 +262,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
 
   // 判定是否绑定
   @Override
-  public void decideIsBand(TNewExercise exercise, int exerciseId) {
+  public void decideIsBand(TNewExercise exercise, Long exerciseId) {
     // 查询习题是否存绑定在作业中
     List<Integer> isBandingModel = homeworkModelService.getIsBandingModel(exerciseId);
     boolean isBanding = isBandingModel != null && isBandingModel.size() > 1;
@@ -275,8 +279,8 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    **/
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public boolean deleteExercise(HttpServletRequest request, int exerciseId) {
-    List<Integer> ids = new ArrayList<>();
+  public boolean deleteExercise(HttpServletRequest request, Long exerciseId) {
+    List<Long> ids = new ArrayList<>();
     //查询习题
     TNewExercise exercise = exerciseService.getById(exerciseId);
     //判断是否存在，不存在抛出异常
@@ -295,14 +299,14 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @param: [exerciseId]
    * @return: java.util.List<java.lang.Integer>
    **/
-  private void getChildExercise(List<Integer> ids, int exerciseId) {
+  private void getChildExercise(List<Long> ids, Long exerciseId) {
     //判断习题是否在使用中，在使用中无法删除
     int count = modelExerciseService.count(new QueryWrapper<TModelExercise>()
       .eq("exercise_id", exerciseId)
       .eq("delete_flag", 0));
     BusinessResponseEnum.CANNOTDELETEEXERCISE.assertIsFalse(count != 0, exerciseId);
     ids.add(exerciseId);
-    List<Integer> childs = exerciseService.list(new QueryWrapper<TNewExercise>().eq("parent_id", exerciseId))
+    List<Long> childs = exerciseService.list(new QueryWrapper<TNewExercise>().eq("parent_id", exerciseId))
       .stream().map(TNewExercise::getId).collect(Collectors.toList());
     getChild(childs, ids);
   }
@@ -314,13 +318,13 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @param: [integerList, ids]
    * @return: void
    **/
-  private void getChild(List<Integer> integerList, List<Integer> ids) {
+  private void getChild(List<Long> integerList, List<Long> ids) {
     if (integerList != null && !integerList.isEmpty()) {
       //校验子习题是否可删
       validaChild(integerList);
       ids.addAll(integerList);
       //查询子目录
-      List<Integer> childIds = exerciseService.list(new QueryWrapper<TNewExercise>()
+      List<Long> childIds = exerciseService.list(new QueryWrapper<TNewExercise>()
         .in("parent_id", integerList))
         .stream()
         .map(TNewExercise::getId)
@@ -336,7 +340,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @param: [childs 习题集合]
    * @return: void
    **/
-  private void validaChild(List<Integer> childs) {
+  private void validaChild(List<Long> childs) {
     childs.forEach(item -> {
       //判断习题是否在使用中，在使用中无法删除
       int count = modelExerciseService.count(new QueryWrapper<TModelExercise>()
@@ -382,7 +386,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    **/
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public TNewExercise copyExercise(HttpServletRequest request, int exerciseId) {
+  public TNewExercise copyExercise(HttpServletRequest request, Long exerciseId) {
     UserInfo loginUser = Authentication.getCurrentUser(request);
     TNewExercise exercise = exerciseService.getById(exerciseId);
     //复制习题
@@ -403,7 +407,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @return: java.util.List<com.highgo.opendbt.exercise.domain.entity.TNewExercise>
    **/
   @Override
-  public List<TNewExercise> getExercisesByIds(List<Integer> exerciseIds, int id, int flag) {
+  public List<TNewExercise> getExercisesByIds(List<Long> exerciseIds, int id, int flag) {
     if (flag == 0)
       return exerciseMapper.getExercises(exerciseIds, id);
     else
@@ -478,7 +482,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @param: [exercise, exercise_id, loginUser]
    * @return: void
    **/
-  private void reproduceKnowledges(TNewExercise exercise, int exerciseId) {
+  private void reproduceKnowledges(TNewExercise exercise, Long exerciseId) {
     //查询原始习题知识点
     List<ExerciseKnowledge> exerciseKnowledges = exerciseKnowledgeService
       .list(new QueryWrapper<ExerciseKnowledge>()
@@ -519,7 +523,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @param: [exercise, exercise_id]
    * @return: void
    **/
-  private void reproduceExerciseInfos(TNewExercise exercise, int exerciseId, UserInfo loginUser) {
+  private void reproduceExerciseInfos(TNewExercise exercise, Long exerciseId, UserInfo loginUser) {
     //查询原始习题明细
     List<TExerciseInfo> infos = exerciseInfoService.list(new QueryWrapper<TExerciseInfo>()
       .eq("exercise_id", exerciseId)
@@ -546,7 +550,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @return: void
    **/
   public void saveAndUpdateExerciseInfo(TNewExerciseVo param, UserInfo loginUser, TNewExercise exercise) {
-    Integer exerciseId = exercise.getId();
+    Long exerciseId = exercise.getId();
     //习题选项集合
     List<TExerciseInfo> tExerciseInfo = new ArrayList<>();
     //习题选项请求参数
@@ -581,7 +585,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @param: [tExerciseInfo, exerciseInfos, loginUser, exercise_id]
    * @return: void
    **/
-  private void updateExercise(List<TExerciseInfo> tExerciseInfo, List<TExerciseInfoVO> exerciseInfos, UserInfo loginUser, int exerciseId) {
+  private void updateExercise(List<TExerciseInfo> tExerciseInfo, List<TExerciseInfoVO> exerciseInfos, UserInfo loginUser, Long exerciseId) {
     //更新题目
     List<TExerciseInfo> exerciseInfo = exerciseInfoService.list(new QueryWrapper<TExerciseInfo>()
       .eq("exercise_id", exerciseId)
@@ -626,7 +630,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
    * @param: [tExerciseInfo, exerciseInfos, loginUser, exercise_id]
    * @return: void
    **/
-  private void addExercise(List<TExerciseInfo> tExerciseInfo, List<TExerciseInfoVO> exerciseInfos, UserInfo loginUser, int exerciseId) {
+  private void addExercise(List<TExerciseInfo> tExerciseInfo, List<TExerciseInfoVO> exerciseInfos, UserInfo loginUser, Long exerciseId) {
     if (exerciseInfos == null || exerciseInfos.isEmpty()) {
       return;
     }
@@ -651,9 +655,13 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
   public TNewExercise saveAndUpdateNewExercise(TNewExerciseVo param, UserInfo loginUser) {
     TNewExercise tNewExercise = new TNewExercise();
     BeanUtils.copyProperties(param, tNewExercise);
-
+    //题目id
+    Long exerciseId=tNewExercise.getId();
+    TNewExercise newExercise = exerciseService.getById(exerciseId);
+    //判断该题目id在习题中是否存在
+    determineId(tNewExercise,newExercise);
     //新增题目
-    if (param.getId() == null || param.getId() == -1) {
+    if (tNewExercise.getId() == null || tNewExercise.getId() == -1) {
       tNewExercise.setCreateUser(loginUser.getUserId()).setCreateTime(new Date());
       tNewExercise.setId(null);
       BusinessResponseEnum.SAVEORUPDATEFAIL.assertIsTrue(exerciseService.saveOrUpdate(tNewExercise));
@@ -664,7 +672,20 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
       tNewExercise.setUpdateUser(loginUser.getUserId()).setUpdateTime(new Date());
       BusinessResponseEnum.SAVEORUPDATEFAIL.assertIsTrue(exerciseService.saveOrUpdate(tNewExercise));
     }
+    // 迁移临时表到正式表
+    if(newExercise==null){
+      //真实习题id
+      Long realityExerciseId=tNewExercise.getId();
+      verifyCommonService.migrateTOrealityTable(realityExerciseId,exerciseId);
+    }
     return tNewExercise;
+  }
+
+  private void determineId(TNewExercise tNewExercise, TNewExercise newExercise) {
+    if(newExercise==null){
+      //新增习题
+      tNewExercise.setId(null);
+    }
   }
 
   /**
@@ -718,7 +739,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
     List<TNewExercise> tNewExercises = exerciseMapper.listExercises(param);
     if (tNewExercises != null && !tNewExercises.isEmpty()) {
       //设置文件夹下题目数量
-      setExerciseCount(tNewExercises, param);
+     // setExerciseCount(tNewExercises, param);
     }
     return tNewExercises;
   }
@@ -805,7 +826,16 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
     }
     return ideq && typeeq && knowledgeeq;
   }
-
+  //判断是否存在与习题表
+  @Override
+  public boolean isSave(Long exerciseId) {
+    TNewExercise exercise = exerciseService.getById(exerciseId);
+    if (exercise != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 

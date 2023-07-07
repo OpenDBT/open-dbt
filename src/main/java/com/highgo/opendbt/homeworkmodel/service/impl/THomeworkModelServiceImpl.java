@@ -477,7 +477,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
      * @return: boolean
      **/
     @Override
-    public List<Integer> getIsBandingModel(int exerciseId) {
+    public List<Integer> getIsBandingModel(Long exerciseId) {
         return homeworkModelMapper.getIsBandingModel(exerciseId);
 
     }
@@ -490,7 +490,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
      * @return: com.highgo.opendbt.exercise.domain.entity.TNewExercise
      **/
     @Override
-    public TNewExercise getExerciseInfo(HttpServletRequest request, int exerciseId, int modelId) {
+    public TNewExercise getExerciseInfo(HttpServletRequest request, Long exerciseId, int modelId) {
         TNewExercise exerciseInfo = exerciseService.getExerciseInfo(request, exerciseId);
         //习题为空抛异常
         BusinessResponseEnum.UNEXERCISEiNFOBYMODEL.assertNotNull(exerciseInfo, exerciseId, modelId);
@@ -540,7 +540,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
             return exercise;
         }
         //筛选出习题id集合
-        List<Integer> ids = modelExercises.stream().map(TModelExercise::getExerciseId).collect(Collectors.toList());
+        List<Long> ids = modelExercises.stream().map(TModelExercise::getExerciseId).collect(Collectors.toList());
         //查询出来的习题
         PageInfo<TNewExercise> pageList = (PageInfo<TNewExercise>) exercise.get("pageList");
         List<TNewExercise> list = pageList.getList();
@@ -617,7 +617,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
      **/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean delSelectedExercises(HttpServletRequest request, int modelId, int exerciseId) {
+    public boolean delSelectedExercises(HttpServletRequest request, int modelId, Long exerciseId) {
         THomeworkModel model = homeworkModelService.getById(modelId);
         BusinessResponseEnum.UNHOMEWORKMODEL.assertNotNull(model, modelId);
         TModelExercise modelExercise = modelExerciseService.getOne(new QueryWrapper<TModelExercise>()
@@ -669,7 +669,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
      **/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateScoreByModel(HttpServletRequest request, int exerciseId, int modelId, Double exerciseScore) {
+    public boolean updateScoreByModel(HttpServletRequest request, Long exerciseId, int modelId, Double exerciseScore) {
         TModelExercise modelExercise = modelExerciseService.getOne(new QueryWrapper<TModelExercise>()
                 .eq("model_id", modelId)
                 .eq("exerciseId", exerciseId)
@@ -767,7 +767,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
      * @param: [tExerciseInfo, exerciseInfos, loginUser, exercise_id]
      * @return: void
      **/
-    private void addExercise(List<TExerciseInfo> tExerciseInfo, List<TExerciseInfoVO> exerciseInfos, UserInfo loginUser, int exerciseId) {
+    private void addExercise(List<TExerciseInfo> tExerciseInfo, List<TExerciseInfoVO> exerciseInfos, UserInfo loginUser, Long exerciseId) {
         if (exerciseInfos == null || exerciseInfos.isEmpty()) {
             return;
         }
@@ -793,7 +793,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
         boolean isDelete = false;
         //查询模板下的所有习题
         List<TModelExercise> list = modelExerciseService.list(new QueryWrapper<TModelExercise>()
-                .eq("modelId", modelId)
+                .eq("model_id", modelId)
                 .eq("delete_flag", 0));
         if (list == null || list.isEmpty()) {
             // 减少习题类型
@@ -810,7 +810,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
         if (isDelete) {
             //删除模板下的习题类型
             modelExerciseTypeService.remove(new QueryWrapper<TModelExerciseType>()
-                    .eq("modelId", modelId)
+                    .eq("model_id", modelId)
                     .eq("exercise_type", exerciseType));
         }
 
@@ -827,7 +827,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
         List<ModelExerciseDTO> addModelExercises;
         List<ModelExerciseDTO> modelExerciseDTOS = param.getModelExerciseDTOS();
         //所有选题的id
-        List<Integer> allIds = modelExerciseDTOS.stream().map(ModelExerciseDTO::getExerciseId).collect(Collectors.toList());
+        List<Long> allIds = modelExerciseDTOS.stream().map(ModelExerciseDTO::getExerciseId).collect(Collectors.toList());
         //查询是否有重复习题
         List<TModelExercise> modelExercises = modelExerciseService.list(new QueryWrapper<TModelExercise>()
                 .eq("delete_flag", 0)
@@ -838,7 +838,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
             addModelExercises = modelExerciseDTOS;
         } else {//部分新增的选题
             //查询出重复习题的id
-            List<Integer> existsIds = modelExercises.stream().map(TModelExercise::getExerciseId).collect(Collectors.toList());
+            List<Long> existsIds = modelExercises.stream().map(TModelExercise::getExerciseId).collect(Collectors.toList());
             //筛选出不重复的习题id
             addModelExercises = modelExerciseDTOS.stream().filter(item -> !existsIds.contains(item.getExerciseId())).collect(Collectors.toList());
         }
@@ -886,7 +886,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
                 .sum();
         saveHomeWorkModelVO.setTgp(sumScore);
         //筛选出习题id集合
-        List<Integer> ids = modelExercises.stream().map(TModelExercise::getExerciseId).collect(Collectors.toList());
+        List<Long> ids = modelExercises.stream().map(TModelExercise::getExerciseId).collect(Collectors.toList());
         //根据习题id集合查询习题集合
         List<TNewExercise> exercises = exerciseService.getExercisesByIds(ids, id, flag);
         //所有习题

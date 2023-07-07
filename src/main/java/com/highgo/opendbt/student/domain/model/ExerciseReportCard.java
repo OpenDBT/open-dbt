@@ -1,8 +1,11 @@
 package com.highgo.opendbt.student.domain.model;
 
-public class ExerciseReportCard {
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
-	private int exerciseId = -1; // 习题id
+public class ExerciseReportCard {
+  @JsonSerialize(using = ToStringSerializer.class)
+	private Long exerciseId = -1L; // 习题id
 	private String exerciseName; // 习题名
 	private int exerciseScore = 0; // 习题分值
 	private int exerciseGoal = 0; // 习题得分
@@ -13,11 +16,11 @@ public class ExerciseReportCard {
 	private int answerExecuteTime = 0; // 答案执行时间
 	private int answerLength = 0; // 答案长度
 
-	public int getExerciseId() {
+	public Long getExerciseId() {
 		return exerciseId;
 	}
 
-	public void setExerciseId(int exerciseId) {
+	public void setExerciseId(Long exerciseId) {
 		this.exerciseId = exerciseId;
 	}
 
@@ -89,7 +92,7 @@ public class ExerciseReportCard {
 
 	}
 
-	public ExerciseReportCard(int exerciseId, String exerciseName, int exerciseScore, int exerciseGoal, int exerciseSituation) {
+	public ExerciseReportCard(Long exerciseId, String exerciseName, int exerciseScore, int exerciseGoal, int exerciseSituation) {
 		this.exerciseId = exerciseId;
 		this.exerciseName = exerciseName;
 		this.exerciseScore = exerciseScore;

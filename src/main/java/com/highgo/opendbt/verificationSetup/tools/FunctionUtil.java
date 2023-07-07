@@ -59,7 +59,7 @@ public class FunctionUtil {
     Statement functionStatement = null;
     SchemaConnection schemaConnection = new SchemaConnection();
 
-    List<List<Map<String, Object>>> lists = new ArrayList<>();
+    List<ResultSetInfo> lists = new ArrayList<>();
 
     try {
       // 初始化脚本并获取指定schema的连接
@@ -77,9 +77,9 @@ public class FunctionUtil {
           boolean execute = statement.execute();
           while (execute) {
             ResultSet resultSet = statement.getResultSet();//取得第一个结果集
-            List<Map<String, Object>> resultList = DataTableHelper.rs2MapList(resultSet);
-            logger.info("result=" + JSONObject.toJSONString(resultList));
-            lists.add(resultList);
+            DataTableHelper.resultSetToResultSetInfo(resultSet,lists);
+            //logger.info("result=" + JSONObject.toJSONString(resultSetInfo));
+            //lists.addAll(resultSetInfo);
             execute = statement.getMoreResults();//继续去取结果集，若还还能取到结果集，则bl=true了。然后回去循环。
             resultSet.close();
           }
@@ -87,16 +87,17 @@ public class FunctionUtil {
         long endTime = System.currentTimeMillis();
         responseModel.setAnswerExecuteTime((int) (endTime - startTime));
         responseModel.setFunctionResult(lists);
-        connection.commit();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("An error occurred while executing function SQL", e);
       throw new APIException(e.getMessage());
     } finally {
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      String schemaName=schemaConnection.getSchemaName();
       CloseUtil.close(functionStatement);
       CloseUtil.close(statement);
       CloseUtil.close(connection);
+      runAnswerService.dropSchema(schemaName);
+
     }
   }
   public static void executeSql(UserInfo loginUser, TestRunModel model, ResponseModel responseModel) {
@@ -113,20 +114,26 @@ public class FunctionUtil {
         functionStatement = connection.createStatement();
         long startTime = System.currentTimeMillis();
         functionStatement.execute(model.getStandardAnswer());
-        if(StringUtils.isNotBlank(model.getVerySql())){
-          FunctionUtil.testDML(model.getVerySql(), responseModel, functionStatement);
+        if(StringUtils.isNotBlank(model.getStandardAnswer())){
+          FunctionUtil.testDML(model.getStandardAnswer(), responseModel, functionStatement);
         }
         long endTime = System.currentTimeMillis();
         responseModel.setAnswerExecuteTime((int) (endTime - startTime));
+        responseModel.setExecuteRs(true);
       }
     } catch (Exception e) {
       e.printStackTrace();
+      responseModel.setLog(e.getMessage());
       throw new APIException(e.getMessage());
+
     } finally {
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      String schemaName=schemaConnection.getSchemaName();
       CloseUtil.close(functionStatement);
       CloseUtil.close(statement);
       CloseUtil.close(connection);
+      logger.info("到达此处1="+schemaConnection.getSchemaName());
+      runAnswerService.dropSchema(schemaName);
+      logger.info("到达此处2="+schemaConnection.getSchemaName());
     }
   }
 
@@ -193,9 +200,12 @@ public class FunctionUtil {
       logger.error("提取失败:", e);
       throw new APIException("提取失败");
     } finally {
+      String schemaName=schemaConnection.getSchemaName();
       CloseUtil.close(statement);
       CloseUtil.close(connection);
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      logger.info("到达此处1="+schemaConnection.getSchemaName());
+      runAnswerService.dropSchema(schemaName);
+      logger.info("到达此处2="+schemaConnection.getSchemaName());
     }
     return list;
   }

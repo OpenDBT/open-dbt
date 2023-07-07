@@ -149,7 +149,7 @@ public class ExerciseApi {
    **/
   @ApiOperation(value = "根据习题id查询具体习题信息")
   @GetMapping("/getExerciseInfo/{exerciseId}")
-  public TNewExercise getExerciseInfo(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId) {
+  public TNewExercise getExerciseInfo(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId) {
     logger.debug("Enter,exerciseId={}", exerciseId);
     TNewExercise exercise = exerciseService.getExerciseInfo(request, exerciseId);
     //设置绑定状态
@@ -166,7 +166,7 @@ public class ExerciseApi {
    **/
   @ApiOperation(value = "删除习题")
   @GetMapping("/deleteExercise/{exerciseId}")
-  public boolean deleteExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId) {
+  public boolean deleteExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId) {
     logger.debug("Enter,exerciseId={}", exerciseId);
     return exerciseService.deleteExercise(request, exerciseId);
   }
@@ -196,7 +196,7 @@ public class ExerciseApi {
    **/
   @ApiOperation(value = "复制习题")
   @GetMapping("/copyExercise/{exerciseId}")
-  public TNewExercise copyExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") @Valid int exerciseId) {
+  public TNewExercise copyExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") @Valid Long exerciseId) {
     logger.debug("Enter,exerciseId={}", exerciseId);
     return exerciseService.copyExercise(request, exerciseId);
   }

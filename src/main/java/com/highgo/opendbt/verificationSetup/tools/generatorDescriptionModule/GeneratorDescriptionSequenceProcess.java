@@ -1,5 +1,6 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorDescriptionModule;
 
+import com.highgo.opendbt.common.utils.EqualityUtils;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckSeq;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneSeq;
 import com.highgo.opendbt.verificationSetup.service.TSceneSeqService;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+
+import static com.highgo.opendbt.common.utils.WrapUtil.addWrap;
 
 /**
  * @Description: 生成序列校验描述
@@ -81,11 +84,11 @@ public class GeneratorDescriptionSequenceProcess implements GeneratorDescription
         TSceneSeq sceneSeq = sceneSeqService.getById(seq.getSceneSeqId());
         builder.append("修改序列");
         builder.append(seq.getSeqName());
-        if (!Objects.equals(sceneSeq.getSeqName(), seq.getSeqName())) {
+        if (!EqualityUtils.areEqual(sceneSeq.getSeqName(), seq.getSeqName())) {
           builder.append(" 名称修改为");
           builder.append(seq.getSeqName());
         }
-        if (!Objects.equals(sceneSeq.getTypeName(), seq.getTypeName())) {
+        if (!EqualityUtils.areEqual(sceneSeq.getTypeName(), seq.getTypeName())) {
           builder.append(" 指定序列的数据类型为");
           builder.append(seq.getTypeName());
         }
@@ -133,7 +136,7 @@ public class GeneratorDescriptionSequenceProcess implements GeneratorDescription
           builder.append("关联，以便删除表时一块删除");
         }
         //序列可以切换表关联，目前只在表中切换字段
-        if (!Objects.equals(sceneSeq.getField(), seq.getField())) {
+        if (!EqualityUtils.areEqual(sceneSeq.getField(), seq.getField())) {
           builder.append(" 序列与表字段的关联由表");
           builder.append(seq.getTableName());
           builder.append("中字段");
@@ -147,11 +150,11 @@ public class GeneratorDescriptionSequenceProcess implements GeneratorDescription
       }
       //删除
       if (CheckStatus.DEL.toString().equals(seq.getCheckStatus())) {
-        builder.append(" 删除序列");
+        builder.append("删除序列");
         builder.append(seq.getSeqName());
       }
+      addWrap(builder);
     }
-    builder.append(",");
     return builder;
   }
 }

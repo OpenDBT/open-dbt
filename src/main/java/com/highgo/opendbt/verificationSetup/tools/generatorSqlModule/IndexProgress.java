@@ -58,6 +58,7 @@ public class IndexProgress implements EventProcess {
     sql.append(" '");
     sql.append(tableName);
     sql.append("' ");
+    sql.append(" AND NOT C.INDISUNIQUE ");
     logger.info(sql.toString());
     return sql.toString();
   }

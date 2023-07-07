@@ -1,5 +1,6 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorDescriptionModule;
 
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckIndex;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneIndex;
 import com.highgo.opendbt.verificationSetup.service.TSceneIndexService;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static com.highgo.opendbt.common.utils.WrapUtil.addWrap;
 
 /**
  * @Description: 生成索引校验描述
@@ -35,7 +38,7 @@ public class GeneratorDescriptionIndexProcess implements GeneratorDescriptionPro
     for (TCheckIndex index : checkIndexList) {
       //新增
       if (CheckStatus.INSERT.toString().equals(index.getCheckStatus())) {
-        builder.append(" 为表");
+        builder.append("为表");
         builder.append(index.getTableName());
         builder.append("中字段(");
         builder.append(index.getIndexFields());
@@ -62,11 +65,11 @@ public class GeneratorDescriptionIndexProcess implements GeneratorDescriptionPro
       }
       //删除
       if (CheckStatus.DEL.toString().equals(index.getCheckStatus())) {
-        builder.append(" 删除索引");
+        builder.append("删除索引");
         builder.append(index.getIndexName());
       }
+      addWrap(builder);
     }
-    builder.append(",");
     return builder;
   }
 }

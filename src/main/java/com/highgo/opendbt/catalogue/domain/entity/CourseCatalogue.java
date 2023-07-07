@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import com.highgo.opendbt.statistics.domain.model.CatalogueStatistics;
 import com.highgo.opendbt.statistics.domain.model.StudentCatalogueStatistics;
 import lombok.Data;
@@ -23,7 +23,7 @@ import java.util.List;
 @ToString
 @TableName(value = "t_course_catalogue")
 @Accessors(chain = true)
-public class CourseCatalogue extends BaseEntity {
+public class CourseCatalogue extends MyBaseEntity {
     /**
      * 目录id
      */

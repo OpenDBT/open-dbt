@@ -11,7 +11,7 @@ public class UpdateCourseNotice {
 	private int isRead = 0;
 	private int courseId = 0;
 	private int sceneId = 0;
-	private int exerciseId = 0;
+	private Long exerciseId = 0L;
 
 	public int getUpdateCourseNoticeId() {
 		return updateCourseNoticeId;
@@ -85,11 +85,11 @@ public class UpdateCourseNotice {
 		this.sceneId = sceneId;
 	}
 
-	public int getExerciseId() {
+	public Long getExerciseId() {
 		return exerciseId;
 	}
 
-	public void setExerciseId(int exerciseId) {
+	public void setExerciseId(Long exerciseId) {
 		this.exerciseId = exerciseId;
 	}
 

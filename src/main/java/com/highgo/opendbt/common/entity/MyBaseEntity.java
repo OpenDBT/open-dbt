@@ -19,7 +19,7 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-public class BaseEntity implements Serializable {
+public class MyBaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 创建时间

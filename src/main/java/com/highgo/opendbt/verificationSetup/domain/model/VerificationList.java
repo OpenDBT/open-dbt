@@ -39,7 +39,17 @@ public class VerificationList {
   private List<TSceneSeq> sceneSeqs;
   //校验序列相关信息表
   private List<TCheckSeq> checkSeqs;
-
   //合并场景表和校验表信息
-  private List<TSceneDetailModel> sceneDetailModels;
+  private List<TSceneDetailDisplay> sceneDetailDisplays;
+  //用于前端页面字段显示
+  private List<TSceneFieldDisplay> sceneFieldDisplays;
+  //用于前端页面约束显示
+  private List<TSceneConstraintDisplay> sceneConstraintDisplays;
+  //用于前端页面外键显示
+  private List<TSceneFKDisplay> sceneFKDisplays;
+  //用于前端页面索引显示
+  private List<TSceneIndexDisplay> sceneIndexDisplays;
+  //用于前端页面序列显示
+  private List<TSceneSeqDisplay> sceneSeqDisplays;
+
 }

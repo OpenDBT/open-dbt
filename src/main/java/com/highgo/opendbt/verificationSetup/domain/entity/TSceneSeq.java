@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 /**
@@ -17,12 +20,14 @@ public class TSceneSeq implements Serializable {
      * 主键
      */
     @TableId(value = "id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
      * 场景表id
      */
     @TableField(value = "scene_detail_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneDetailId;
 
     /**
@@ -41,24 +46,28 @@ public class TSceneSeq implements Serializable {
      * 步长
      */
     @TableField(value = "step")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long step;
 
     /**
      * 最小值
      */
     @TableField(value = "min_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long minValue;
 
     /**
      * 最大值
      */
     @TableField(value = "max_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long maxValue;
 
     /**
      * 最新值
      */
     @TableField(value = "latest_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long latestValue;
 
     /**
@@ -89,12 +98,14 @@ public class TSceneSeq implements Serializable {
      * 开始值
      */
     @TableField(value = "start_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long startValue;
 
     /**
      * 缓冲尺寸
      */
     @TableField(value = "cache_size")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long cacheSize;
 
     @TableField(exist = false)

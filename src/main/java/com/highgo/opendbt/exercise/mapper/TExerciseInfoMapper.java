@@ -12,9 +12,9 @@ import java.util.List;
  */
 @Repository
 public interface TExerciseInfoMapper extends BaseMapper<TExerciseInfo> {
- List<TExerciseInfo> getExerciseInfo(int exerciseId);
+ List<TExerciseInfo> getExerciseInfo(Long exerciseId);
 //导出查询
- List<TNewExerciseInfoExcel> getExerciseInfoExcel(int exerciseId);
+ List<TNewExerciseInfoExcel> getExerciseInfoExcel(Long exerciseId);
 }
 
 

@@ -16,6 +16,7 @@ import com.highgo.opendbt.verificationSetup.tools.generatorSqlModule.EventProces
 import com.highgo.opendbt.verificationSetup.tools.generatorSqlModule.EventProcessFactory;
 import com.highgo.opendbt.verificationSetup.tools.generatorSqlModule.TableInfoEvent;
 import org.apache.poi.ss.formula.functions.T;
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,20 +110,30 @@ public class TableInfoUtil {
    * @param: [statement, connection, schemaConnection, tableName, event]
    * @return: java.sql.ResultSet
    **/
-  public static void extractAnswer(UserInfo userInfo, int sceneId, int exerciseId, StringBuilder builder) {
+  public static void extractAnswer(UserInfo userInfo, int sceneId, Long exerciseId, StringBuilder builder) {
     Statement statement = null;
     Connection connection = null;
     SchemaConnection schemaConnection = new SchemaConnection();
     try {
-      //初始化场景并开启新的模式
-      runAnswerService.getSchemaConnection(userInfo, sceneId, exerciseId, schemaConnection, 0);
+      //初始化场景并开启新的模式,并把初始化函数里面的insert to插入语句过滤
+      runAnswerService.getSchemaConnection(userInfo, sceneId, exerciseId, schemaConnection, 0,true);
       if (null != schemaConnection.getConnection()) {
         connection = schemaConnection.getConnection();
         statement = connection.createStatement();
+        logger.info("sql=="+builder.toString());
         //新模式下执行答案
         statement.executeUpdate(builder.toString());
       }
-    } catch (Exception e) {
+    }catch(PSQLException e){
+      if(e.getMessage().contains("relation")&&e.getMessage().contains("already exists")){
+        throw new APIException("名称不可重复！");
+      }if(e.getMessage().contains("multiple primary keys")){
+        throw new APIException("主键不可重复！");
+      }else{
+        throw new APIException(e.getMessage());
+      }
+    }
+    catch (Exception e) {
       logger.error("获取失败", e);
       throw new APIException(e.getMessage());
     } finally {
@@ -135,7 +146,7 @@ public class TableInfoUtil {
 
 
   //提取表相关信息
-  public static <T> List<T> getInfo(long sceneDetailId, UserInfo userInfo, int exerciseId, TableInfoEvent event, Class<T> clazz) {
+  public static <T> List<T> getInfo(long sceneDetailId, UserInfo userInfo, Long exerciseId, TableInfoEvent event, Class<T> clazz) {
     List<T> list = null;
     TSceneDetail sceneDetail = sceneDetailService.getById(sceneDetailId);
     SchemaConnection schemaConnection = new SchemaConnection();
@@ -170,7 +181,7 @@ public class TableInfoUtil {
    * @return: java.util.List<T>
    **/
   //提取相关信息
-  public static <T> List<T> getInfo(UserInfo userInfo, int sceneId, int exerciseId, String shell, String viewName, TableInfoEvent event, Class<T> clazz) {
+  public static <T> List<T> getInfo(UserInfo userInfo, int sceneId, Long exerciseId, String shell, String viewName, TableInfoEvent event, Class<T> clazz) {
     List<T> list = null;
     SchemaConnection schemaConnection = new SchemaConnection();
     Statement statement = null;

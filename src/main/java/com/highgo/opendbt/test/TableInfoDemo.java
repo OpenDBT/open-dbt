@@ -56,7 +56,7 @@ public class TableInfoDemo {
       UserInfo userInfo = new UserInfo();
       userInfo.setCode("003");
       //新建模式，新模式下执行初始化场景
-      runAnswerService.getSchemaConnection(userInfo, 92, 0, schemaConnection, 0);
+      runAnswerService.getSchemaConnection(userInfo, 92, 0L, schemaConnection, 0);
       //场景参数设置
       SceneDetail sceneDetail = new SceneDetail();
       sceneDetail.setTableName("t_scene_constraint");
@@ -110,8 +110,9 @@ public class TableInfoDemo {
       logger.error("查询字段信息错误", e);
       throw new APIException(e.getMessage());
     } finally {
+      String name=schemaConnection.getSchemaName();
       dbUtil.close(statement, connection);
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      runAnswerService.dropSchema(name);
     }
 
   }

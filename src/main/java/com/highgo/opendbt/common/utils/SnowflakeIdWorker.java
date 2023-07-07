@@ -1,5 +1,8 @@
 package com.highgo.opendbt.common.utils;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 /**
  * @Description: 雪花算法生成id
  * @Title: SnowflakeIdWorker
@@ -137,10 +140,12 @@ public class SnowflakeIdWorker {
         lastTimestamp = timestamp;
 
         //移位并通过或运算拼到一起组成64位的ID
-        return ((timestamp - twepoch) << timestampLeftShift) //
+      long  id= ((timestamp - twepoch) << timestampLeftShift) //
                 | (datacenterId << datacenterIdShift) //
                 | (workerId << workerIdShift) //
                 | sequence;
+       id &= 0x7FFFFFFFFFFFFFFFL;
+      return id;
     }
 
     /**

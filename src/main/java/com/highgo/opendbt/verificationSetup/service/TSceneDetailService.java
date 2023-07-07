@@ -11,5 +11,5 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface TSceneDetailService extends IService<TSceneDetail> {
   //查询表相关信息（场景表的和校验表的）
-  VerificationList getSceneDetailList(HttpServletRequest request, int sceneId, int exerciseId);
+  VerificationList getSceneDetailList(HttpServletRequest request, Integer sceneId, Long exerciseId);
 }

@@ -28,7 +28,7 @@ import java.util.List;
 
 	 List<Score> getStuAnswerSituation(@Param("sclassId") int sclassId, @Param("userId") int userId) ;
 
-	 Score getStuExamAnswerSituation(@Param("sclassId") int sclassId, @Param("examId") int examId, @Param("examClassId") int examClassId, @Param("exerciseId") int exerciseId, @Param("userId") int userId) ;
+	 Score getStuExamAnswerSituation(@Param("sclassId") int sclassId, @Param("examId") int examId, @Param("examClassId") int examClassId, @Param("exerciseId") Long exerciseId, @Param("userId") int userId) ;
 
 	 Score getStuScoreById(@Param("scoreId") int scoreId) ;
 

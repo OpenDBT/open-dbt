@@ -223,7 +223,7 @@ public class CourseApi {
    */
   @ApiOperation(value = "根据习题ID查询习题")
   @GetMapping("/getExerciseById/{exerciseId}")
-  public Exercise getExerciseById(@ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId) {
+  public Exercise getExerciseById(@ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId) {
     return exerciseService.getExerciseById(exerciseId);
   }
 
@@ -250,7 +250,7 @@ public class CourseApi {
    */
   @ApiOperation(value = "删除习题")
   @GetMapping("/deleteExercise/{exerciseId}")
-  public Integer deleteExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId) {
+  public Integer deleteExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId) {
     logger.debug("Enter, exerciseId = " + exerciseId);
     return exerciseService.deleteExercise(request, exerciseId);
   }
@@ -291,7 +291,7 @@ public class CourseApi {
    */
   @ApiOperation(value = "复制习题")
   @GetMapping("/copyExercise/{exerciseId}")
-  public Integer copyExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId) {
+  public Integer copyExercise(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId) {
     logger.debug("Enter, exerciseId = " + exerciseId);
     return exerciseService.copyExercise(request, exerciseId);
   }
@@ -305,7 +305,7 @@ public class CourseApi {
    */
   @ApiOperation(value = "复制习题到我的课程下")
   @GetMapping("/copyExerciseToMyCourse/{exerciseId}/{courseId}")
-  public Integer copyExerciseToMyCourse(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId, @ApiParam(value = "课程id", required = true) @PathVariable("courseId") int courseId) {
+  public Integer copyExerciseToMyCourse(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId, @ApiParam(value = "课程id", required = true) @PathVariable("courseId") int courseId) {
     return exerciseService.copyExerciseToMyCourse(request, exerciseId, courseId);
   }
 
@@ -336,7 +336,7 @@ public class CourseApi {
    */
   @ApiOperation(value = "根据获取习题信息列表以及知识点和学生最新一次答题的答案")
   @GetMapping("/getExerciseInfo/{sclassId}/{courseId}/{exerciseId}")
-  public ExerciseDisplay getExerciseInfo(HttpServletRequest request, @PathVariable("sclassId") int sclassId, @PathVariable("courseId") int courseId, @PathVariable("exerciseId") int exerciseId) {
+  public ExerciseDisplay getExerciseInfo(HttpServletRequest request, @PathVariable("sclassId") int sclassId, @PathVariable("courseId") int courseId, @PathVariable("exerciseId") Long exerciseId) {
     logger.info("Enter, sclassId = " + sclassId + ", courseId = " + courseId + ", exerciseId = " + exerciseId);
     return exerciseService.getExerciseInfo(request, sclassId, courseId, exerciseId);
   }
@@ -350,9 +350,10 @@ public class CourseApi {
    */
   @ApiOperation(value = "测试运行习题参考答案")
   @PostMapping("/testRunAnswer")
-  public ResponseModel testRunAnswer(HttpServletRequest request, @RequestBody TestRunModel exercise) {
+  public ResponseModel testRunAnswer(HttpServletRequest request, @RequestBody TestRunModel exercise) throws Throwable {
     logger.info("Enter, exercise = " + exercise.toString());
-    return exerciseService.testRunAnswer(request, exercise);
+    ResponseModel responseModel = exerciseService.testRunAnswer(request, exercise);
+    return responseModel;
   }
 
   /**

@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -27,4 +28,6 @@ public class CheckConstraintsSave {
   @Valid
   @NotEmpty
   private List<TCheckConstraint> checkConstraints;
+  @NotNull
+  private Integer sceneId;
 }

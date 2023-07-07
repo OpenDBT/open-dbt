@@ -136,7 +136,7 @@ public class HomeWorkModelApi {
 
     @ApiOperation(value = "根据模板id习题id查询习题详情")
     @GetMapping("/getExerciseInfoByModel/{exerciseId}/{modelId}")
-    public TNewExercise getExerciseInfo(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId, @ApiParam(value = "模板id", required = true) @PathVariable("modelId") int modelId) {
+    public TNewExercise getExerciseInfo(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId, @ApiParam(value = "模板id", required = true) @PathVariable("modelId") int modelId) {
         logger.debug("Enter,exerciseId={}，modelId={}", exerciseId, modelId);
         return homeworkModelService.getExerciseInfo(request, exerciseId, modelId);
     }
@@ -159,7 +159,7 @@ public class HomeWorkModelApi {
 
     @ApiOperation(value = "删除选题")
     @GetMapping("/delSelectedExercises/{modelId}/{exerciseId}")
-    public boolean delSelectedExercises(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId, @ApiParam(value = "模板id", required = true) @PathVariable("modelId") int modelId) {
+    public boolean delSelectedExercises(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId, @ApiParam(value = "模板id", required = true) @PathVariable("modelId") int modelId) {
         logger.debug("Enter,modelId={},exerciseId={}", modelId, exerciseId);
         return homeworkModelService.delSelectedExercises(request, modelId, exerciseId);
     }
@@ -175,7 +175,7 @@ public class HomeWorkModelApi {
 
     @ApiOperation(value = "模板中习题分数修改")
     @GetMapping("/updateScoreByModel/{exerciseId}/{modelId}/{exerciseScore}")
-    public boolean updateScoreByModel(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") int exerciseId, @ApiParam(value = "模板id", required = true) @PathVariable("modelId") int modelId, @ApiParam(value = "习题分数", required = true) @PathVariable("exerciseScore") Double exerciseScore) {
+    public boolean updateScoreByModel(HttpServletRequest request, @ApiParam(value = "习题id", required = true) @PathVariable("exerciseId") Long exerciseId, @ApiParam(value = "模板id", required = true) @PathVariable("modelId") int modelId, @ApiParam(value = "习题分数", required = true) @PathVariable("exerciseScore") Double exerciseScore) {
         logger.debug("Enter,exerciseId={}，modelId={}，exerciseScore={}", exerciseId, modelId, exerciseScore);
         return homeworkModelService.updateScoreByModel(request, exerciseId, modelId, exerciseScore);
     }

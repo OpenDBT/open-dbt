@@ -82,5 +82,5 @@ public interface ProgressService {
   SubmitResult startVerifyAnswerThread(HttpServletRequest request, Score score, int exerciseSource, boolean isSaveSubmitData, int entranceType) throws ExecutionException, InterruptedException;
 
   //学生端测试运行
-  SubmitResult testStudentAnswer(HttpServletRequest request, Score score);
+  SubmitResult testStudentAnswer(HttpServletRequest request, Score score) throws Throwable;
 }

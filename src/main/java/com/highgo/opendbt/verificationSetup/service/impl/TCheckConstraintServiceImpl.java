@@ -1,13 +1,15 @@
 package com.highgo.opendbt.verificationSetup.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.highgo.opendbt.common.utils.Authentication;
+import com.highgo.opendbt.common.utils.CopyUtils;
+import com.highgo.opendbt.exercise.service.TNewExerciseService;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
-import com.highgo.opendbt.verificationSetup.domain.entity.TCheckConstraint;
-import com.highgo.opendbt.verificationSetup.domain.entity.TSceneDetail;
+import com.highgo.opendbt.temp.domain.entity.TCheckConstraintTemp;
+import com.highgo.opendbt.temp.service.TCheckConstraintTempService;
+import com.highgo.opendbt.verificationSetup.domain.entity.*;
 import com.highgo.opendbt.verificationSetup.domain.model.CheckConstraintsSave;
-import com.highgo.opendbt.verificationSetup.service.TCheckConstraintService;
+import com.highgo.opendbt.verificationSetup.service.*;
 import com.highgo.opendbt.verificationSetup.mapper.TCheckConstraintMapper;
-import com.highgo.opendbt.verificationSetup.service.TSceneDetailService;
 import com.highgo.opendbt.verificationSetup.tools.TableInfoUtil;
 import com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule.GeneratorAnswerProcessFactory;
 import com.highgo.opendbt.verificationSetup.tools.generatorSqlModule.TableInfoEvent;
@@ -19,51 +21,67 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
  */
 @Service
-public class TCheckConstraintServiceImpl extends ServiceImpl<TCheckConstraintMapper, TCheckConstraint>
-    implements TCheckConstraintService{
+public class TCheckConstraintServiceImpl extends AbstractCheckService<TCheckConstraintMapper, TCheckConstraint>
+  implements TCheckConstraintService {
   Logger logger = LoggerFactory.getLogger(getClass());
   @Autowired
   TSceneDetailService sceneDetailService;
+  @Autowired
+  private TNewExerciseService exerciseService;
+
+  @Autowired
+  private TCheckConstraintTempService checkConstraintTempService;
+
+  @Autowired
+  private TSceneConstraintService sceneConstraintService;
+
+
   @Override
   public boolean saveCheckConstraint(HttpServletRequest request, CheckConstraintsSave constraints) {
 
-   List<TCheckConstraint> checkConstraints = constraints.getCheckConstraints();
-    // UserInfo userInfo = Authentication.getCurrentUser(request);
-    UserInfo userInfo = new UserInfo();
-    userInfo.setCode("003");
+    List<TCheckConstraint> checkConstraints = constraints.getCheckConstraints();
+    UserInfo userInfo = Authentication.getCurrentUser(request);
+    boolean isSave = exerciseService.isSave(checkConstraints.get(0).getExerciseId());
     //根据校验点生成答案并验证答案
-    generatorTableAnswer(checkConstraints, userInfo);
+    generatorTableAnswer(checkConstraints, userInfo,isSave,constraints.getSceneId());
     //保存
-    return constraintsSave(checkConstraints);
+    return constraintsSave(checkConstraints,isSave);
   }
 
-  private void generatorTableAnswer(List<TCheckConstraint> constraints, UserInfo userInfo) {
+  private void generatorTableAnswer(List<TCheckConstraint> constraints, UserInfo userInfo, boolean isSave, Integer sceneId) {
     //生成答案
     StringBuilder answerSql = GeneratorAnswerProcessFactory.createEventProcess(TableInfoEvent.CONSTRAINT).generatorAnswer(constraints);
     logger.info("答案sql:" + answerSql.toString());
-    //筛选有场景的约束校验
-    List<TCheckConstraint> tCheckIndices = constraints.stream().filter(item -> item.getSceneDetailId() != null).collect(Collectors.toList());
-    TSceneDetail sceneDetail = null;
-    if (!tCheckIndices.isEmpty()) {
-      //查询场景详情
-      sceneDetail = sceneDetailService.getById(tCheckIndices.get(0).getSceneDetailId());
-    }
+    Long exerciseId = constraints.get(0).getExerciseId();
+    String tableName = constraints.get(0).getTableName();
+    Long sceneDetailId = constraints.get(0).getSceneDetailId();
+    String checkStatus = constraints.get(0).getCheckStatus();
+    Long id = constraints.get(0).getId();
+    //追加上表依赖和字段依赖
+    StringBuilder sql = addOtherSql( answerSql,exerciseId,tableName,isSave,sceneDetailId,"OTHER", id);
     //执行验证答案
-    TableInfoUtil.extractAnswer(userInfo, sceneDetail == null ? -1 : sceneDetail.getSceneId(), constraints.get(0).getExerciseId(), answerSql);
+    TableInfoUtil.extractAnswer(userInfo, sceneId, constraints.get(0).getExerciseId(), sql);
 
   }
+
+
 
   //保存
   @Transactional(rollbackFor = Exception.class)
-  public boolean constraintsSave(List<TCheckConstraint> constraints) {
-    return this.saveOrUpdateBatch(constraints);
+  public boolean constraintsSave(List<TCheckConstraint> constraints,boolean isSave) {
+    if (isSave) {//正式表
+      return this.saveOrUpdateBatch(constraints);
+    } else {//临时表
+      List<TCheckConstraintTemp> constraintTemps = CopyUtils.copyListProperties(constraints, TCheckConstraintTemp.class);
+      return checkConstraintTempService.saveOrUpdateBatch(constraintTemps);
+    }
   }
+
 }
 
 

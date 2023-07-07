@@ -1,6 +1,7 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule;
 
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckDetail;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckField;
 import com.highgo.opendbt.verificationSetup.tools.CheckStatus;
@@ -28,12 +29,18 @@ public class GeneratorCreateTableProcess {
     if (detail == null) {
       return null;
     }
+    if(checkFields==null||checkFields.size()==0){
+      return null;
+    }
     if (CheckStatus.INSERT.toString().equals(detail.getCheckStatus())) {
       //存储建表语句
       StringBuilder builder = new StringBuilder();
       //存储主键，表描述，字段描述
       StringBuilder other = new StringBuilder();
-      List<TCheckField> fields = checkFields.stream().filter(item -> item.getTableName().equals(detail.getTableName())).collect(Collectors.toList());
+
+      List<TCheckField> fields = checkFields.stream()
+        .filter(item -> item.getTableName()
+        .equals(detail.getTableName())).collect(Collectors.toList());
       BusinessResponseEnum.FIELDNOTEMPTY.assertIsNotEmpty(fields);
       builder.append(" CREATE TABLE  ");
       builder.append(detail.getTableName());
@@ -57,7 +64,7 @@ public class GeneratorCreateTableProcess {
           builder.append(")");
         }
         //设置是否为空
-        if (field.getFieldNonNull() == true) {
+        if (field.getFieldNonNull()!=null&&field.getFieldNonNull() == true) {
           builder.append(" not null ");
         }
         //设置默认值
@@ -89,11 +96,11 @@ public class GeneratorCreateTableProcess {
             other.append(field.getFieldComment());
             other.append("'");
           }
-          other.append(";");
+          WrapUtil.addWrapper(other);
         }
       }
       //筛选主键
-      List<String> pkList = fields.stream().filter(item -> item.getPrimaryKey() == true)
+      List<String> pkList = fields.stream().filter(item -> item.getPrimaryKey()!=null&&item.getPrimaryKey() == true)
         .map(TCheckField::getFieldName).collect(Collectors.toList());
       //设置主键
       if (pkList.size() > 0) {
@@ -106,7 +113,8 @@ public class GeneratorCreateTableProcess {
       } else {
         builder.deleteCharAt(builder.lastIndexOf(","));
       }
-      builder.append(" );  ");
+      builder.append(" )  ");
+      WrapUtil.addWrapper(builder);
       if (StringUtils.isNotBlank(detail.getDescribe())) {
         //设置表描述
         builder.append(" COMMENT ON TABLE ");
@@ -115,7 +123,7 @@ public class GeneratorCreateTableProcess {
         builder.append("'");
         builder.append(detail.getDescribe());
         builder.append("'");
-        builder.append(";");
+        WrapUtil.addWrapper(builder);
       }
 
       //设置字段描述

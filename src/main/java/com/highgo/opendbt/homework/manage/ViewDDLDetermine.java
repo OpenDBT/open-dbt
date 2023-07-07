@@ -46,7 +46,7 @@ public class ViewDDLDetermine extends Determine {
       return;
     }
     String answer = exerciseResult == null ? "" : exerciseResult.replaceAll("<p>", "").replaceAll("</p>", "");
-    Integer exerciseId = stuHomeworkInfo.getExerciseId();
+    Long exerciseId = stuHomeworkInfo.getExerciseId();
     //根据习题id查询场景id
     TNewExercise exercise = exerciseService.getById(exerciseId);
 
@@ -79,10 +79,15 @@ public class ViewDDLDetermine extends Determine {
   public SubmitResult submitAnswer(UserInfo loginUser, Score score, int exerciseSource, boolean isSaveSubmitData, int entranceType) {
     TestRunModel model = new TestRunModel();
     model.setStandardAnswer(score.getAnswer());
-    model.setVerySql(score.getVerySql());
+    //model.setVerySql(score.getVerySql());
     model.setExerciseType(score.getExerciseType());
     model.setExerciseId(score.getExerciseId());
-    model.setSceneId(score.getSceneId());
+    //查询习题标准答案
+    TNewExercise exercise = exerciseService.getById(score.getExerciseId());
+    //习题不能为空
+    BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, score.getExerciseId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
     //返回结果
     ResponseModel result = new ResponseModel();
     try {
@@ -120,15 +125,14 @@ public class ViewDDLDetermine extends Determine {
     //转换参数实体类
     TestRunModel model = new TestRunModel();
     model.setStandardAnswer(score.getAnswer());
-    model.setVerySql(score.getVerySql());
     model.setExerciseType(score.getExerciseType());
     model.setExerciseId(score.getExerciseId());
-    model.setSceneId(score.getSceneId());
     //查询习题标准答案
     TNewExercise exercise = exerciseService.getById(score.getExerciseId());
     //习题不能为空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, score.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
     //判断是否为视图相关DDL语句
     determineIsViewSql(model);
     //若没有校验查询sql则返回答案中的查询sql结果集
@@ -158,8 +162,8 @@ public class ViewDDLDetermine extends Determine {
     TNewExercise exercise = exerciseService.getById(model.getExerciseId());
     //习题不存在抛出异常
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
-
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
 
     //解析答案获取key：视图名称和value:操作类型
     Map<String, String> answer = generatorViewNameAndType(exercise.getStandardAnswser());

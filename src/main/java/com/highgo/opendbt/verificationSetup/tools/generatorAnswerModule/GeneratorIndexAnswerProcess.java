@@ -1,5 +1,6 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule;
 
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckIndex;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneIndex;
 import com.highgo.opendbt.verificationSetup.service.TSceneIndexService;
@@ -50,7 +51,8 @@ public class GeneratorIndexAnswerProcess implements GeneratorAnswerProcess<TChec
         }
         builder.append(" (");
         builder.append(index.getIndexFields());
-        builder.append(");");
+        builder.append(")");
+        WrapUtil.addWrapper(builder);
       }
       //修改
       if (CheckStatus.UPDATE.toString().equals(index.getCheckStatus())) {
@@ -58,7 +60,7 @@ public class GeneratorIndexAnswerProcess implements GeneratorAnswerProcess<TChec
         //删除就索引
         builder.append(" DROP INDEX ");
         builder.append(sceneIndex.getIndexName());
-        builder.append(" ;");
+        builder.append(" CASCADE;");
         //新增修改后索引
         builder.append(" CREATE ");
         if (index.getIndexUnique()) {
@@ -74,14 +76,16 @@ public class GeneratorIndexAnswerProcess implements GeneratorAnswerProcess<TChec
         }
         builder.append(" (");
         builder.append(index.getIndexFields());
-        builder.append(");");
+        builder.append(")");
+        WrapUtil.addWrapper(builder);
         //}
       }
       //删除
       if (CheckStatus.DEL.toString().equals(index.getCheckStatus())) {
         builder.append(" DROP INDEX ");
         builder.append(index.getIndexName());
-        builder.append(" ;");
+        builder.append(" CASCADE");
+        WrapUtil.addWrapper(builder);
       }
     }
     return builder;

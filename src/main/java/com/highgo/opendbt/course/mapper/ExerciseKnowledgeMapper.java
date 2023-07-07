@@ -26,7 +26,7 @@ public interface ExerciseKnowledgeMapper extends RootMapper<ExerciseKnowledge> {
      * @return
      * @
      */
-    public List<ExerciseKnowledge> getExerciseKnowledgeByExerciseId(@Param("exerciseId") int exerciseId);
+    public List<ExerciseKnowledge> getExerciseKnowledgeByExerciseId(@Param("exerciseId") Long exerciseId);
 
     /**
      * 添加习题和知识点的关联关系（数组）
@@ -37,7 +37,7 @@ public interface ExerciseKnowledgeMapper extends RootMapper<ExerciseKnowledge> {
      * @return
      * @
      */
-    public Integer addExerciseKnowledgeArray(@Param("courseId") int courseId, @Param("exerciseId") int exerciseId, @Param("knowledgeIds") int[] knowledgeIds);
+    public Integer addExerciseKnowledgeArray(@Param("courseId") int courseId, @Param("exerciseId") Long exerciseId, @Param("knowledgeIds") int[] knowledgeIds);
 
     /**
      * 添加习题和知识点的关联关系（list）
@@ -55,7 +55,7 @@ public interface ExerciseKnowledgeMapper extends RootMapper<ExerciseKnowledge> {
      * @return
      * @
      */
-    public Integer deleteByExerciseId(@Param("exerciseId") int exerciseId);
+    public Integer deleteByExerciseId(@Param("exerciseId") Long exerciseId);
 
     /**
      * 通过知识点id删除习题和知识点的关联关系

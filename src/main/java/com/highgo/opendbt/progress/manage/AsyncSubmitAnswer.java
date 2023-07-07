@@ -1,5 +1,6 @@
 package com.highgo.opendbt.progress.manage;
 
+import com.highgo.opendbt.common.utils.Authentication;
 import com.highgo.opendbt.common.utils.TimeUtil;
 import com.highgo.opendbt.exercise.domain.entity.TNewExercise;
 import com.highgo.opendbt.exercise.service.TNewExerciseService;
@@ -41,9 +42,7 @@ public class AsyncSubmitAnswer {
     logger.info("task  start.");
     long start = System.currentTimeMillis();
     // 获取用户信息
-    //UserInfo loginUser = Authentication.getCurrentUser(request);
-    UserInfo loginUser = new UserInfo();
-    loginUser.setCode("003");
+    UserInfo loginUser = Authentication.getCurrentUser(request);
     //根据习题id查询习题信息
     TNewExercise exercise = exerciseService.getExerciseInfo(request, score.getExerciseId());
     TStuHomeworkInfo homeworkInfo = new TStuHomeworkInfo();

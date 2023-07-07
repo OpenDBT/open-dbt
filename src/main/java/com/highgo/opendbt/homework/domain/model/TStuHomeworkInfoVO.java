@@ -1,5 +1,7 @@
 package com.highgo.opendbt.homework.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.highgo.opendbt.homeworkmodel.domain.model.NewExerciseDTO;
 import lombok.Data;
 import lombok.ToString;
@@ -19,7 +21,8 @@ public class TStuHomeworkInfoVO implements Serializable {
     /**
      * 习题id
      */
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 学生答题获得分数

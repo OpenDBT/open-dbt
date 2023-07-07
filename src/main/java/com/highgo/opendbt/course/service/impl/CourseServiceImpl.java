@@ -249,7 +249,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         // 定义知识点、场景、习题的id的转换map，key为被复制的id，value为复制的新的id
         Map<Integer, Integer> knowledgeIdConvertMap = new HashMap<>();
         Map<Integer, Integer> sceneIdConvertMap = new HashMap<>();
-        Map<Integer, Integer> exerciseIdConvertMap = new HashMap<>();
+        Map<Long, Long> exerciseIdConvertMap = new HashMap<>();
         //定义课程目录id转换map
         Map<Integer, Integer> catalogueIdConvertMap = new HashMap<>();
         Map<Long, Long> catalogueResourcesIdConvertMap = new HashMap<>();
@@ -474,10 +474,10 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         }
     }
 
-    private void copyCourseExercise(int userId, int newCourseId, List<Exercise> exerciseList, Map<Integer, Integer> sceneIdConvertMap, Map<Integer, Integer> exerciseIdConvertMap) {
+    private void copyCourseExercise(int userId, int newCourseId, List<Exercise> exerciseList, Map<Integer, Integer> sceneIdConvertMap, Map<Long, Long> exerciseIdConvertMap) {
         for (int i = 0; i < exerciseList.size(); i++) {
             Exercise exercise = exerciseList.get(i);
-            int oldExercise = exercise.getExerciseId();
+            Long oldExercise = exercise.getExerciseId();
             // 习题的场景id不等于-1说明有场景，否则没有场景
             if (exercise.getSceneId() != -1) {
                 if (null == sceneIdConvertMap.get(exercise.getSceneId())) {
@@ -495,7 +495,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         }
     }
 
-    private void copyCourseExerciseKnowledge(int newCourseId, List<ExerciseKnowledge> exerciseKnowledgeList, Map<Integer, Integer> knowledgeIdConvertMap, Map<Integer, Integer> exerciseIdConvertMap) {
+    private void copyCourseExerciseKnowledge(int newCourseId, List<ExerciseKnowledge> exerciseKnowledgeList, Map<Integer, Integer> knowledgeIdConvertMap, Map<Long, Long> exerciseIdConvertMap) {
         List<ExerciseKnowledge> newList = new ArrayList<>();
         for (int i = 0; i < exerciseKnowledgeList.size(); i++) {
             ExerciseKnowledge exerciseKnowledge = exerciseKnowledgeList.get(i);

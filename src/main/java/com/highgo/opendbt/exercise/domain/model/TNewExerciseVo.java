@@ -1,6 +1,8 @@
 package com.highgo.opendbt.exercise.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.highgo.opendbt.course.domain.entity.Knowledge;
 import lombok.Data;
 import lombok.ToString;
@@ -25,7 +27,8 @@ public class TNewExerciseVo implements Serializable {
     /**
      * 主键
      */
-    private Integer id;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
 
     /**
      * 课程id
@@ -184,4 +187,10 @@ public class TNewExerciseVo implements Serializable {
      * 知识点
      */
     private List<Knowledge> knowledges;
+
+
+  /**
+   * 校验sql
+   */
+  private String verySql;
 }

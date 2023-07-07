@@ -5,10 +5,7 @@ import com.highgo.opendbt.common.bean.ResultTO;
 import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.BusinessException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
-import com.highgo.opendbt.common.utils.Authentication;
-import com.highgo.opendbt.common.utils.ExcelUtil;
-import com.highgo.opendbt.common.utils.Message;
-import com.highgo.opendbt.common.utils.TimeUtil;
+import com.highgo.opendbt.common.utils.*;
 import com.highgo.opendbt.exam.service.TScoreService;
 import com.highgo.opendbt.exercise.domain.entity.TNewExercise;
 import com.highgo.opendbt.exercise.domain.model.PublishExercise;
@@ -330,9 +327,10 @@ public class ProgressServiceImpl implements ProgressService {
   }
 
   @Override
-  public SubmitResult testStudentAnswer(HttpServletRequest request, Score score) {
+  public SubmitResult testStudentAnswer(HttpServletRequest request, Score score) throws Throwable {
     UserInfo loginUser = Authentication.getCurrentUser(request);
     CompletableFuture<SubmitResult> future = asyncSubmitExerciseAnswer.testSubmitAnswer(loginUser, score);
+
     try {
       return future.get();
     } catch (InterruptedException e) {
@@ -340,12 +338,7 @@ public class ProgressServiceImpl implements ProgressService {
       throw new APIException("运行失败");
     } catch (ExecutionException e) {
       e.printStackTrace();
-      if (e.getCause() instanceof BusinessException) {
-        e.printStackTrace();
-        throw (BusinessException) e.getCause();
-      } else {
-        throw new APIException("运行失败");
-      }
+      throw ExceptionUtils.getInnermostException(e);
     }
   }
 

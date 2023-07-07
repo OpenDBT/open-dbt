@@ -216,7 +216,7 @@ public class ProgressApi {
    */
   @ApiOperation(value = "学生端练习测试运行，不保存答案")
   @PostMapping("/stuTestRunAnswer")
-  public SubmitResult stuTestRunAnswer(HttpServletRequest request, @RequestBody @Valid Score score) throws ExecutionException, InterruptedException {
+  public SubmitResult stuTestRunAnswer(HttpServletRequest request, @RequestBody @Valid Score score) throws Throwable {
     logger.debug("Enter, score = " + score.toString());
     return progressService.testStudentAnswer(request, score);
   }

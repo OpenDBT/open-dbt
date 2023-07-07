@@ -1,5 +1,7 @@
 package com.highgo.opendbt.course.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.highgo.opendbt.course.domain.entity.Knowledge;
 import com.highgo.opendbt.exercise.domain.entity.TExerciseInfo;
 import lombok.Data;
@@ -12,7 +14,8 @@ import java.util.List;
 @ToString
 @Accessors(chain = true)
 public class ExerciseDisplay {
-	private int exerciseId = -1; // 习题id
+  @JsonSerialize(using = ToStringSerializer.class)
+	private Long exerciseId = -1L; // 习题id
 	private int courseId; // 课程
 	private String courseName; // 课程名
 	private int sceneId = -1; // 场景id

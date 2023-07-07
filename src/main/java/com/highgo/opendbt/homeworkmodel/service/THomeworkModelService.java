@@ -43,10 +43,10 @@ public interface THomeworkModelService extends IService<THomeworkModel> {
     SaveHomeWorkModel getExercisesByModelId(HttpServletRequest request, Integer id,int flag);
 
     //根据习题id查询是否绑定了作业模板
-    List<Integer> getIsBandingModel(int exerciseId);
+    List<Integer> getIsBandingModel(Long exerciseId);
 
     //根据习题id查询习题详情
-    TNewExercise getExerciseInfo(HttpServletRequest request, int exerciseId, int modelId);
+    TNewExercise getExerciseInfo(HttpServletRequest request, Long exerciseId, int modelId);
 
     //作业选题，习题列表
     Map<String, Object> getHomeWorkModelExercises(HttpServletRequest request, @Valid PageParam<TNewExerciseDTO> modelId);
@@ -55,13 +55,13 @@ public interface THomeworkModelService extends IService<THomeworkModel> {
     THomeworkModel completedSelectedExercises(HttpServletRequest request, SelectedExercisesDTO param);
 
     //删除选中的习题
-    boolean delSelectedExercises(HttpServletRequest request, int modelId, int exerciseId);
+    boolean delSelectedExercises(HttpServletRequest request, int modelId, Long exerciseId);
 
     //模板中习题保存
     TNewExercise saveExercise(HttpServletRequest request, EditNewExerciseDTO param);
 
     //模板中习题分数修改
-    boolean updateScoreByModel(HttpServletRequest request, int exerciseId, int modelId, Double exerciseScore);
+    boolean updateScoreByModel(HttpServletRequest request, Long exerciseId, int modelId, Double exerciseScore);
 
     //作业库目录树查询
     List<THomeworkModel> getHomeWorkModelCatalogueTree(HttpServletRequest request, Integer courseId);

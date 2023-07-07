@@ -210,7 +210,7 @@
 <!-- 			t_scene.*, -->
 <!-- 			(select answer from t_score where exercise_id=t_exercise.id and class_id=#{sclassId} and user_id=#{userId} order by create_time desc limit 1) as stu_answer	 -->
 		from t_new_exercise
-		join t_scene on t_scene.id = t_new_exercise.scene_id
+		left join t_scene on t_scene.id = t_new_exercise.scene_id
 		join t_course on t_course.id = t_new_exercise.course_id
 		where t_new_exercise.course_id = #{courseId} and t_new_exercise.delete_flag = 0
 		<if test="knowledgeId != null and knowledgeId != -1 and knowledgeId != 0">

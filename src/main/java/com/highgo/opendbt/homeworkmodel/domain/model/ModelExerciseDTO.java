@@ -1,5 +1,7 @@
 package com.highgo.opendbt.homeworkmodel.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -17,7 +19,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ModelExerciseDTO {
     //习题id
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
     //习题类型
     private Integer exerciseType;
 }

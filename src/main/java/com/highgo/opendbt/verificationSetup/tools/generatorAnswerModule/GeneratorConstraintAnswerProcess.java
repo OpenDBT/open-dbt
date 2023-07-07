@@ -1,5 +1,6 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule;
 
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckConstraint;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneConstraint;
 import com.highgo.opendbt.verificationSetup.service.TSceneConstraintService;
@@ -79,7 +80,8 @@ public class GeneratorConstraintAnswerProcess implements GeneratorAnswerProcess<
         builder.append(constraint.getTableName());
         builder.append(" DROP CONSTRAINT ");
         builder.append(sceneConstraint.getCrName());
-        builder.append(";");
+        builder.append(" CASCADE");
+        WrapUtil.addWrapper(builder);
         //后新增
         builder.append(" ALTER TABLE ");
         builder.append(constraint.getTableName());
@@ -98,7 +100,8 @@ public class GeneratorConstraintAnswerProcess implements GeneratorAnswerProcess<
           builder.append(" CHECK ");
           builder.append(" (");
           builder.append(constraint.getCrExpression());
-          builder.append(");");
+          builder.append(")");
+          WrapUtil.addWrapper(builder);
         } else
           //排他约束
           if (ConstraintType.X.toString().equalsIgnoreCase(constraint.getCrType())) {
@@ -107,12 +110,14 @@ public class GeneratorConstraintAnswerProcess implements GeneratorAnswerProcess<
               builder.append(constraint.getCrIndexType());
               builder.append(" (");
               builder.append(constraint.getCrExpression());
-              builder.append(");");
+              builder.append(")");
+              WrapUtil.addWrapper(builder);
             }
           } else {
             builder.append(" (");
             builder.append(constraint.getCrFields());
-            builder.append(");");
+            builder.append(")");
+            WrapUtil.addWrapper(builder);
           }
       }
       //删除
@@ -121,7 +126,8 @@ public class GeneratorConstraintAnswerProcess implements GeneratorAnswerProcess<
         builder.append(constraint.getTableName());
         builder.append(" DROP CONSTRAINT ");
         builder.append(constraint.getCrName());
-        builder.append(";");
+        builder.append(" CASCADE");
+        WrapUtil.addWrapper(builder);
       }
     }
     return builder;

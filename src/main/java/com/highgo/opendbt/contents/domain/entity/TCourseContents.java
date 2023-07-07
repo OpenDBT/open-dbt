@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.highgo.opendbt.catalogue.domain.entity.TCatalogueResources;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import lombok.Data;
 import lombok.ToString;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @ToString
 @TableName(value = "t_course_contents")
-public class TCourseContents extends BaseEntity {
+public class TCourseContents extends MyBaseEntity {
     /**
      *主键
      */

@@ -56,7 +56,7 @@ public class TCourseContentsServiceImpl extends ServiceImpl<TCourseContentsMappe
     private TCourseCatalogueService courseCatalogueService;
     @Autowired
     private TClassStuService classStuService;
-    SnowflakeIdWorker idWorker = null;
+    static SnowflakeIdWorker idWorker = null;
 
 
     @Override

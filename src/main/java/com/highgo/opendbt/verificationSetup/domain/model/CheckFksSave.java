@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -26,4 +27,7 @@ public class CheckFksSave {
   @Valid
   @NotEmpty
   private List<TCheckFk> checkFks;
+  //场景id
+  @NotNull
+  private Integer sceneId;
 }

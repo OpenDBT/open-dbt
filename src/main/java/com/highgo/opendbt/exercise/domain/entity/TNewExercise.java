@@ -4,18 +4,16 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import com.highgo.opendbt.course.domain.entity.Knowledge;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,12 +23,12 @@ import java.util.List;
 @Data
 @ToString
 @Accessors(chain = true)
-public class TNewExercise extends BaseEntity {
+public class TNewExercise extends MyBaseEntity {
   /**
    * 主键
    */
   @TableId(value = "id", type = IdType.AUTO)
-  private Integer id;
+  private Long id;
 
   /**
    * 课程id
@@ -121,7 +119,8 @@ public class TNewExercise extends BaseEntity {
    * 序号
    */
   @TableField(value = "sort_num")
-  private Integer sortNum;
+  @JsonSerialize(using = ToStringSerializer.class)
+  private Long sortNum;
 
 
   /**

@@ -52,7 +52,7 @@ public class PublicExerciseServiceImpl implements PublicExerciseService {
   }
 
   @Override
-  public PublicExercise getPublicExerciseInfo(int exerciseId) {
+  public PublicExercise getPublicExerciseInfo(Long exerciseId) {
     return publicExerciseMapper.getPublicExerciseInfo(exerciseId);
   }
 
@@ -71,7 +71,7 @@ public class PublicExerciseServiceImpl implements PublicExerciseService {
 
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public Integer deleteExercise(int exerciseId) {
+  public Integer deleteExercise(Long exerciseId) {
     return publicExerciseMapper.deleteExercise(exerciseId);
   }
 
@@ -86,7 +86,7 @@ public class PublicExerciseServiceImpl implements PublicExerciseService {
       // 获取用户信息
       UserInfo loginUser = Authentication.getCurrentUser(request);
       // 初始化脚本并获取指定schema的连接
-      runAnswerService.getSchemaConnection(loginUser, publicExercise.getSceneId(), 0, schemaConnection, 1);
+      runAnswerService.getSchemaConnection(loginUser, publicExercise.getSceneId(), 0L, schemaConnection, 1);
       if (null != schemaConnection.getConnection()) {
         resultMap = new LinkedHashMap<>();
         connection = schemaConnection.getConnection();
@@ -116,10 +116,11 @@ public class PublicExerciseServiceImpl implements PublicExerciseService {
       logger.error(e.getMessage(), e);
       throw new APIException(e.getMessage());
     } finally {
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      String name=schemaConnection.getSchemaName();
       CloseUtil.close(resultSet);
       CloseUtil.close(statement);
       CloseUtil.close(connection);
+      runAnswerService.dropSchema(name);
     }
   }
 

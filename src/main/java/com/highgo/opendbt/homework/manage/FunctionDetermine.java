@@ -40,7 +40,7 @@ public class FunctionDetermine extends Determine {
       return;
     }
     String answer = exerciseResult == null ? "" : exerciseResult.replaceAll("<p>", "").replaceAll("</p>", "");
-    Integer exerciseId = stuHomeworkInfo.getExerciseId();
+    Long exerciseId = stuHomeworkInfo.getExerciseId();
     //根据习题id查询场景id
     TNewExercise exercise = exerciseService.getById(exerciseId);
     Score score = new Score();
@@ -123,12 +123,12 @@ public class FunctionDetermine extends Determine {
     model.setVerySql(score.getVerySql());
     model.setExerciseType(score.getExerciseType());
     model.setExerciseId(score.getExerciseId());
-    model.setSceneId(score.getSceneId());
     //查询习题标准答案
     TNewExercise exercise = exerciseService.getById(score.getExerciseId());
     //习题不能为空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, score.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
     //判断是否为函数相关DDL语句
     determineIsFunctionSql(model);
     FunctionUtil.executeFunctionSql(loginUser, model, responseModel);
@@ -142,7 +142,7 @@ public class FunctionDetermine extends Determine {
     TNewExercise exercise = exerciseService.getById(model.getExerciseId());
     //习题不能为空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
     model.setVerySql(exercise.getVerySql());
     //执行学生答案返回
     FunctionUtil.executeFunctionSql(userInfo, model, studentAnswerResultMap);
@@ -165,8 +165,8 @@ public class FunctionDetermine extends Determine {
       //比较教师和学生的结果集是否一样
       FunctionUtil.compareResultSet(teacherResultSetInfo, studentResultSetInfo);
     } else {
-      List<List<Map<String, Object>>> teacherLists = teacherAnswerResultMap.getFunctionResult();
-      List<List<Map<String, Object>>> studentLists = studentAnswerResultMap.getFunctionResult();
+      List<List<Map<String, Object>>> teacherLists = null;//teacherAnswerResultMap.getFunctionResult();
+      List<List<Map<String, Object>>> studentLists = null;//studentAnswerResultMap.getFunctionResult();
       //判断教师和学生得到的结果集个数是否相同
       BusinessResponseEnum.RESULTNUMDIFFENT.assertIsTrue(teacherLists.size() == studentLists.size(), teacherLists.size());
       for (int i = 0; i < teacherLists.size(); i++) {

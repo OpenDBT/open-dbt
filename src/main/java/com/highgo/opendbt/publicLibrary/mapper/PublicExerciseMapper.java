@@ -14,12 +14,12 @@ public interface PublicExerciseMapper {
 
     List<PublicExercise> getPublicExerciseDetail();
 
-    PublicExercise getPublicExerciseInfo(@Param("exerciseId") int exerciseId);
+    PublicExercise getPublicExerciseInfo(@Param("exerciseId") Long exerciseId);
 
     Integer addExercise(PublicExercise publicExercise);
 
     Integer updateExercise(PublicExercise publicExercise);
 
-    Integer deleteExercise(@Param("exerciseId") int exerciseId);
+    Integer deleteExercise(@Param("exerciseId") Long exerciseId);
 
 }

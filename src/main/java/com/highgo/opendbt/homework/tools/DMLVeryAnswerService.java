@@ -98,7 +98,7 @@ public class DMLVeryAnswerService {
   }
 
 
-  private StudentAndTeacherResult getStudentAndTeacherResult(UserInfo loginUser, int sceneId, int exerciseId, String referAnswer, String studentAnswer, SubmitResult result, int exerciseSource, boolean isSaveSubmitData) {
+  private StudentAndTeacherResult getStudentAndTeacherResult(UserInfo loginUser, int sceneId, Long exerciseId, String referAnswer, String studentAnswer, SubmitResult result, int exerciseSource, boolean isSaveSubmitData) {
     StudentAndTeacherResult studentAndTeacherResult = new StudentAndTeacherResult();
     Connection connection = null;
     Statement statement = null;
@@ -157,16 +157,17 @@ public class DMLVeryAnswerService {
       logger.error(e.getMessage(), e);
       throw new APIException(e.getMessage());
     } finally {
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
-      CloseUtil.close(teacherResultSet);
-      CloseUtil.close(studentResultSet);
+      String schemaName=schemaConnection.getSchemaName();
       CloseUtil.close(statement);
       CloseUtil.close(connection);
+      logger.info("到达此处1="+schemaConnection.getSchemaName());
+      runAnswerService.dropSchema(schemaName);
+      logger.info("到达此处2="+schemaConnection.getSchemaName());
     }
     return studentAndTeacherResult;
   }
 
-  private UpdateRowAndResultSetTO getUpdateRowAndResultSet(UserInfo loginUser, int sceneId, int exerciseId, String answer, boolean isStudent, SubmitResult result, int exerciseSource) {
+  private UpdateRowAndResultSetTO getUpdateRowAndResultSet(UserInfo loginUser, int sceneId, Long exerciseId, String answer, boolean isStudent, SubmitResult result, int exerciseSource) {
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;
@@ -231,10 +232,11 @@ public class DMLVeryAnswerService {
       logger.error(e.getMessage(), e);
       throw new APIException(e.getMessage());
     } finally {
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+    String name=schemaConnection.getSchemaName();
       CloseUtil.close(resultSet);
       CloseUtil.close(statement);
       CloseUtil.close(connection);
+      runAnswerService.dropSchema(name);
     }
     return updateRowAndResultSet;
   }

@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -26,4 +27,6 @@ public class CheckFieldsSave {
   @Valid
   @NotEmpty
   private List<TCheckField> fields;
+  @NotNull
+  private Integer sceneId;
 }

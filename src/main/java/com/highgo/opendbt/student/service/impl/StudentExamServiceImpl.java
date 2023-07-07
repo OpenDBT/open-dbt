@@ -54,7 +54,7 @@ public class StudentExamServiceImpl implements StudentExamService {
 
   @Override
   public StudentExamExercise getExamExerciseById(HttpServletRequest request
-    , int classId, int examId, int examClassId, int exerciseId) {
+    , int classId, int examId, int examClassId, Long exerciseId) {
     UserInfo loginUser = Authentication.getCurrentUser(request);
     Exam exam = examMapper.getExamById(examId);
     BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(exam);

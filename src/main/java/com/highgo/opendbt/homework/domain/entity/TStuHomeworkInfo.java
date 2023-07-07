@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import com.highgo.opendbt.exercise.domain.entity.TExerciseInfo;
 import lombok.Data;
 import lombok.ToString;
@@ -21,7 +23,7 @@ import java.util.List;
 @Data
 @ToString
 @Accessors(chain = true)
-public class TStuHomeworkInfo extends BaseEntity {
+public class TStuHomeworkInfo extends MyBaseEntity {
     /**
      *
      */
@@ -92,7 +94,8 @@ public class TStuHomeworkInfo extends BaseEntity {
      * 习题id
      */
     @TableField(value = "exercise_id")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 习题分数
@@ -154,7 +157,7 @@ public class TStuHomeworkInfo extends BaseEntity {
     public TStuHomeworkInfo() {
     }
 
-    public TStuHomeworkInfo(Integer courseId, Integer homeworkId, String homeworkName, Integer modelId, String modelName, Integer studentId, String studentName, String studentCode, Integer classId, Integer exerciseId, Double exerciseScore, String exerciseResult, Integer isCorrect, Date createTime, Integer deleteFlag) {
+    public TStuHomeworkInfo(Integer courseId, Integer homeworkId, String homeworkName, Integer modelId, String modelName, Integer studentId, String studentName, String studentCode, Integer classId, Long exerciseId, Double exerciseScore, String exerciseResult, Integer isCorrect, Date createTime, Integer deleteFlag) {
         this.courseId = courseId;
         this.homeworkId = homeworkId;
         this.homeworkName = homeworkName;

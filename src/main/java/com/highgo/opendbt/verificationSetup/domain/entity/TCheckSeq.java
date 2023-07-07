@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 /**
@@ -18,12 +21,14 @@ public class TCheckSeq implements Serializable {
      * 主键
      */
     @TableId(value = "id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
      * 初始化表序列id
      */
     @TableField(value = "scene_seq_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneSeqId;
 
     /**
@@ -48,24 +53,28 @@ public class TCheckSeq implements Serializable {
      * 步长
      */
     @TableField(value = "step")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long step;
 
     /**
      * 最小值
      */
     @TableField(value = "min_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long minValue;
 
     /**
      * 最大值
      */
     @TableField(value = "max_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long maxValue;
 
     /**
      * 最新值
      */
     @TableField(value = "latest_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long latestValue;
 
     /**
@@ -102,24 +111,28 @@ public class TCheckSeq implements Serializable {
      * 开始值
      */
     @TableField(value = "start_value")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long startValue;
 
     /**
      * 缓冲尺寸
      */
     @TableField(value = "cache_size")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long cacheSize;
 
     /**
      * 题目id
      */
     @TableField(value = "exercise_id")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 场景详情id
      */
     @TableField(value = "scene_detail_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneDetailId;
 
     @TableField(exist = false)

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.highgo.opendbt.common.utils.WrapUtil.addWrap;
+
 /**
  * @Description: 生成外键校验描述
  * @Title: GeneratorDescriptionForeignKeyProcess
@@ -32,7 +34,7 @@ public class GeneratorDescriptionForeignKeyProcess implements GeneratorDescripti
     for (TCheckFk fk : checkFks) {
       //新增
       if (CheckStatus.INSERT.toString().equals(fk.getCheckStatus())) {
-        builder.append(" 新增表");
+        builder.append("新增表");
         builder.append(fk.getTableName());
         builder.append("中外键");
         builder.append(fk.getFkName());
@@ -57,7 +59,7 @@ public class GeneratorDescriptionForeignKeyProcess implements GeneratorDescripti
       }
       //修改
       if (CheckStatus.UPDATE.toString().equals(fk.getCheckStatus())) {
-        builder.append(" 修改表");
+        builder.append("修改表");
         builder.append(fk.getTableName());
         builder.append("中外键");
         builder.append(fk.getFkName());
@@ -83,13 +85,13 @@ public class GeneratorDescriptionForeignKeyProcess implements GeneratorDescripti
       }
       //删除
       if (CheckStatus.DEL.toString().equals(fk.getCheckStatus())) {
-        builder.append(" 删除表");
+        builder.append("删除表");
         builder.append(fk.getTableName());
         builder.append("中外键");
         builder.append(fk.getFkName());
       }
+      addWrap(builder);
     }
-    builder.append(",");
     return builder;
   }
 }

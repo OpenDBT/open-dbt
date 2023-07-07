@@ -68,7 +68,7 @@ public class StudentApi {
    * @return StudentExamExercise
    */
   @RequestMapping("/getExamExerciseById/{sclassId}/{examId}/{examClassId}/{exerciseId}")
-  public StudentExamExercise getExamExerciseById(HttpServletRequest request, @PathVariable("sclassId") int sclassId, @PathVariable("examId") int examId, @PathVariable("examClassId") int examClassId, @PathVariable("exerciseId") int exerciseId) {
+  public StudentExamExercise getExamExerciseById(HttpServletRequest request, @PathVariable("sclassId") int sclassId, @PathVariable("examId") int examId, @PathVariable("examClassId") int examClassId, @PathVariable("exerciseId") Long exerciseId) {
     return studentExamService.getExamExerciseById(request, sclassId, examId, examClassId, exerciseId);
   }
 

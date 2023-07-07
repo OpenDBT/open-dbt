@@ -110,7 +110,7 @@ public class DMLDetermine extends Determine {
     SchemaConnection schemaConnection = new SchemaConnection();
     try {
       // 初始化脚本并获取指定schema的连接
-      runAnswerService.getSchemaConnection(loginUser, model.getSceneId(), 0, schemaConnection, 0);
+      runAnswerService.getSchemaConnection(loginUser, model.getSceneId(), 0L, schemaConnection, 0);
       if (null != schemaConnection.getConnection()) {
         connection = schemaConnection.getConnection();
         statement = connection.createStatement();
@@ -123,10 +123,11 @@ public class DMLDetermine extends Determine {
       logger.error(e.getMessage(), e);
       new APIException(e.getMessage());
     } finally {
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      String name=schemaConnection.getSchemaName();
       CloseUtil.close(resultSet);
       CloseUtil.close(statement);
       CloseUtil.close(connection);
+      runAnswerService.dropSchema(name);
     }
     return responseModel;
   }

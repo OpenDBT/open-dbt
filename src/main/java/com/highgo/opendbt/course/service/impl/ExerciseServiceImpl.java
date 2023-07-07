@@ -159,7 +159,7 @@ public class ExerciseServiceImpl extends ServiceImpl<ExerciseMapper, Exercise>
    **/
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public Integer deleteExercise(HttpServletRequest request, int exerciseId) {
+  public Integer deleteExercise(HttpServletRequest request, Long exerciseId) {
     // 删除习题
     return exerciseMapper.deleteExercise(exerciseId);
   }
@@ -173,7 +173,7 @@ public class ExerciseServiceImpl extends ServiceImpl<ExerciseMapper, Exercise>
    **/
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public Integer copyExercise(HttpServletRequest request, int exerciseId) {
+  public Integer copyExercise(HttpServletRequest request, Long exerciseId) {
     // 获取要复制的习题的信息
     Exercise exercise = exerciseMapper.getExerciseById(exerciseId);
     if (null == exercise) {
@@ -206,7 +206,7 @@ public class ExerciseServiceImpl extends ServiceImpl<ExerciseMapper, Exercise>
    **/
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public Integer copyExerciseToMyCourse(HttpServletRequest request, int exerciseId, int courseId) {
+  public Integer copyExerciseToMyCourse(HttpServletRequest request, Long exerciseId, int courseId) {
     // 获取要复制的习题的信息
     Exercise exercise = exerciseMapper.getExerciseById(exerciseId);
     if (null == exercise) {
@@ -226,24 +226,21 @@ public class ExerciseServiceImpl extends ServiceImpl<ExerciseMapper, Exercise>
   }
 
   @Override
-  public ResponseModel testRunAnswer(HttpServletRequest request, TestRunModel model) {
+  public ResponseModel testRunAnswer(HttpServletRequest request, TestRunModel model) throws Throwable {
     // 获取用户信息
-    //UserInfo loginUser = Authentication.getCurrentUser(request);
-    UserInfo loginUser = new UserInfo();
-    loginUser.setCode("003");
+    UserInfo loginUser = Authentication.getCurrentUser(request);
+    if(model.getExerciseId()==-1){
+      model.setExerciseId(null);
+    }
     CompletableFuture<ResponseModel> future = asyncSubmitExerciseAnswer.testRunAnswer(loginUser, model);
     try {
       return future.get();
     } catch (InterruptedException e) {
       e.printStackTrace();
-      throw new APIException("测试运行失败");
+      throw new APIException("运行失败");
     } catch (ExecutionException e) {
       e.printStackTrace();
-      if (e.getCause() instanceof BusinessException) {
-        throw (BusinessException) e.getCause();
-      } else {
-        throw new APIException("测试运行失败");
-      }
+      throw ExceptionUtils.getInnermostException(e);
     }
   }
 
@@ -269,7 +266,7 @@ public class ExerciseServiceImpl extends ServiceImpl<ExerciseMapper, Exercise>
   }
 
   @Override
-  public ExerciseDisplay getExerciseInfo(HttpServletRequest request, int sclassId, int courseId, int exerciseId) {
+  public ExerciseDisplay getExerciseInfo(HttpServletRequest request, int sclassId, int courseId, Long exerciseId) {
     // 获取用户信息
     UserInfo loginUser = Authentication.getCurrentUser(request);
     //查询习题详情（题目信息，知识点，选项等信息）
@@ -290,7 +287,7 @@ public class ExerciseServiceImpl extends ServiceImpl<ExerciseMapper, Exercise>
   }
 
   @Override
-  public Exercise getExerciseById(int exerciseId) {
+  public Exercise getExerciseById(Long exerciseId) {
     Exercise ex = exerciseMapper.getExerciseById(exerciseId);
     // 通过习题id查询关联的知识点，并把知识点id放到数组
     List<Knowledge> knowledgeList = knowledgeMapper.getKnowledgeByExerciseId(exerciseId);

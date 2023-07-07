@@ -3,6 +3,8 @@ package com.highgo.opendbt.verificationSetup.domain.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -20,20 +22,23 @@ public class TCheckDetail implements Serializable {
      * 主键
      */
     @TableId(value = "id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
      * 场景详情id
      */
     @TableField(value = "scene_detail_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneDetailId;
 
     /**
      * 题目id
      */
-    @NotNull(message = "题目id不能为空")
+    //@NotNull(message = "题目id不能为空")
     @TableField(value = "exercise_id")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 校验点状态UNCHANGED：未改变,UPDATE：更新,INSERT：新增,DEL：删除

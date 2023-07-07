@@ -79,7 +79,7 @@ public class GeneratorDescriptionConstraintProcess implements GeneratorDescripti
       }
       //修改
       if (CheckStatus.UPDATE.toString().equals(constraint.getCheckStatus())) {
-        builder.append(" 修改表");
+        builder.append("修改表");
         builder.append(constraint.getTableName());
         builder.append("中");
         //主键约束
@@ -123,13 +123,12 @@ public class GeneratorDescriptionConstraintProcess implements GeneratorDescripti
       }
       //删除
       if (CheckStatus.DEL.toString().equals(constraint.getCheckStatus())) {
-        builder.append(" 删除表");
+        builder.append("删除表");
         builder.append(constraint.getTableName());
         builder.append("中约束");
         builder.append(constraint.getCrName());
       }
     }
-    builder.append(",");
     return builder;
   }
 

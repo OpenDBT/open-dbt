@@ -10,5 +10,6 @@ public interface GeneratorAnswerProcess<T> {
    * @param: [checkDetails 校验信息]
    * @return: java.lang.String
    **/
+
   StringBuilder generatorAnswer(List<T> checkDetails);
 }

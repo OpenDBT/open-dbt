@@ -1,17 +1,20 @@
 package com.highgo.opendbt.verificationSetup.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
-import com.highgo.opendbt.common.service.RunAnswerService;
+import com.highgo.opendbt.common.utils.CopyUtils;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
+import com.highgo.opendbt.temp.domain.entity.TCheckConstraintTemp;
+import com.highgo.opendbt.temp.service.TCheckConstraintTempService;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckConstraint;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneConstraint;
+import com.highgo.opendbt.verificationSetup.domain.model.SearchModel;
+import com.highgo.opendbt.verificationSetup.domain.model.TSceneConstraintDisplay;
+import com.highgo.opendbt.verificationSetup.domain.model.TSceneDetailDisplay;
 import com.highgo.opendbt.verificationSetup.domain.model.VerificationList;
 import com.highgo.opendbt.verificationSetup.mapper.TSceneConstraintMapper;
 import com.highgo.opendbt.verificationSetup.service.TCheckConstraintService;
 import com.highgo.opendbt.verificationSetup.service.TSceneConstraintService;
-import com.highgo.opendbt.verificationSetup.service.TSceneDetailService;
 import com.highgo.opendbt.verificationSetup.tools.TableInfoUtil;
 import com.highgo.opendbt.verificationSetup.tools.generatorSqlModule.TableInfoEvent;
 import org.slf4j.Logger;
@@ -21,64 +24,116 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
 @Service
-public class TSceneConstraintServiceImpl extends ServiceImpl<TSceneConstraintMapper, TSceneConstraint>
+public class TSceneConstraintServiceImpl extends AbstractVerifyService<TSceneConstraintMapper, TSceneConstraint, TCheckConstraint, TSceneConstraintDisplay>
   implements TSceneConstraintService {
-  Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger logger = LoggerFactory.getLogger(TSceneConstraintServiceImpl.class);
+
+
   @Autowired
-  TSceneDetailService sceneDetailService;
+  private TCheckConstraintService checkConstraintService;
+
+
   @Autowired
-  TSceneConstraintService sceneConstraintService;
-  @Autowired
-  TCheckConstraintService checkConstraintService;
+  private TCheckConstraintTempService checkConstraintTempService;
 
   @Override
-  public VerificationList getConstraintList(HttpServletRequest request, long sceneDetailId, int exerciseId) {
-
-    VerificationList verificationList = new VerificationList();
-    //查询场景表约束信息
-    List<TSceneConstraint> sceneConstraints = sceneConstraintService.list(new QueryWrapper<TSceneConstraint>()
-      .eq("scene_detail_id", sceneDetailId));
-    if (!sceneConstraints.isEmpty()) {
-      verificationList.setSceneConstraints(sceneConstraints);
-    }
-    //查询校验表约束信息
-    List<TCheckConstraint> checkConstraints = checkConstraintService.list(new QueryWrapper<TCheckConstraint>()
-      .eq("scene_detail_id", sceneDetailId)
-      .eq("exercise_id", exerciseId));
-    if (!checkConstraints.isEmpty()) {
-      verificationList.setCheckConstraints(checkConstraints);
-    }
-    //约束信息为空，查询一下约束信息
-    if (sceneConstraints.isEmpty()) {
-      // UserInfo userInfo = Authentication.getCurrentUser(request);
-      UserInfo userInfo = new UserInfo();
-      userInfo.setCode("003");
-      //提取表的索引信息
-      List<TSceneConstraint> constraintList = TableInfoUtil.getInfo(sceneDetailId, userInfo, exerciseId, TableInfoEvent.CONSTRAINT, TSceneConstraint.class);
-      //保存字段信息到场景字段表
-      if (constraintList != null && !constraintList.isEmpty()) {
-        saveSceneConstraintList(constraintList, sceneDetailId);
-        verificationList.setSceneConstraints(constraintList);
-      }
-    }
-    return verificationList;
+  public VerificationList getConstraintList(HttpServletRequest request, SearchModel model) {
+    return this.getDisplayList(request, model);
   }
 
+
+  private List<TSceneConstraint> querySceneConstraints(Long sceneDetailId, UserInfo userInfo, Long exerciseId) {
+    if (sceneDetailId == -1) {
+      return new ArrayList<>();
+    }
+
+    List<TSceneConstraint> sceneConstraints = list(new QueryWrapper<TSceneConstraint>()
+      .eq("scene_detail_id", sceneDetailId));
+
+    if (sceneConstraints.isEmpty()) {
+      initSceneConstraint(sceneDetailId, userInfo, exerciseId);
+      sceneConstraints = list(new QueryWrapper<TSceneConstraint>()
+        .eq("scene_detail_id", sceneDetailId));
+    }
+
+    return sceneConstraints;
+  }
+
+  private List<TCheckConstraint> queryCheckConstraints(Long exerciseId, Long sceneDetailId, String tableName) {
+    if (exerciseService.isSave(exerciseId)) {
+      return checkConstraintService.list(new QueryWrapper<TCheckConstraint>()
+        .eq("exercise_id", exerciseId)
+        .eq(sceneDetailId!=null&&sceneDetailId!=-1,"scene_detail_id", sceneDetailId)
+        .eq(sceneDetailId==null||sceneDetailId == -1, "table_name", tableName));
+    } else {
+      List<TCheckConstraintTemp> constraintTemps = checkConstraintTempService.list(new QueryWrapper<TCheckConstraintTemp>()
+        .eq("exercise_id", exerciseId)
+        .eq(sceneDetailId!=null&&sceneDetailId!=-1,"scene_detail_id", sceneDetailId)
+        .eq(sceneDetailId==null||sceneDetailId == -1, "table_name", tableName));
+      return CopyUtils.copyListProperties(constraintTemps, TCheckConstraint.class);
+    }
+  }
+
+  @Override
+  protected void setVerificationList(VerificationList verificationList,List<TSceneConstraint> entities, List<TSceneConstraintDisplay> entityDisplays) {
+    verificationList.setSceneConstraints(entities);
+    verificationList.setSceneConstraintDisplays(entityDisplays);
+
+  }
+
+  @Override
+  protected List<TSceneConstraint> queryScenes(Long sceneDetailId, UserInfo userInfo, Long exerciseId) {
+    //查询初始化的约束信息，无约束信息根据初始化sql重新提取
+    List<TSceneConstraint> sceneConstraints = querySceneConstraints(sceneDetailId, userInfo, exerciseId);
+    return sceneConstraints;
+  }
+
+  @Override
+  protected List<TCheckConstraint> queryChecks(Long exerciseId, Long sceneDetailId, String tableName) {
+    //查询约束的校验信息
+    List<TCheckConstraint> checkConstraints = queryCheckConstraints(exerciseId, sceneDetailId, tableName);
+    return checkConstraints;
+  }
+
+  @Override
+  protected void addCheckToDisplay(List<TCheckConstraint> checkConstraints, VerificationList verificationList) {
+    List<TSceneConstraintDisplay> sceneConstraintDisplay =  verificationList.getSceneConstraintDisplays()==null?new ArrayList<>():verificationList.getSceneConstraintDisplays();
+    checkConstraints.forEach(checkConstraint -> {
+      if (checkConstraint.getSceneConstraintId() == null) {
+        sceneConstraintDisplay.add(new TSceneConstraintDisplay().setDetail(checkConstraint));
+      } else {
+        sceneConstraintDisplay.stream()
+          .filter(item -> item.getId() != null && item.getId().equals(checkConstraint.getSceneConstraintId()))
+          .forEach(item -> item.setDetail(checkConstraint));
+      }
+    });
+    verificationList.setSceneConstraintDisplays(sceneConstraintDisplay);
+    verificationList.setCheckConstraints(checkConstraints);
+  }
+
+  @Override
+  protected TSceneConstraintDisplay createDisplayEntity() {
+    TSceneConstraintDisplay display = new TSceneConstraintDisplay();
+    return display;
+  }
+
+  private void initSceneConstraint(Long sceneDetailId, UserInfo userInfo, Long exerciseId) {
+    List<TSceneConstraint> constraintList = TableInfoUtil.getInfo(sceneDetailId, userInfo, exerciseId,
+      TableInfoEvent.CONSTRAINT, TSceneConstraint.class);
+
+    if (constraintList!=null&&!constraintList.isEmpty()) {
+      saveSceneConstraintList(constraintList, sceneDetailId);
+    }
+  }
 
   @Transactional(rollbackFor = Exception.class)
-  public void saveSceneConstraintList(List<TSceneConstraint> constraints, long sceneDetailId) {
+  public void saveSceneConstraintList(List<TSceneConstraint> constraints, Long sceneDetailId) {
     constraints.forEach(item -> item.setSceneDetailId(sceneDetailId));
-    boolean res = sceneConstraintService.saveBatch(constraints);
-    BusinessResponseEnum.SAVEFAIL.assertIsTrue(res);
+    boolean success = saveBatch(constraints);
+    BusinessResponseEnum.SAVEFAIL.assertIsTrue(success);
   }
 }
-
-
-
-

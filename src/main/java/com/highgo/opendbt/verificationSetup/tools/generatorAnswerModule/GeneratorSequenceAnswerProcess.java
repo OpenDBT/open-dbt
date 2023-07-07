@@ -1,5 +1,6 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule;
 
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckSeq;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneSeq;
 import com.highgo.opendbt.verificationSetup.service.TSceneSeqService;
@@ -72,13 +73,12 @@ public class GeneratorSequenceAnswerProcess implements GeneratorAnswerProcess<TC
           builder.append("  NO  CYCLE    ");
         }
         if (StringUtils.isNotBlank(seq.getField())) {
-          builder.append(" OWNED BY {    ");
+          builder.append(" OWNED BY     ");
           builder.append(seq.getTableName());
           builder.append(".");
           builder.append(seq.getField());
-          builder.append("}");
         }
-        builder.append(";");
+        WrapUtil.addWrapper(builder);
       }
       //修改
       if (CheckStatus.UPDATE.toString().equals(seq.getCheckStatus())) {
@@ -129,7 +129,7 @@ public class GeneratorSequenceAnswerProcess implements GeneratorAnswerProcess<TC
           builder.append(".");
           builder.append(seq.getField());
         }
-        builder.append(";");
+        WrapUtil.addWrapper(builder);
         if (StringUtils.isNotBlank(seq.getField())) {
           builder.append("ALTER TABLE ");
           builder.append(seq.getTableName());
@@ -149,7 +149,8 @@ public class GeneratorSequenceAnswerProcess implements GeneratorAnswerProcess<TC
         builder.append(" \"");
         builder.append(seq.getSeqName());
         builder.append("\"");
-        builder.append(" CASCADE;");
+        builder.append(" CASCADE");
+        WrapUtil.addWrapper(builder);
       }
     }
     return builder;

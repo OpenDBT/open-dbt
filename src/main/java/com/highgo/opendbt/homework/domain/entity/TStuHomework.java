@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -20,7 +20,7 @@ import java.util.Date;
 @Data
 @ToString
 @Accessors(chain = true)
-public class TStuHomework extends BaseEntity {
+public class TStuHomework extends MyBaseEntity {
     /**
      *主键
      */

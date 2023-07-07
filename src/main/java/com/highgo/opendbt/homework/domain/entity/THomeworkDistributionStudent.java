@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 @Data
 @ToString
 @Accessors(chain = true)
-public class THomeworkDistributionStudent extends BaseEntity {
+public class THomeworkDistributionStudent extends MyBaseEntity {
     /**
      * 主键
      */

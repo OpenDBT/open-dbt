@@ -1,5 +1,6 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorAnswerModule;
 
+import com.highgo.opendbt.common.utils.WrapUtil;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckFk;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneFk;
 import com.highgo.opendbt.verificationSetup.service.TSceneFkService;
@@ -57,7 +58,7 @@ public class GeneratorForeignKeyAnswerProcess implements GeneratorAnswerProcess<
           builder.append("  ON UPDATE  ");
           builder.append(getRule(fk.getUpdateRule()));
         }
-        builder.append(";");
+        WrapUtil.addWrapper(builder);
       }
       //修改
       if (CheckStatus.UPDATE.toString().equals(fk.getCheckStatus())) {
@@ -67,7 +68,8 @@ public class GeneratorForeignKeyAnswerProcess implements GeneratorAnswerProcess<
         builder.append(fk.getTableName());
         builder.append(" DROP CONSTRAINT ");
         builder.append(sceneFk.getFkName());
-        builder.append(";");
+        builder.append(" CASCADE");
+        WrapUtil.addWrapper(builder);
         //增加
         builder.append(" ALTER TABLE ");
         builder.append(fk.getTableName());
@@ -90,7 +92,7 @@ public class GeneratorForeignKeyAnswerProcess implements GeneratorAnswerProcess<
           builder.append("  ON UPDATE  ");
           builder.append(getRule(fk.getUpdateRule()));
         }
-        builder.append(";");
+        WrapUtil.addWrapper(builder);
 
       }
       //删除
@@ -99,7 +101,8 @@ public class GeneratorForeignKeyAnswerProcess implements GeneratorAnswerProcess<
         builder.append(fk.getTableName());
         builder.append(" DROP CONSTRAINT ");
         builder.append(fk.getFkName());
-        builder.append(";");
+        builder.append(" CASCADE");
+        WrapUtil.addWrapper(builder);
       }
     }
     return builder;

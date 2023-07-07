@@ -192,7 +192,7 @@ public class ScoreServiceImpl implements ScoreService {
     }
   }
 
-  private StudentAndTeacherResult getStudentAndTeacherResult(UserInfo loginUser, int sceneId, int exerciseId, String referAnswer, String studentAnswer, SubmitResult result, int exerciseSource, boolean isSaveSubmitData) {
+  private StudentAndTeacherResult getStudentAndTeacherResult(UserInfo loginUser, int sceneId, Long exerciseId, String referAnswer, String studentAnswer, SubmitResult result, int exerciseSource, boolean isSaveSubmitData) {
     StudentAndTeacherResult studentAndTeacherResult = new StudentAndTeacherResult();
     Connection connection = null;
     Statement statement = null;
@@ -251,16 +251,17 @@ public class ScoreServiceImpl implements ScoreService {
       logger.error(e.getMessage(), e);
       throw new APIException(e.getMessage());
     } finally {
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      String name=schemaConnection.getSchemaName();
       CloseUtil.close(teacherResultSet);
       CloseUtil.close(studentResultSet);
       CloseUtil.close(statement);
       CloseUtil.close(connection);
+      runAnswerService.dropSchema(name);
     }
     return studentAndTeacherResult;
   }
 
-  private UpdateRowAndResultSetTO getUpdateRowAndResultSet(UserInfo loginUser, int sceneId, int exerciseId, String answer, boolean isStudent, SubmitResult result, int exerciseSource) {
+  private UpdateRowAndResultSetTO getUpdateRowAndResultSet(UserInfo loginUser, int sceneId, Long exerciseId, String answer, boolean isStudent, SubmitResult result, int exerciseSource) {
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;

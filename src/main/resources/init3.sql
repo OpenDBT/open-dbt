@@ -290,3 +290,22 @@ COMMENT ON COLUMN "t_check_seq"."latest_value" IS '最新值';
 COMMENT ON COLUMN "t_check_seq"."cycle" IS '是否循环0：否1：是';
 COMMENT ON COLUMN "t_check_seq"."field" IS '列拥有';
 COMMENT ON COLUMN "t_check_seq"."remark" IS '描述';
+--修改exercise_id为long类型
+ALTER TABLE t_exam_exercise ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_exercise ALTER COLUMN id TYPE int8 USING id::int8;
+ALTER TABLE t_exercise_knowledge ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_score ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_check_field ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_check_fk ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_check_index ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_check_seq ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_public_exercise ALTER COLUMN id TYPE int8 USING id::int8;
+ALTER TABLE t_check_constraint ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_check_detail ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_exam_score ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_exercise_info ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_model_exercise ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+ALTER TABLE t_new_exercise ALTER COLUMN id TYPE int8 USING id::int8;
+ALTER TABLE t_stu_homework_info ALTER COLUMN exercise_id TYPE int8 USING exercise_id::int8;
+
+

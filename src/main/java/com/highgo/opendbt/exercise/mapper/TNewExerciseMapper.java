@@ -36,19 +36,19 @@ public interface TNewExerciseMapper extends RootMapper<TNewExercise> {
   List<TNewExercise> getExerciseCatalogueTreeChildren();
 
   //根据习题id查询习题
-  TNewExercise getExercise(int exerciseId);
+  TNewExercise getExercise(Long exerciseId);
 
   //根据习题ids 模板id查询习题
-  List<TNewExercise> getExercises(@Param("param") List<Integer> param, @Param("modelId") int modelId);
+  List<TNewExercise> getExercises(@Param("param") List<Long> param, @Param("modelId") int modelId);
 
   //详情列表查询
-  List<TNewExercise> getExercisesDetail(@Param("param") List<Integer> param, @Param("modelId") int modelId);
+  List<TNewExercise> getExercisesDetail(@Param("param") List<Long> param, @Param("modelId") int modelId);
 
   //根据习题id查询习题--用于作业查询
-  NewExerciseDTO getExerciseById(@Param("exerciseId") int exerciseId, @Param("modelId") int modelId);
+  NewExerciseDTO getExerciseById(@Param("exerciseId") Long exerciseId, @Param("modelId") int modelId);
 
   //根据习题id查询习题--用于作业查询 不包含答案
-  NewExerciseDTO getExerciseByIdUnAnswer(@Param("exerciseId") int exerciseId, @Param("modelId") int modelId);
+  NewExerciseDTO getExerciseByIdUnAnswer(@Param("exerciseId") Long exerciseId, @Param("modelId") int modelId);
 
   List<TNewExerciseExcel> getExerciseByCourse(@Param("courseId") int courseId);
 

@@ -1,7 +1,6 @@
 package com.highgo.opendbt.api;
 
 import com.highgo.opendbt.common.utils.ValidationUtil;
-import com.highgo.opendbt.verificationSetup.domain.entity.TCheckDetail;
 import com.highgo.opendbt.verificationSetup.domain.model.*;
 import com.highgo.opendbt.verificationSetup.service.*;
 import io.swagger.annotations.Api;
@@ -56,40 +55,74 @@ public class VerificationSetupAPI {
   @Autowired
   VerifyCommonService verifyCommonService;
 
+
+  ///////////////////////////////////查询/////////////////////////////////////////////////
   @ApiOperation(value = "查询场景表相关表结构信息")
-  @GetMapping("/getSceneDetailList/{sceneId}/{exerciseId}")
+  @PostMapping("/getSceneDetailList")
   public VerificationList getSceneDetailList(HttpServletRequest request,
-                                             @PathVariable("sceneId") @Valid int sceneId,
-                                             @PathVariable("exerciseId") @Valid int exerciseId) {
+                                             @RequestBody @Valid TableModel model, BindingResult result) {
     logger.debug("Enter,");
-    return sceneDetailService.getSceneDetailList(request, sceneId, exerciseId);
+    //校验
+    ValidationUtil.Validation(result);
+    return sceneDetailService.getSceneDetailList(request, model.getSceneId(), model.getExerciseId());
   }
 
-  @ApiOperation(value = "更新表结构信息")
+
+
+  @ApiOperation(value = "查询字段相关信息")
+  @PostMapping("/getFieldList")
+  public VerificationList getFieldList(HttpServletRequest request,
+                                       @RequestBody @Valid FieldModel model, BindingResult result) {
+    logger.debug("Enter,");
+    //校验
+    ValidationUtil.Validation(result);
+    return sceneFieldService.getFieldList(request, model);
+  }
+
+  @ApiOperation(value = "查询约束相关信息")
+  @PostMapping("/getConstraintList")
+  public VerificationList getConstraintList(HttpServletRequest request, @RequestBody @Valid SearchModel model, BindingResult result) {
+    logger.debug("Enter,");
+    //校验
+    ValidationUtil.Validation(result);
+    return sceneConstraintService.getConstraintList(request, model);
+  }
+
+  @ApiOperation(value = "查询外键相关信息")
+  @PostMapping("/getForeignKeyList")
+  public VerificationList getForeignKeyList(HttpServletRequest request, @RequestBody @Valid SearchModel model, BindingResult result) {
+    logger.debug("Enter,");
+    //校验
+    ValidationUtil.Validation(result);
+    return sceneForeignKeyService.getForeignKeyList(request, model);
+  }
+
+  @ApiOperation(value = "查询索引相关信息")
+  @PostMapping("/getIndexList")
+  public VerificationList getIndexList(HttpServletRequest request, @RequestBody @Valid SearchModel model, BindingResult result) {
+    logger.debug("Enter,");
+    //校验
+    ValidationUtil.Validation(result);
+    return sceneIndexService.getIndexList(request, model);
+  }
+
+  @ApiOperation(value = "查询序列相关信息")
+  @PostMapping("/getSequenceList")
+  public VerificationList getSequenceList(HttpServletRequest request, @RequestBody @Valid SearchModel model, BindingResult result) {
+    logger.debug("Enter,");
+    //校验
+    ValidationUtil.Validation(result);
+    return sceneSeqService.getSequenceList(request,model);
+  }
+///////////////////////////////////保存更新/////////////////////////////////////////////////
+
+  @ApiOperation(value = "保存表结构信息")
   @PostMapping("/saveCheckDetail")
-  public boolean saveCheckDetail(HttpServletRequest request, @RequestBody @Valid TCheckDetail detail, BindingResult result) throws Exception {
+  public Long saveCheckDetail(HttpServletRequest request, @RequestBody @Valid TCheckDetailSave detail, BindingResult result) throws Exception {
     logger.debug("Enter,");
     //校验
     ValidationUtil.Validation(result);
     return checkDetailService.saveCheckDetail(request, detail);
-  }
-
-  @ApiOperation(value = "新增表结构和表字段信息")
-  @PostMapping("/saveCheckDetailAndFields")
-  public boolean saveCheckDetailAndFields(HttpServletRequest request, @RequestBody @Valid CheckDetailAndFields detail, BindingResult result) {
-    logger.debug("Enter,");
-    //校验
-    ValidationUtil.Validation(result);
-    return checkDetailService.saveCheckDetailAndFields(request, detail);
-  }
-
-  @ApiOperation(value = "查询场景字段相关表结构信息")
-  @GetMapping("/getFieldList/{sceneDetailId}/{exerciseId}")
-  public VerificationList getFieldList(HttpServletRequest request,
-                                       @PathVariable("sceneDetailId") @Valid long sceneDetailId,
-                                       @PathVariable("exerciseId") @Valid int exerciseId) {
-    logger.debug("Enter,");
-    return sceneFieldService.getFieldList(request, sceneDetailId, exerciseId);
   }
 
   @ApiOperation(value = "保存表字段信息")
@@ -100,34 +133,6 @@ public class VerificationSetupAPI {
     ValidationUtil.Validation(result);
     return checkFieldService.saveCheckField(request, fields);
   }
-
-  @ApiOperation(value = "查询场景索引相关信息")
-  @GetMapping("/getIndexList/{sceneDetailId}/{exerciseId}")
-  public VerificationList getIndexList(HttpServletRequest request,
-                                       @PathVariable("sceneDetailId") @Valid long sceneDetailId,
-                                       @PathVariable("exerciseId") @Valid int exerciseId) {
-    logger.debug("Enter,");
-    return sceneIndexService.getIndexList(request, sceneDetailId, exerciseId);
-  }
-
-  @ApiOperation(value = "保存表索引信息")
-  @PostMapping("/saveCheckIndex")
-  public boolean saveCheckIndex(HttpServletRequest request, @RequestBody @Valid CheckIndexListSave indexList, BindingResult result) {
-    logger.debug("Enter,");
-    //校验
-    ValidationUtil.Validation(result);
-    return checkIndexService.saveCheckIndex(request, indexList);
-  }
-
-  @ApiOperation(value = "查询场景约束相关信息")
-  @GetMapping("/getConstraintList/{sceneDetailId}/{exerciseId}")
-  public VerificationList getConstraintList(HttpServletRequest request,
-                                            @PathVariable("sceneDetailId") @Valid long sceneDetailId,
-                                            @PathVariable("exerciseId") @Valid int exerciseId) {
-    logger.debug("Enter,");
-    return sceneConstraintService.getConstraintList(request, sceneDetailId, exerciseId);
-  }
-
   @ApiOperation(value = "保存表约束信息")
   @PostMapping("/saveCheckConstraint")
   public boolean saveCheckConstraint(HttpServletRequest request, @RequestBody @Valid CheckConstraintsSave constraints, BindingResult result) {
@@ -135,15 +140,6 @@ public class VerificationSetupAPI {
     //校验
     ValidationUtil.Validation(result);
     return checkConstraintService.saveCheckConstraint(request, constraints);
-  }
-
-  @ApiOperation(value = "查询场景外键相关信息")
-  @GetMapping("/getForeignKeyList/{sceneDetailId}/{exerciseId}")
-  public VerificationList getForeignKeyList(HttpServletRequest request,
-                                            @PathVariable("sceneDetailId") @Valid long sceneDetailId,
-                                            @PathVariable("exerciseId") @Valid int exerciseId) {
-    logger.debug("Enter,");
-    return sceneForeignKeyService.getForeignKeyList(request, sceneDetailId, exerciseId);
   }
 
   @ApiOperation(value = "保存表外键信息")
@@ -154,15 +150,15 @@ public class VerificationSetupAPI {
     ValidationUtil.Validation(result);
     return checkFkService.saveCheckForeignKey(request, fks);
   }
-
-  @ApiOperation(value = "查询序列相关信息")
-  @GetMapping("/getSequenceList/{sceneDetailId}/{exerciseId}")
-  public VerificationList getSequenceList(HttpServletRequest request,
-                                          @PathVariable("sceneDetailId") @Valid long sceneDetailId,
-                                          @PathVariable("exerciseId") @Valid int exerciseId) {
+  @ApiOperation(value = "保存表索引信息")
+  @PostMapping("/saveCheckIndex")
+  public boolean saveCheckIndex(HttpServletRequest request, @RequestBody @Valid CheckIndexListSave indexList, BindingResult result) {
     logger.debug("Enter,");
-    return sceneSeqService.getSequenceList(request, sceneDetailId, exerciseId);
+    //校验
+    ValidationUtil.Validation(result);
+    return checkIndexService.saveCheckIndex(request, indexList);
   }
+
 
   @ApiOperation(value = "保存序列信息")
   @PostMapping("/saveCheckSequence")
@@ -172,6 +168,51 @@ public class VerificationSetupAPI {
     ValidationUtil.Validation(result);
     return checkSeqService.saveCheckSequence(request, sequensSave);
   }
+  ///////////////////////////////////校验恢复/////////////////////////////////////////////////
+  @ApiOperation(value = "字段恢复")
+  @GetMapping("/fieldRecovery/{exerciseId}/{id}")
+  public boolean fieldRecovery(HttpServletRequest request, @PathVariable Long exerciseId, @PathVariable Long id) {
+    logger.debug("Enter,id=" + id);
+    //校验
+    return verifyCommonService.fieldRecovery(request, id, exerciseId);
+  }
+
+
+
+  @ApiOperation(value = "约束恢复")
+  @GetMapping("/constraintRecovery/{exerciseId}/{id}")
+  public boolean constraintRecovery(HttpServletRequest request, @PathVariable Long exerciseId, @PathVariable Long id) {
+    logger.debug("Enter,id=" + id);
+    //校验
+    return verifyCommonService.constraintRecovery(request, id, exerciseId);
+  }
+
+  @ApiOperation(value = "索引恢复")
+  @GetMapping("/indexRecovery/{exerciseId}/{id}")
+  public boolean indexRecovery(HttpServletRequest request, @PathVariable Long exerciseId, @PathVariable Long id) {
+    logger.debug("Enter,id=" + id);
+    //校验
+    return verifyCommonService.indexRecovery(request, id, exerciseId);
+  }
+
+  @ApiOperation(value = "序列恢复")
+  @GetMapping("/seqRecovery/{exerciseId}/{id}")
+  public boolean seqRecovery(HttpServletRequest request, @PathVariable Long exerciseId, @PathVariable Long id) {
+    logger.debug("Enter,id=" + id);
+    //校验
+    return verifyCommonService.seqRecovery(request, id, exerciseId);
+  }
+
+  @ApiOperation(value = "外键恢复")
+  @GetMapping("/fkRecovery/{exerciseId}/{id}")
+  public boolean fkRecovery(HttpServletRequest request, @PathVariable Long exerciseId, @PathVariable Long id) {
+    logger.debug("Enter,id=" + id);
+    //校验
+    return verifyCommonService.fkRecovery(request, id, exerciseId);
+  }
+
+
+  ///////////////////////////////////删除/////////////////////////////////////////////////
 
 
   @ApiOperation(value = "删除新增的表信息")
@@ -182,15 +223,7 @@ public class VerificationSetupAPI {
     return checkDetailService.deleteNewTableInfo(request, infoDel);
   }
 
-  @ApiOperation(value = "一键生成答案")
-  @GetMapping("/generatesAnswer/{sceneId}/{exerciseId}")
-  public StoreAnswer generatesAnswer(HttpServletRequest request,
-                                     @PathVariable("sceneId") @Valid int sceneId,
-                                     @PathVariable("exerciseId") @Valid int exerciseId) {
-    logger.debug("Enter,");
-    return verifyCommonService.generatesAnswer(request, sceneId, exerciseId);
-  }
-
+///////////////////////////////////一键恢复/////////////////////////////////////////////////
 
   @ApiOperation(value = "一键恢复,只适用于场景表恢复，新增表只可删除不可一键恢复")
   @PostMapping("/recovery")
@@ -200,6 +233,38 @@ public class VerificationSetupAPI {
     ValidationUtil.Validation(result);
     return verifyCommonService.recovery(request, model);
   }
+
+
+
+
+
+
+
+  @ApiOperation(value = "新增表结构和表字段信息")
+  @PostMapping("/saveCheckDetailAndFields")
+  public boolean saveCheckDetailAndFields(HttpServletRequest request, @RequestBody @Valid CheckDetailAndFields detail, BindingResult result) {
+    logger.debug("Enter,");
+    //校验
+    ValidationUtil.Validation(result);
+    return checkDetailService.saveCheckDetailAndFields(request, detail);
+  }
+
+
+
+
+
+
+
+
+  @ApiOperation(value = "一键生成答案")
+  @GetMapping("/generatesAnswer/{sceneId}/{exerciseId}")
+  public String generatesAnswer(HttpServletRequest request,
+                                @PathVariable("sceneId") @Valid int sceneId,
+                                @PathVariable("exerciseId") @Valid Long exerciseId) {
+    logger.debug("Enter,");
+    return verifyCommonService.generatesAnswer(request, sceneId, exerciseId);
+  }
+
 
   @ApiOperation(value = "自动生成描述")
   @PostMapping("/generateDescriptions")

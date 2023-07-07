@@ -56,7 +56,7 @@ public class DDLDetermine extends Determine {
       return;
     }
     String answer = exerciseResult == null ? "" : exerciseResult.replaceAll("<p>", "").replaceAll("</p>", "");
-    Integer exerciseId = stuHomeworkInfo.getExerciseId();
+    Long exerciseId = stuHomeworkInfo.getExerciseId();
     //根据习题id查询场景id
     TNewExercise exercise = exerciseService.getById(exerciseId);
 
@@ -65,7 +65,7 @@ public class DDLDetermine extends Determine {
     score.setExerciseId(exerciseId);
     score.setExerciseType(7);
     score.setVerySql(exercise.getVerySql());
-    score.setSceneId(exercise.getSceneId());
+    score.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
     try {
       SubmitResult result = this.submitAnswer(loginUser, score, 0, false, 0);
       if (result.isScoreRs()) {
@@ -89,14 +89,19 @@ public class DDLDetermine extends Determine {
   public SubmitResult submitAnswer(UserInfo loginUser, Score score, int exerciseSource, boolean isSaveSubmitData, int entranceType) {
     TestRunModel model = new TestRunModel();
     model.setStandardAnswer(score.getAnswer());
-    model.setVerySql(score.getVerySql());
     model.setExerciseType(score.getExerciseType());
     model.setExerciseId(score.getExerciseId());
-    model.setSceneId(score.getSceneId());
+    //查询习题标准答案
+    TNewExercise exercise = exerciseService.getById(model.getExerciseId());
+    //习题不能为空
+    BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
     //返回结果
     SubmitResult result = new SubmitResult();
     try {
-      veryDDLTypeExercise(model, loginUser);
+      //veryDDLTypeExercise(model, loginUser);
+      verifyCommonService.veryDDLTypeExercise(model, loginUser);
       result.setExecuteRs(true);
       result.setScoreRs(true);
     } catch (Exception e) {
@@ -116,15 +121,14 @@ public class DDLDetermine extends Determine {
     //转换参数实体类
     TestRunModel model = new TestRunModel();
     model.setStandardAnswer(score.getAnswer());
-    model.setVerySql(score.getVerySql());
     model.setExerciseType(score.getExerciseType());
     model.setExerciseId(score.getExerciseId());
-    model.setSceneId(score.getSceneId());
     //查询习题标准答案
     TNewExercise exercise = exerciseService.getById(score.getExerciseId());
     //习题不能为空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, score.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
     //若没有校验查询sql则返回答案中的查询sql结果集
     if (StringUtils.isBlank(exercise.getVerySql())) {
       model.setVerySql(getSelectSql(model.getStandardAnswer()));
@@ -144,30 +148,30 @@ public class DDLDetermine extends Determine {
 
   //DML类型题目
   private void veryDDLTypeExercise(TestRunModel model, UserInfo userInfo) {
-    //解析答案
+/*    //解析答案
     StoreAnswer storeAnswer = gengratorAnswer(model.getStandardAnswer());
     //非新增表答案
     Map<String, String> commonAnswers = storeAnswer.getCommonAnswers();
     //新增表答案
-    Map<String, String> addAnswers = storeAnswer.getAddAnswers();
-    //查询习题标准答案
-    TNewExercise exercise = exerciseService.getById(model.getExerciseId());
-    //习题不能为空
-    BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
-    model.setSceneId(exercise.getSceneId());
+    Map<String, String> addAnswers = storeAnswer.getAddAnswers();*/
     //根据场景id查询t_scene_detail
-    List<TSceneDetail> details = sceneDetailService.list(new QueryWrapper<TSceneDetail>().eq("scene_id", model.getSceneId()));
+    List<TSceneDetail> details = sceneDetailService.list(new QueryWrapper<TSceneDetail>()
+      .eq("scene_id", model.getSceneId()));
     //依赖场景
     if (details != null && !details.isEmpty()) {
       for (TSceneDetail detail : details) {
-        if (StringUtils.isNotBlank(commonAnswers.get(detail.getId().toString()))) {
+        //if (StringUtils.isNotBlank(commonAnswers.get(detail.getId().toString()))) {
           //初始化场景并开启新的模式,执行答案获取相关答案信息
-          VerificationList answerVerify = extractAnswer(getTableName(detail, model) == null ? detail.getTableName() : getTableName(detail, model), userInfo, model.getSceneId(), model.getExerciseId(), new StringBuilder(commonAnswers.get(detail.getId().toString())));
+          VerificationList answerVerify = extractAnswer(getTableName(detail, model) == null
+            ? detail.getTableName() : getTableName(detail, model)
+            , userInfo, model.getSceneId()
+            , model.getExerciseId()
+            , new StringBuilder(model.getStandardAnswer()));
           //查询相关校验点信息
           VerificationList checkVerify = getVerify(detail.getId(), model.getExerciseId());
           //校验模块进行校验
           checkAnswer(checkVerify, answerVerify);
-        }
+        //}
 
       }
     }
@@ -178,7 +182,7 @@ public class DDLDetermine extends Determine {
     if (!addDetails.isEmpty()) {
       for (TCheckDetail detail : addDetails) {
         //初始化场景并开启新的模式,执行答案获取相关答案信息
-        VerificationList answerVerify = extractAnswer(detail.getTableName(), userInfo, model.getSceneId(), model.getExerciseId(), new StringBuilder(addAnswers.get(detail.getTableName())));
+        VerificationList answerVerify = extractAnswer(detail.getTableName(), userInfo, model.getSceneId(), model.getExerciseId(), new StringBuilder(model.getStandardAnswer()));
         //查询相关校验点信息
         VerificationList checkVerify = getVerify(detail.getId(), model.getExerciseId());
         //校验模块进行校验
@@ -199,25 +203,37 @@ public class DDLDetermine extends Determine {
   }
 
   //查询校验点
-  private VerificationList getVerify(Long id, Integer exerciseId) {
+  private VerificationList getVerify(Long id, Long exerciseId) {
     VerificationList verificationList = new VerificationList();
     //查询表
-    List<TCheckDetail> tCheckDetails = checkDetailService.list(new QueryWrapper<TCheckDetail>().eq("exercise_id", exerciseId).eq("scene_detail_id", id));
+    List<TCheckDetail> tCheckDetails = checkDetailService.list(new QueryWrapper<TCheckDetail>()
+      .eq("exercise_id", exerciseId)
+      .eq("scene_detail_id", id));
     verificationList.setCheckDetails(tCheckDetails);
     //查询字段
-    List<TCheckField> checkFields = checkFieldService.list(new QueryWrapper<TCheckField>().eq("scene_detail_id", id).eq("exercise_id", exerciseId));
+    List<TCheckField> checkFields = checkFieldService.list(new QueryWrapper<TCheckField>()
+      .eq("scene_detail_id", id)
+      .eq("exercise_id", exerciseId));
     verificationList.setCheckFields(checkFields);
     //新增索引
-    List<TCheckIndex> indices = checkIndexService.list(new QueryWrapper<TCheckIndex>().eq("scene_detail_id", id).eq("exercise_id", exerciseId));
+    List<TCheckIndex> indices = checkIndexService.list(new QueryWrapper<TCheckIndex>()
+      .eq("scene_detail_id", id)
+      .eq("exercise_id", exerciseId));
     verificationList.setCheckIndexList(indices);
     //新增约束
-    List<TCheckConstraint> constraints = checkConstraintService.list(new QueryWrapper<TCheckConstraint>().eq("scene_detail_id", id).eq("exercise_id", exerciseId));
+    List<TCheckConstraint> constraints = checkConstraintService.list(new QueryWrapper<TCheckConstraint>()
+      .eq("scene_detail_id", id)
+      .eq("exercise_id", exerciseId));
     verificationList.setCheckConstraints(constraints);
     //新增外键
-    List<TCheckFk> fks = checkFkService.list(new QueryWrapper<TCheckFk>().eq("scene_detail_id", id).eq("exercise_id", exerciseId));
+    List<TCheckFk> fks = checkFkService.list(new QueryWrapper<TCheckFk>()
+      .eq("scene_detail_id", id)
+      .eq("exercise_id", exerciseId));
     verificationList.setCheckFks(fks);
     //新增序列
-    List<TCheckSeq> seqs = checkSeqService.list(new QueryWrapper<TCheckSeq>().eq("scene_detail_id", id).eq("exercise_id", exerciseId));
+    List<TCheckSeq> seqs = checkSeqService.list(new QueryWrapper<TCheckSeq>()
+      .eq("scene_detail_id", id)
+      .eq("exercise_id", exerciseId));
     verificationList.setCheckSeqs(seqs);
     return verificationList;
   }
@@ -258,7 +274,7 @@ public class DDLDetermine extends Determine {
 
   //执行初始化场景，执行答案
   private VerificationList extractAnswer(String tableName, UserInfo userInfo, int sceneId,
-                                         int exerciseId, StringBuilder builder) {
+                                         Long exerciseId, StringBuilder builder) {
     Statement statement = null;
     Connection connection = null;
     SchemaConnection schemaConnection = new SchemaConnection();
@@ -277,10 +293,11 @@ public class DDLDetermine extends Determine {
       logger.error("获取失败", e);
       throw new APIException(e.getMessage());
     } finally {
+      String name=schemaConnection.getSchemaName();
       CloseUtil.close(statement);
       CloseUtil.close(connection);
       //删除模式
-      runAnswerService.dropSchema(schemaConnection.getSchemaName());
+      runAnswerService.dropSchema(name);
     }
     return null;
   }

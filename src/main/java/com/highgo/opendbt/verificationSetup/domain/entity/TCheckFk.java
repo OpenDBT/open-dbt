@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 /**
@@ -18,12 +21,14 @@ public class TCheckFk implements Serializable {
      * 主键
      */
     @TableId(value = "id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
      * 索引id
      */
     @TableField(value = "scene_fk_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneFkId;
 
     /**
@@ -84,12 +89,14 @@ public class TCheckFk implements Serializable {
      * 题目id
      */
     @TableField(value = "exercise_id")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 场景详情id
      */
     @TableField(value = "scene_detail_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneDetailId;
 
     @TableField(exist = false)

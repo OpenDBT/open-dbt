@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 /**
@@ -17,12 +20,14 @@ public class TSceneField implements Serializable {
      * 主键
      */
     @TableId(value = "id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
      * 场景表id
      */
     @TableField(value = "scene_detail_id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sceneDetailId;
 
     /**
@@ -53,7 +58,7 @@ public class TSceneField implements Serializable {
      * t：是f:否
      */
     @TableField(value = "field_non_null")
-    private Boolean fieldNonNull;
+    private Boolean fieldNonNull=false;
 
     /**
      * 字段描述

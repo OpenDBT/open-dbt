@@ -1,5 +1,6 @@
 package com.highgo.opendbt.verificationSetup.tools.generatorDescriptionModule;
 
+import com.highgo.opendbt.common.utils.EqualityUtils;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckField;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneField;
 import com.highgo.opendbt.verificationSetup.service.TSceneFieldService;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+
+import static com.highgo.opendbt.common.utils.WrapUtil.addWrap;
 
 /**
  * @Description: 生成字段校验描述
@@ -38,9 +41,9 @@ public class GeneratorDescriptionFieldProcess implements GeneratorDescriptionPro
     for (TCheckField field : checkFields) {
       //新增
       if (CheckStatus.INSERT.toString().equals(field.getCheckStatus())) {
-        builder.append(" 在表 ");
+        builder.append("在表");
         builder.append(field.getTableName());
-        builder.append(" 中新增字段 ");
+        builder.append("中新增字段 ");
         builder.append(field.getFieldName());
         builder.append(" ");
         builder.append(field.getFieldType());
@@ -85,8 +88,8 @@ public class GeneratorDescriptionFieldProcess implements GeneratorDescriptionPro
       if (CheckStatus.UPDATE.toString().equals(field.getCheckStatus())) {
         TSceneField sceneField = sceneFieldService.getById(field.getSceneFieldId());
         //表名修改
-        if (!Objects.equals(sceneField.getFieldName(), field.getFieldName())) {
-          builder.append(" 修改表 ");
+        if (!EqualityUtils.areEqual(sceneField.getFieldName(), field.getFieldName())) {
+          builder.append("修改表 ");
           builder.append(field.getTableName());
           builder.append(" 的字段名称由 ");
           builder.append(sceneField.getFieldName());
@@ -94,10 +97,10 @@ public class GeneratorDescriptionFieldProcess implements GeneratorDescriptionPro
           builder.append(field.getFieldName());
         }
         //字段类型修改
-        if (!Objects.equals(sceneField.getFieldType(), field.getFieldType())
+        if (!EqualityUtils.areEqual(sceneField.getFieldType(), field.getFieldType())
           || !Objects.equals(sceneField.getFieldLength(), field.getFieldLength())
           || !Objects.equals(sceneField.getDecimalNum(), field.getDecimalNum())) {
-          builder.append(" 修改表 ");
+          builder.append("修改表 ");
           builder.append(field.getTableName());
           builder.append("字段");
           builder.append(sceneField.getFieldName());
@@ -146,8 +149,8 @@ public class GeneratorDescriptionFieldProcess implements GeneratorDescriptionPro
           }
         }
         //默认值修改
-        if (!Objects.equals(sceneField.getFieldDefault(), field.getFieldDefault())) {
-          builder.append(" 修改表");
+        if (!EqualityUtils.areEqual(sceneField.getFieldDefault(), field.getFieldDefault())) {
+          builder.append("修改表");
           builder.append(field.getTableName());
           builder.append("中");
           builder.append(sceneField.getFieldName());
@@ -155,8 +158,8 @@ public class GeneratorDescriptionFieldProcess implements GeneratorDescriptionPro
           builder.append(field.getFieldDefault());
         }
         //字段描述修改
-        if (!Objects.equals(sceneField.getFieldComment(), field.getFieldComment())) {
-          builder.append(" 设置表");
+        if (!EqualityUtils.areEqual(sceneField.getFieldComment(), field.getFieldComment())) {
+          builder.append("设置表");
           builder.append(field.getTableName());
           builder.append("中");
           builder.append(field.getFieldName());
@@ -167,13 +170,13 @@ public class GeneratorDescriptionFieldProcess implements GeneratorDescriptionPro
       }
       //删除
       if (CheckStatus.DEL.toString().equals(field.getCheckStatus())) {
-        builder.append(" 删除表");
+        builder.append("删除表");
         builder.append(field.getTableName());
         builder.append("中字段");
         builder.append(field.getFieldName());
       }
+      addWrap(builder);
     }
-    builder.append(",");
     return builder;
   }
 }
