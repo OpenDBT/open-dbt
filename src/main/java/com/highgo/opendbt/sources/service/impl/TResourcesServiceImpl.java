@@ -50,7 +50,7 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
      **/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TResources uploadResources(HttpServletRequest request, MultipartFile file) {
+    public TResources uploadResources(HttpServletRequest request, MultipartFile file) throws IOException {
         // 获取用户信息
         UserInfo loginUser = Authentication.getCurrentUser(request);
         //资源类型参数
@@ -345,7 +345,7 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
      * @param: [resources, filePath文件路径, pdfPathpdf存储路径]
      * @return: void
      **/
-    private void switchToPDF(TResources resources, String filePath, String pdfPath) {
+    private void switchToPDF(TResources resources, String filePath, String pdfPath) throws IOException {
         //文档ddd类型转pdf
         if ("doc".equalsIgnoreCase(resources.getResourcesSuffix()) || "docx".equalsIgnoreCase(resources.getResourcesSuffix())) {
             FileConvertUtil.wordBytes2PdfFile(FileUtil.readBytes(filePath),
@@ -358,6 +358,13 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
                     pdfPath);
             resources.setResourcesPdfUrl(pdfPath);
         }
+      //ppt转pdf
+      if ("ppt".equalsIgnoreCase(resources.getResourcesSuffix()) || "pptx".equalsIgnoreCase(resources.getResourcesSuffix())) {
+        FileConvertUtil.convertPPTtoPDF(filePath,
+          pdfPath);
+        resources.setResourcesPdfUrl(pdfPath);
+      }
+
     }
 
     /**
@@ -367,7 +374,7 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
      * @param: [fileName 文件名, name 重命名, filePath 文件地址, loginUser 登录人信息, resourcesType, resourcesSize, folderPath存储路径]
      * @return: com.highgo.opendbt.resources.model.TResources
      **/
-    private TResources saveResources(String fileName, String name, String filePath, UserInfo loginUser, String resourcesType, String resourcesSize, String folderPath, String resourcesAdditional) {
+    private TResources saveResources(String fileName, String name, String filePath, UserInfo loginUser, String resourcesType, String resourcesSize, String folderPath, String resourcesAdditional) throws IOException {
         TResources resources = new TResources();
         resources.setCreateUser(loginUser.getUserId());
         resources.setCreateTime(new Date());

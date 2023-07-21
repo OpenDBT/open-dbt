@@ -3,6 +3,7 @@ package com.highgo.opendbt.verificationSetup.tools;
 import com.alibaba.fastjson.JSONObject;
 import com.highgo.opendbt.common.bean.ResultSetInfo;
 import com.highgo.opendbt.common.bean.SchemaConnection;
+import com.highgo.opendbt.common.constant.Constant;
 import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
 import com.highgo.opendbt.common.service.RunAnswerService;
@@ -69,15 +70,15 @@ public class FunctionUtil {
         connection.setAutoCommit(false);
         functionStatement = connection.createStatement();
         long startTime = System.currentTimeMillis();
-        functionStatement.executeUpdate(model.getStandardAnswer());
+        functionStatement.execute(model.getStandardAnswer());
 
-        if(StringUtils.isNotBlank(model.getVerySql())){
+        if (StringUtils.isNotBlank(model.getVerySql())) {
           statement = connection.prepareCall(model.getVerySql());
           //新模式下执行答案
           boolean execute = statement.execute();
           while (execute) {
             ResultSet resultSet = statement.getResultSet();//取得第一个结果集
-            DataTableHelper.resultSetToResultSetInfo(resultSet,lists);
+            DataTableHelper.resultSetToResultSetInfo(resultSet, lists);
             //logger.info("result=" + JSONObject.toJSONString(resultSetInfo));
             //lists.addAll(resultSetInfo);
             execute = statement.getMoreResults();//继续去取结果集，若还还能取到结果集，则bl=true了。然后回去循环。
@@ -92,7 +93,7 @@ public class FunctionUtil {
       logger.error("An error occurred while executing function SQL", e);
       throw new APIException(e.getMessage());
     } finally {
-      String schemaName=schemaConnection.getSchemaName();
+      String schemaName = schemaConnection.getSchemaName();
       CloseUtil.close(functionStatement);
       CloseUtil.close(statement);
       CloseUtil.close(connection);
@@ -100,41 +101,75 @@ public class FunctionUtil {
 
     }
   }
-  public static void executeSql(UserInfo loginUser, TestRunModel model, ResponseModel responseModel) {
-    Connection connection = null;
-    CallableStatement statement = null;
-    Statement functionStatement = null;
-    SchemaConnection schemaConnection = new SchemaConnection();
 
+
+  //该方法只取最后一个结果集
+  public static void executeSql(UserInfo loginUser, TestRunModel model, ResponseModel responseModel) {
+    SchemaConnection schemaConnection = new SchemaConnection();
     try {
       // 初始化脚本并获取指定schema的连接
       runAnswerService.getSchemaConnection(loginUser, model.getSceneId(), model.getExerciseId(), schemaConnection, 0);
       if (null != schemaConnection.getConnection()) {
-        connection = schemaConnection.getConnection();
-        functionStatement = connection.createStatement();
-        long startTime = System.currentTimeMillis();
-        functionStatement.execute(model.getStandardAnswer());
-        if(StringUtils.isNotBlank(model.getStandardAnswer())){
-          FunctionUtil.testDML(model.getStandardAnswer(), responseModel, functionStatement);
+        try (Statement statement = schemaConnection.getConnection().createStatement()) {
+          long startTime = System.currentTimeMillis();
+          String standardAnswer = model.getStandardAnswer();
+          if (StringUtils.isNotBlank(model.getVerySql())) {
+            standardAnswer = model.getStandardAnswer() + "\r\n" + model.getVerySql();
+          }
+          //执行sql获取结果集
+          executeSqlToResult(responseModel, statement, standardAnswer);
+          long endTime = System.currentTimeMillis();
+          responseModel.setAnswerExecuteTime((int) (endTime - startTime));
+          responseModel.setExecuteRs(true);
         }
-        long endTime = System.currentTimeMillis();
-        responseModel.setAnswerExecuteTime((int) (endTime - startTime));
-        responseModel.setExecuteRs(true);
       }
     } catch (Exception e) {
       e.printStackTrace();
       responseModel.setLog(e.getMessage());
       throw new APIException(e.getMessage());
-
     } finally {
-      String schemaName=schemaConnection.getSchemaName();
-      CloseUtil.close(functionStatement);
-      CloseUtil.close(statement);
-      CloseUtil.close(connection);
-      logger.info("到达此处1="+schemaConnection.getSchemaName());
+      String schemaName = schemaConnection.getSchemaName();
+      logger.info("到达此处1=" + schemaConnection.getSchemaName());
       runAnswerService.dropSchema(schemaName);
-      logger.info("到达此处2="+schemaConnection.getSchemaName());
+      logger.info("到达此处2=" + schemaConnection.getSchemaName());
     }
+  }
+
+  private static void executeSqlToResult(ResponseModel responseModel, Statement statement, String standardAnswer) throws Exception {
+    boolean isResultSet = statement.execute(standardAnswer);
+    //取结果集的次数按照分号隔开的sql数，其结果只会大于等于实际sql条数
+    int size = standardAnswer.split(";").length;
+    for (int i = 0; i < size; i++) {
+      boolean isResult = false;
+      //第一个结果集有值则先取其值，再判断是否有下个结果集
+      if (!(i == 0 && isResultSet)) {
+        isResult = statement.getMoreResults();
+      }
+      if (isResult || (i == 0 && isResultSet)) {
+        //结果集有值，获取结果集
+        ResultSet resultSet = statement.getResultSet();
+        // 解析结果集
+        toResponseModel(responseModel, resultSet);
+      } else {
+        // 结果集无值
+        int rowCount = statement.getUpdateCount();
+        responseModel.setUpdateRow(rowCount);
+      }
+    }
+  }
+
+
+  private static void toResponseModel(ResponseModel responseModel, ResultSet resultSet) throws Exception {
+    ResultSetInfo resultSetInfo = runAnswerService.resultSetConvertList(resultSet);
+    responseModel.setSelect(true);
+    responseModel.setDatatype(resultSetInfo.getDataTypeAndImgList());
+    responseModel.setColumn(resultSetInfo.getColumnList());
+    responseModel.setResult(resultSetInfo.getDataList());
+    responseModel.setResultSetInfo(resultSetInfo);
+    Map<String, Object> studentResultMap = responseModel.getStudentResultMap();
+    studentResultMap.put(Constant.TEST_RUN_DATATYPE, responseModel.getDatatype());
+    studentResultMap.put(Constant.TEST_RUN_COLUMN, responseModel.getColumn());
+    studentResultMap.put(Constant.TEST_RUN_RESULT, responseModel.getResult());
   }
 
   public static void testDML(String sql, ResponseModel model, Statement statement) throws Exception {
@@ -148,6 +183,10 @@ public class FunctionUtil {
       model.setColumn(resultSetInfo.getColumnList());
       model.setResult(resultSetInfo.getDataList());
       model.setResultSetInfo(resultSetInfo);
+      Map<String, Object> studentResultMap = model.getStudentResultMap();
+      studentResultMap.put(Constant.TEST_RUN_DATATYPE, model.getDatatype());
+      studentResultMap.put(Constant.TEST_RUN_COLUMN, model.getColumn());
+      studentResultMap.put(Constant.TEST_RUN_RESULT, model.getResult());
     } else {
       int updateRow = statement.executeUpdate(sql);
       model.setUpdateRow(updateRow);
@@ -200,12 +239,12 @@ public class FunctionUtil {
       logger.error("提取失败:", e);
       throw new APIException("提取失败");
     } finally {
-      String schemaName=schemaConnection.getSchemaName();
+      String schemaName = schemaConnection.getSchemaName();
       CloseUtil.close(statement);
       CloseUtil.close(connection);
-      logger.info("到达此处1="+schemaConnection.getSchemaName());
+      logger.info("到达此处1=" + schemaConnection.getSchemaName());
       runAnswerService.dropSchema(schemaName);
-      logger.info("到达此处2="+schemaConnection.getSchemaName());
+      logger.info("到达此处2=" + schemaConnection.getSchemaName());
     }
     return list;
   }
@@ -274,4 +313,6 @@ public class FunctionUtil {
     }
     return true;
   }
+
+
 }

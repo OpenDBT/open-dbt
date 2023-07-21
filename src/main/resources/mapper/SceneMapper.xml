@@ -15,8 +15,8 @@
 			t_scene.id,
 			t_scene.course_id,
 			t_scene.scene_name,
-			t_scene.scene_desc,
-			t_scene.init_shell
+			t_scene.scene_desc
+			--t_scene.init_shell
 		from t_scene
 		where t_scene.course_id = #{courseId} and t_scene.delete_flag = 0
 		order by t_scene.id desc
@@ -45,7 +45,7 @@
 		where t_scene.id = #{sceneId}
 	</select>
 
-	<insert id="addScene" useGeneratedKeys="true" keyProperty="sceneId">
+	<insert id="addScene" useGeneratedKeys="true" keyProperty="sceneId" >
 		insert into t_scene
 			(course_id, scene_name, scene_desc, init_shell)
 		values

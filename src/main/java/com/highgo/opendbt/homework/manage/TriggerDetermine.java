@@ -73,7 +73,18 @@ public class TriggerDetermine extends Determine {
     model.setExerciseId(score.getExerciseId());
     model.setSceneId(score.getSceneId());
     //返回结果
-    ResponseModel result = veryTrigger(model, loginUser);
+    ResponseModel result = new ResponseModel();;
+
+    try {
+      result = veryTrigger(model, loginUser);
+      result.setExecuteRs(true);
+      result.setScoreRs(true);
+    } catch (Exception e) {
+      e.printStackTrace();
+      result.setLog(e.getMessage());
+      result.setScoreRs(false);
+    }
+
     saveSubmitDate(loginUser, score, isSaveSubmitData, result);
     return result;
   }
@@ -136,8 +147,6 @@ public class TriggerDetermine extends Determine {
     //习题不能为空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
     model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
-    //校验查询sql不能为空
-    BusinessResponseEnum.VERYSQLNULL.assertIsTrue(StringUtils.isNotBlank(model.getVerySql()));
     model.setVerySql(exercise.getVerySql());
     //执行学生答案返回
     FunctionUtil.executeSql(loginUser, model, studentAnswerResultMap);

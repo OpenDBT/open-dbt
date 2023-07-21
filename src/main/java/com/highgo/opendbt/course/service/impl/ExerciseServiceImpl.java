@@ -269,8 +269,11 @@ public class ExerciseServiceImpl extends ServiceImpl<ExerciseMapper, Exercise>
   public ExerciseDisplay getExerciseInfo(HttpServletRequest request, int sclassId, int courseId, Long exerciseId) {
     // 获取用户信息
     UserInfo loginUser = Authentication.getCurrentUser(request);
+    long a=System.currentTimeMillis();
     //查询习题详情（题目信息，知识点，选项等信息）
     ExerciseDisplay exercise = exerciseMapper.getExerciseInfo(loginUser.getUserId(), sclassId, courseId, exerciseId);
+    long b=System.currentTimeMillis();
+    logger.info("运行时长="+(b-a));
     //判空
     BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise);
     //设置知识点名称

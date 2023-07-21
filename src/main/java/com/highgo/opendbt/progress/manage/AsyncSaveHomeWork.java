@@ -44,10 +44,10 @@ public class AsyncSaveHomeWork {
       //设置学生答案
       stuHomeworkInfo.setExerciseResult(item.getExerciseResult());
       //判断客观题对错和获得分数
-      if (stuHomeworkInfo.getExerciseStyle() == 2) {
+      //if (stuHomeworkInfo.getExerciseStyle() == 2) {
         determineService.determineExercise(loginUser, stuHomeworkInfo, item.getExerciseResult());
         score.addAndGet(stuHomeworkInfo.getExerciseScore());
-      }
+     // }
       stuHomeworkInfo.setUpdateUser(loginUser.getUserId()).setUpdateTime(new Date());
       tStuHomeworkInfos.add(stuHomeworkInfo);
     }

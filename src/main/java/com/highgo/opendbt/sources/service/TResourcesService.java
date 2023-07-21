@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public interface TResourcesService extends IService<TResources> {
     //上传资源
-    TResources uploadResources(HttpServletRequest request, MultipartFile file);
+    TResources uploadResources(HttpServletRequest request, MultipartFile file) throws IOException;
 
     //读取资源
     void readResourse(HttpServletRequest request, HttpServletResponse response, int id, String resourcesType);

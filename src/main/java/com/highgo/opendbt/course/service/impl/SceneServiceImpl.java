@@ -29,6 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -103,6 +107,7 @@ public class SceneServiceImpl implements SceneService {
   }
 
   @Override
+  @Cacheable(value = "sceneDetail", key = "#sceneId")
   public Scene getSceneDetail(int sceneId) {
     // 获取场景表信息
     Scene scene = sceneMapper.getSceneDetail(sceneId);
@@ -112,13 +117,18 @@ public class SceneServiceImpl implements SceneService {
     return scene;
   }
 
+
   @Override
+  @Caching(evict = {
+    @CacheEvict(value = "scene", key = "#scene.sceneId"),
+    @CacheEvict(value = "sceneDetail", key = "#scene.sceneId")
+  })
   @Transactional(rollbackFor = Exception.class)
   public Integer updateScene(HttpServletRequest request, Scene scene) {
     // 场景id等于-1为新增
     if (scene.getSceneId() == -1) {
       // 新增场景
-      Integer addScene = sceneMapper.addScene(scene);
+       sceneMapper.addScene(scene);
       // 解析SQL脚本获取表名，并添加到场景明细表
       if (scene.getInitShell().length() > 0) {
         List<SceneDetail> sceneDetailList = SceneUtil.parsSQLGetTableName(scene.getSceneId(), scene.getInitShell());
@@ -126,7 +136,7 @@ public class SceneServiceImpl implements SceneService {
           sceneDetailMapper.addSceneDetail(scene.getSceneId(), sceneDetailList);
         }
       }
-      return addScene;
+        return scene.getSceneId();
     } else {
       //判断场景是否在使用中是否允许修改删除
       determineIsUsed(scene.getSceneId());
@@ -144,7 +154,8 @@ public class SceneServiceImpl implements SceneService {
       //删除提取的表相关的结构信息
       delSceneInfo(details);
       // 更新场景
-      return sceneMapper.updateScene(scene);
+      sceneMapper.updateScene(scene);
+      return scene.getSceneId();
     }
   }
 
@@ -180,6 +191,10 @@ public class SceneServiceImpl implements SceneService {
 
   @Override
   @Transactional(rollbackFor = Exception.class)
+  @Caching(evict = {
+    @CacheEvict(value = "scene", key = "#sceneId"),
+    @CacheEvict(value = "sceneDetail", key = "#sceneId")
+  })
   public Integer deleteScene(HttpServletRequest request, int sceneId) {
     //判断场景是否在使用中是否允许修改删除
     determineIsUsed(sceneId);

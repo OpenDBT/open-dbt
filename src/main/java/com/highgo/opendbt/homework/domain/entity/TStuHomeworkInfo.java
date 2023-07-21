@@ -113,7 +113,7 @@ public class TStuHomeworkInfo extends MyBaseEntity {
      * 是否正确1：对 2：错 3:半对
      */
     @TableField(value = "is_correct")
-    private Integer isCorrect;
+    private Integer isCorrect=2;
 
 
     /**

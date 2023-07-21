@@ -500,7 +500,7 @@ CREATE TABLE "t_stu_homework_info" (
   "exercise_id" int4,
   "exercise_score" numeric(10,1) DEFAULT 0.0,
   "exercise_result" text,
-  "is_correct" int4 DEFAULT 1,
+  "is_correct" int4 DEFAULT 2,
   "create_time" timestamp(6),
   "create_user" int4,
   "update_time" timestamp(6),

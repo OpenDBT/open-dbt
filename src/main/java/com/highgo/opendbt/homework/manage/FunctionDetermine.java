@@ -165,41 +165,39 @@ public class FunctionDetermine extends Determine {
       //比较教师和学生的结果集是否一样
       FunctionUtil.compareResultSet(teacherResultSetInfo, studentResultSetInfo);
     } else {
-      List<List<Map<String, Object>>> teacherLists = null;//teacherAnswerResultMap.getFunctionResult();
-      List<List<Map<String, Object>>> studentLists = null;//studentAnswerResultMap.getFunctionResult();
+      List<ResultSetInfo> teacherLists =teacherAnswerResultMap.getFunctionResult();
+      List<ResultSetInfo> studentLists = studentAnswerResultMap.getFunctionResult();
       //判断教师和学生得到的结果集个数是否相同
       BusinessResponseEnum.RESULTNUMDIFFENT.assertIsTrue(teacherLists.size() == studentLists.size(), teacherLists.size());
       for (int i = 0; i < teacherLists.size(); i++) {
         //比较两个结果
-        compareResult(teacherLists.get(0), studentLists.get(0));
+        FunctionUtil.compareResultSet(teacherLists.get(i), studentLists.get(i));
       }
     }
   }
 
-  private void compareResult(List<Map<String, Object>> teachResult, List<Map<String, Object>> studentResult) {
-    //结果中的个数不同抛出异常
-    BusinessResponseEnum.RESULTNUMDIFFENT.assertIsTrue(teachResult.size() == studentResult.size(), teachResult.size());
-    for (int i = 0; i < teachResult.size(); i++) {
-      Map<String, Object> teacherMap = teachResult.get(i);
-      Map<String, Object> studentMap = studentResult.get(i);
-      //比较key是否相同
-      BusinessResponseEnum.COLUMNNAMEDIFF.assertIsTrue(studentMap.keySet().equals(teacherMap.keySet()));
-
-      for (Map.Entry<?, ?> entry : teacherMap.entrySet()) {
-        BusinessResponseEnum.COLUMNNAMEDIFF.assertIsTrue(studentMap.containsKey(entry.getKey()));
-        //教师value
-        Object value = entry.getValue();
-        //学生value
-        Object studentValue = studentMap.get(entry.getKey());
-        if (value instanceof ResultSetInfo) {
-          //比较结果集
-          FunctionUtil.compareResultSet((ResultSetInfo) value, (ResultSetInfo) studentValue);
-        } else {
-          //单个值或record比较是否相同
-          BusinessResponseEnum.COLUMNVALUEDIFF.assertIsTrue(Objects.equals(value, studentValue), value, studentValue);
-        }
-
-      }
-    }
-  }
+//  private void compareResult(List<ResultSetInfo> teachResult, List<ResultSetInfo> studentResult) {
+//    //结果中的个数不同抛出异常
+//    BusinessResponseEnum.RESULTNUMDIFFENT.assertIsTrue(teachResult.size() == studentResult.size(), teachResult.size());
+//    for (int i = 0; i < teachResult.size(); i++) {
+//      //比较key是否相同
+//      BusinessResponseEnum.COLUMNNAMEDIFF.assertIsTrue(studentMap.keySet().equals(teacherMap.keySet()));
+//
+//      for (Map.Entry<?, ?> entry : teacherMap.entrySet()) {
+//        BusinessResponseEnum.COLUMNNAMEDIFF.assertIsTrue(studentMap.containsKey(entry.getKey()));
+//        //教师value
+//        Object value = entry.getValue();
+//        //学生value
+//        Object studentValue = studentMap.get(entry.getKey());
+//        if (value instanceof ResultSetInfo) {
+//          //比较结果集
+//          FunctionUtil.compareResultSet((ResultSetInfo) value, (ResultSetInfo) studentValue);
+//        } else {
+//          //单个值或record比较是否相同
+//          BusinessResponseEnum.COLUMNVALUEDIFF.assertIsTrue(Objects.equals(value, studentValue), value, studentValue);
+//        }
+//
+//      }
+//    }
+//  }
 }

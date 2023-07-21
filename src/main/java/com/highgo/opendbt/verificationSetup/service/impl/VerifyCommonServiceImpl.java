@@ -479,13 +479,13 @@ public class VerifyCommonServiceImpl implements VerifyCommonService {
       //比较教师和学生的结果集是否一样
       FunctionUtil.compareResultSet(teacherResultSetInfo, studentResultSetInfo);
     } else {
-      List<List<Map<String, Object>>> teacherLists = null;//teacherAnswerResultMap.getFunctionResult();
-      List<List<Map<String, Object>>> studentLists = null;//studentAnswerResultMap.getFunctionResult();
+      List<ResultSetInfo> teacherLists =teacherAnswerResultMap.getFunctionResult();
+      List<ResultSetInfo> studentLists = studentAnswerResultMap.getFunctionResult();
       //判断教师和学生得到的结果集个数是否相同
       BusinessResponseEnum.RESULTNUMDIFFENT.assertIsTrue(teacherLists.size() == studentLists.size(), teacherLists.size());
       for (int i = 0; i < teacherLists.size(); i++) {
         //比较两个结果
-        compareResult(teacherLists.get(0), studentLists.get(0));
+        FunctionUtil.compareResultSet(teacherLists.get(i), studentLists.get(i));
       }
     }
   }
