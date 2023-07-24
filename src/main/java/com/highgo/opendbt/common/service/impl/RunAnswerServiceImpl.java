@@ -31,160 +31,235 @@ import java.util.Map;
 @Service
 public class RunAnswerServiceImpl implements RunAnswerService {
 
-	Logger logger = LoggerFactory.getLogger(getClass());
+  Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private SceneMapper sceneMapper;
+  @Autowired
+  private SceneMapper sceneMapper;
 
-	@Autowired
-	private PublicSceneMapper publicSceneMapper;
+  @Autowired
+  private PublicSceneMapper publicSceneMapper;
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	private DataSourceBean dataSourceBean;
+  @Autowired
+  private DataSourceBean dataSourceBean;
 
-	/**
-	 * 初始化脚本，返回schema和指定schema名的连接
-	 */
-	@Override
-	public void getSchemaConnection(UserInfo loginUser, int sceneId, int exerciseId, SchemaConnection schemaConnection, int exerciseSource) throws Exception {
-		if (sceneId != -1) {
-			// 根据场景id获取场景信息
-			String initShell = "";
-			// 习题来源exerciseSource为1是公题库
-			if (exerciseSource == 1) {
-				PublicScene scene = publicSceneMapper.getSceneDetail(sceneId);
-				if (null == scene) {
-					throw new Exception(Message.get("GetSceneFail"));
-				}
-				initShell = scene.getInitShell();
-			} else {
-				Scene scene = sceneMapper.getSceneDetail(sceneId);
-				if (null == scene) {
-					throw new Exception(Message.get("GetSceneFail"));
-				}
-				initShell = scene.getInitShell();
-			}
+  /**
+   * 初始化脚本，返回schema和指定schema名的连接
+   */
+  @Override
+  public void getSchemaConnection(UserInfo loginUser, int sceneId, Long exerciseId, SchemaConnection schemaConnection, int exerciseSource) throws Exception {
+    // 根据场景id获取场景信息
+    String initShell = "";
+    if (sceneId != -1 && sceneId != 0) {
+      // 习题来源exerciseSource为1是公题库
+      if (exerciseSource == 1) {
+        PublicScene scene = publicSceneMapper.getSceneDetail(sceneId);
+        if (null == scene) {
+          throw new Exception(Message.get("GetSceneFail"));
+        }
+        initShell = scene.getInitShell();
+      } else {
+        Scene scene = sceneMapper.getSceneDetail(sceneId);
+        if (null == scene) {
+          throw new Exception(Message.get("GetSceneFail"));
+        }
+        initShell = scene.getInitShell();
+      }
+    }
+    Statement statement = null;
 
-			Statement statement = null;
+    try {
+      // 拼接具有唯一标识的schema名，并创建schema
+      String schemaName = "schema_" + exerciseSource + "_" + loginUser.getCode() + "_" + exerciseId + "_" + Thread.currentThread().getId();
+      logger.info("schema="+schemaName);
+      schemaName = PostgresqlKeyWord.convertorToPostgresql(schemaName);
+      schemaConnection.setSchemaName(schemaName);
+      jdbcTemplate.execute("create schema " + schemaName + ";");
+      logger.info("create schema success="+schemaName);
 
-			try {
-				// 拼接具有唯一标识的schema名，并创建schema
-				String schemaName = "schema_" + exerciseSource + "_" + loginUser.getCode() + "_" + exerciseId;
-				schemaName = PostgresqlKeyWord.convertorToPostgresql(schemaName);
+      // 连接串后拼接schema名，可连接指定schema
+      String schemaUrl = dataSourceBean.url + "?currentSchema=" + schemaName;
 
-				schemaConnection.setSchemaName(schemaName);
-				jdbcTemplate.execute("create schema " + schemaName + ";");
-				logger.info("create schema success");
+      // 获取指定schema的连接
+      Class.forName(dataSourceBean.driverClassName);
+      Connection connection = DriverManager.getConnection(schemaUrl, dataSourceBean.username, dataSourceBean.password);
 
-				// 连接串后拼接schema名，可连接指定schema
-				String schemaUrl = dataSourceBean.url + "?currentSchema=" + schemaName;
+      schemaConnection.setConnection(connection);
+      if (sceneId != -1 && sceneId != 0) {
+        statement = connection.createStatement();
+        // 执行初始化场景的sql脚本
+        statement.executeUpdate(initShell);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new Exception(Message.get("InitSceneFail", e.getMessage()));
+    } finally {
+      CloseUtil.close(statement);
+    }
+  }
+  /**
+   * 初始化脚本,并删除插入的数据，返回schema和指定schema名的连接
+   */
+  @Override
+  public void getSchemaConnection(UserInfo loginUser, int sceneId, Long exerciseId, SchemaConnection schemaConnection, int exerciseSource,boolean delInsert) throws Exception {
+    // 根据场景id获取场景信息
+    String initShell = "";
+    if (sceneId != -1 && sceneId != 0) {
+      // 习题来源exerciseSource为1是公题库
+      if (exerciseSource == 1) {
+        PublicScene scene = publicSceneMapper.getSceneDetail(sceneId);
+        if (null == scene) {
+          throw new Exception(Message.get("GetSceneFail"));
+        }
+        initShell = scene.getInitShell();
+      } else {
+        Scene scene = sceneMapper.getSceneDetail(sceneId);
+        if (null == scene) {
+          throw new Exception(Message.get("GetSceneFail"));
+        }
+        initShell = scene.getInitShell();
+        if(delInsert){
+          initShell= delInsert(initShell);
+        }
+      }
+    }
+    Statement statement = null;
 
-				// 获取指定schema的连接
-				Class.forName(dataSourceBean.driverClassName);
-				Connection connection = DriverManager.getConnection(schemaUrl, dataSourceBean.username, dataSourceBean.password);
+    try {
+      // 拼接具有唯一标识的schema名，并创建schema
+      String schemaName = "schema_" + exerciseSource + "_" + loginUser.getCode() + "_" + exerciseId + "_" + Thread.currentThread().getId();
+      schemaName = PostgresqlKeyWord.convertorToPostgresql(schemaName);
 
-				schemaConnection.setConnection(connection);
+      schemaConnection.setSchemaName(schemaName);
+      jdbcTemplate.execute("create schema " + schemaName + ";");
+      logger.info("create schema success");
 
-				statement = connection.createStatement();
+      // 连接串后拼接schema名，可连接指定schema
+      String schemaUrl = dataSourceBean.url + "?currentSchema=" + schemaName;
 
-				// 执行初始化场景的sql脚本
-				statement.executeUpdate(initShell);
-			} catch (Exception e) {
-				throw new Exception(Message.get("InitSceneFail", e.getMessage()));
-			} finally {
-				CloseUtil.close(statement);
-			}
-		}
-	}
+      // 获取指定schema的连接
+      Class.forName(dataSourceBean.driverClassName);
+      Connection connection = DriverManager.getConnection(schemaUrl, dataSourceBean.username, dataSourceBean.password);
 
-	private void setColumnAndData(ResultSet resultSet, List<String> columnList, List<DataTypeAndImg> dataTypeAndImgList, List<Map<Object, Object>> resultList)  throws Exception {
+      schemaConnection.setConnection(connection);
+      if (sceneId != -1 && sceneId != 0) {
+        statement = connection.createStatement();
+        // 执行初始化场景的sql脚本
+        statement.executeUpdate(initShell);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new Exception(Message.get("InitSceneFail", e.getMessage()));
+    } finally {
+      CloseUtil.close(statement);
+    }
+  }
+private String delInsert(String sql){
+  String[] sqlStatements = sql.split(";");
+  StringBuilder output = new StringBuilder();
+  for (String statement : sqlStatements) {
+    String trimmedStatement = statement.trim();
+    if (!trimmedStatement.toUpperCase().replaceAll(" ","").startsWith("INSERTINTO")) {
+      output.append(trimmedStatement).append(";");
+      if(trimmedStatement.toUpperCase().replaceAll(" ","").startsWith("--")){
+        output.append("\n\n");
+      }
+    }
+  }
 
-		int columnCount = resultSet.getMetaData().getColumnCount();
+  return output.toString();
+}
+  private void setColumnAndData(ResultSet resultSet, List<String> columnList, List<DataTypeAndImg> dataTypeAndImgList, List<Map<Object, Object>> resultList) throws Exception {
 
-		//添加字段名、数据类型以及数据类型图标
-		columnList.add(Message.get("SerialNumber"));
-		dataTypeAndImgList.add(new DataTypeAndImg(Message.get("SerialNumber"), null));
-		for (int i = 1; i <= columnCount; i++) {
-			columnList.add(resultSet.getMetaData().getColumnName(i));
-			dataTypeAndImgList.add(new DataTypeAndImg(resultSet.getMetaData().getColumnTypeName(i), DataTypeImgUtil.getDataTypeImgUrl(resultSet.getMetaData().getColumnTypeName(i))));
-		}
+    int columnCount = resultSet.getMetaData().getColumnCount();
 
-		// 前端需要的唯一标识列
-		int rowKey = 0;
-		while (resultSet.next()) {
-			Map<Object, Object> resultSetMap = new LinkedHashMap<Object, Object>();
-			rowKey++;
-			resultSetMap.put(0, rowKey);
-			for (int i = 1; i <= columnCount; i++) {
-				resultSetMap.put(i, resultSet.getObject(i));
-			}
-			resultList.add(resultSetMap);
-		}
-	}
-	/**
-	 * 获取ResultSet结果集的字段名和数据
-	 */
-	@Override
-	public void getResultSetColumnAndData(ResultSet resultSet, List<String> columnList, List<DataTypeAndImg> dataTypeAndImgList, List<Map<Object, Object>> resultList) throws Exception {
-		setColumnAndData(resultSet, columnList, dataTypeAndImgList, resultList);
-	}
+    //添加字段名、数据类型以及数据类型图标
+    columnList.add(Message.get("SerialNumber"));
+    dataTypeAndImgList.add(new DataTypeAndImg(Message.get("SerialNumber"), null));
+    for (int i = 1; i <= columnCount; i++) {
+      columnList.add(resultSet.getMetaData().getColumnName(i));
+      dataTypeAndImgList.add(new DataTypeAndImg(resultSet.getMetaData().getColumnTypeName(i), DataTypeImgUtil.getDataTypeImgUrl(resultSet.getMetaData().getColumnTypeName(i))));
+    }
 
-	/**
-	 * 把ResultSet结果集数据转成list
-	 */
-	@Override
-	public ResultSetInfo resultSetConvertList(ResultSet resultSet) throws Exception {
-		ResultSetInfo resultSetInfo = new ResultSetInfo();
+    // 前端需要的唯一标识列
+    int rowKey = 0;
+    while (resultSet.next()) {
+      Map<Object, Object> resultSetMap = new LinkedHashMap<Object, Object>();
+      rowKey++;
+      resultSetMap.put(0, rowKey);
+      for (int i = 1; i <= columnCount; i++) {
+        resultSetMap.put(i, resultSet.getObject(i));
+      }
+      resultList.add(resultSetMap);
+    }
+  }
 
-		List<String> columnList = resultSetInfo.getColumnList();
-		List<DataTypeAndImg> dataTypeAndImgList = resultSetInfo.getDataTypeAndImgList();
-		List<Map<Object, Object>> dataList = resultSetInfo.getDataList();
-		setColumnAndData(resultSet, columnList, dataTypeAndImgList, dataList);
+  /**
+   * 获取ResultSet结果集的字段名和数据
+   */
+  @Override
+  public void getResultSetColumnAndData(ResultSet resultSet, List<String> columnList, List<DataTypeAndImg> dataTypeAndImgList, List<Map<Object, Object>> resultList) throws Exception {
+    setColumnAndData(resultSet, columnList, dataTypeAndImgList, resultList);
+  }
 
-		resultSetInfo.setColumnNumber(columnList.size());
-		resultSetInfo.setRowNumber(dataList.size());
+  /**
+   * 把ResultSet结果集数据转成list
+   */
+  @Override
+  public ResultSetInfo resultSetConvertList(ResultSet resultSet) throws Exception {
+    ResultSetInfo resultSetInfo = new ResultSetInfo();
 
-		return resultSetInfo;
-	}
+    List<String> columnList = resultSetInfo.getColumnList();
+    List<DataTypeAndImg> dataTypeAndImgList = resultSetInfo.getDataTypeAndImgList();
+    List<Map<Object, Object>> dataList = resultSetInfo.getDataList();
+    setColumnAndData(resultSet, columnList, dataTypeAndImgList, dataList);
 
-	/**
-	 * 删除schema
-	 */
-	@Override
-	public void dropSchema(String schemaName) {
-		try {
-			if (null != schemaName) {
-				jdbcTemplate.execute("drop schema " + schemaName + " cascade;");
-				logger.info("drop schema success");
-			}
-		} catch (Exception e) {
-		}
-	}
+    resultSetInfo.setColumnNumber(columnList.size());
+    resultSetInfo.setRowNumber(dataList.size());
 
-	/**
-	 * 返回schema和指定schema名的连接，不执行脚本
-	 */
-	@Override
-	public void getSchemaConnection(UserInfo loginUser, SchemaConnection schemaConnection) throws Exception {
-		// 拼接具有唯一标识的schema名，并创建schema
-		String schemaName = "schema_" + loginUser.getCode();
-		schemaName = PostgresqlKeyWord.convertorToPostgresql(schemaName);
+    return resultSetInfo;
+  }
 
-		schemaConnection.setSchemaName(schemaName);
-		jdbcTemplate.execute("create schema " + schemaName + ";");
-		logger.info("create schema success");
+  /**
+   * 删除schema
+   */
+  @Override
+  public void dropSchema(String schemaName) {
+    logger.info("到达此处schemaName="+"drop schema IF EXISTS " + schemaName + " cascade;");
+    try {
+      if (null != schemaName) {
+        jdbcTemplate.execute("drop schema IF EXISTS " + schemaName + " cascade;");
+        logger.info("drop schema success");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.error("drop schema error",e);
+    }
+  }
 
-		// 连接串后拼接schema名，可连接指定schema
-		String schemaUrl = dataSourceBean.url + "?currentSchema=" + schemaName;
+  /**
+   * 返回schema和指定schema名的连接，不执行脚本
+   */
+  @Override
+  public void getSchemaConnection(UserInfo loginUser, SchemaConnection schemaConnection) throws Exception {
+    // 拼接具有唯一标识的schema名，并创建schema
+    String schemaName = "schema_" + loginUser.getCode();
+    schemaName = PostgresqlKeyWord.convertorToPostgresql(schemaName);
 
-		// 获取指定schema的连接
-		Class.forName(dataSourceBean.driverClassName);
-		Connection connection = DriverManager.getConnection(schemaUrl, dataSourceBean.username, dataSourceBean.password);
+    schemaConnection.setSchemaName(schemaName);
+    jdbcTemplate.execute("create schema " + schemaName + ";");
+    logger.info("create schema success");
 
-		schemaConnection.setConnection(connection);
-	}
+    // 连接串后拼接schema名，可连接指定schema
+    String schemaUrl = dataSourceBean.url + "?currentSchema=" + schemaName;
+
+    // 获取指定schema的连接
+    Class.forName(dataSourceBean.driverClassName);
+    Connection connection = DriverManager.getConnection(schemaUrl, dataSourceBean.username, dataSourceBean.password);
+
+    schemaConnection.setConnection(connection);
+  }
 
 }

@@ -199,11 +199,7 @@ ALTER TABLE t_catalogue_resources ALTER COLUMN delete_user TYPE int4 USING delet
 ALTER TABLE t_catalogue_resources ALTER COLUMN update_user TYPE int4 USING update_user::int4;
 ALTER TABLE t_homework_distribution ALTER COLUMN delete_flag TYPE int4 USING delete_flag::int4;
 
-
-ALTER TABLE t_new_exercise ADD exercise_status int4 NULL DEFAULT 0;
-COMMENT ON COLUMN t_new_exercise.exercise_status IS '练习题状态 0：是练习题 1：非练习题' ;
-ALTER TABLE t_new_exercise ADD show_answer int4 NULL DEFAULT 0;
-COMMENT ON COLUMN t_new_exercise.show_answer IS '是否显示答案 0：显示答案 1：不显示答案' ;
+------------------------------------------------------------------------------------------
 
 
 

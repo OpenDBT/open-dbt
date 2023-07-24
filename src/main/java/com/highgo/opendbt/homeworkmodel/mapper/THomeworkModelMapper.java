@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface THomeworkModelMapper extends BaseMapper<THomeworkModel> {
     //根据习题id判断是否绑定了作业模板
-    List<Integer> getIsBandingModel(int exerciseId);
+    List<Integer> getIsBandingModel(Long exerciseId);
 
     //查询作业模板
     List<THomeworkModel> listHomeworkModel(@Param("param") ListHomeWorkModel param);

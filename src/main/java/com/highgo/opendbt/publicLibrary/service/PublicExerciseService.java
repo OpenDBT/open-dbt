@@ -13,13 +13,13 @@ public interface PublicExerciseService {
     PageInfo<PublicExercise> getPublicExerciseList(PublicExercisePage publicExercisePage);
 
     //获取习题信息
-    PublicExercise getPublicExerciseInfo(int exerciseId);
+    PublicExercise getPublicExerciseInfo(Long exerciseId);
 
     //修改和新增习题
     Integer updateExercise(HttpServletRequest request, PublicExercise publicExercise);
 
     //删除习题
-    Integer deleteExercise(int exerciseId);
+    Integer deleteExercise(Long exerciseId);
 
     //测试运行习题正确答案
     Map<String, Object> testRunAnswer(HttpServletRequest request, PublicExercise publicExercise);

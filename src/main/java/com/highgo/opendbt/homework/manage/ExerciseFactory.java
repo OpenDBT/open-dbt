@@ -1,31 +1,34 @@
 package com.highgo.opendbt.homework.manage;
 
-import com.highgo.opendbt.common.exception.APIException;
+import com.highgo.opendbt.ApplicationContextRegister;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @Description: 题目工厂
+ * @Description: 题目判定方法工厂
  * @Title: ExerciseFactory
  * @Package com.highgo.opendbt.homework.manage.determine
  * @Author:
  * @Copyright 版权归HIGHGO企业所有
  * @CreateTime: 2022/10/18 15:50
  */
+@Component
 public class ExerciseFactory {
 
-    public static Determine getDetermine(int exerciseType){
-        switch (exerciseType) {
-            case 1:
-                return  new SingleChoiceDetermine();
-            case 2:
-                return  new MultipleChoiceDetermine();
-            case 3:
-                return  new JudgmentDetermine();
-            case 4:
-                return  new FillInBlanksDetermine();
-            case 6:
-                return  new SQLDetermine();
-            default:
-                throw new APIException("无效客观题题目类型");
-        }
+  private static Map<ExerciseTypeEvent, Determine> eventProcessMap = new ConcurrentHashMap<>();
+
+  public ExerciseFactory() {
+    Map<String, Object> beanMap = ApplicationContextRegister.getApplicationContext().getBeansWithAnnotation(DetermineEventAnnotation.class);
+
+    for (Object evetProcess : beanMap.values()) {
+      DetermineEventAnnotation annotation = evetProcess.getClass().getAnnotation(DetermineEventAnnotation.class);
+      eventProcessMap.put(annotation.value(), (Determine) evetProcess);
     }
+  }
+
+  public static Determine createEventProcess(int exerciseType) {
+    return eventProcessMap.get(ExerciseTypeEvent.getEvent(exerciseType));
+  }
 }

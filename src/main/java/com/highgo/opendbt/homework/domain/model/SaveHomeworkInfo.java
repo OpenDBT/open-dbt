@@ -1,5 +1,7 @@
 package com.highgo.opendbt.homework.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,7 +26,8 @@ public class SaveHomeworkInfo {
      */
     @ApiModelProperty(value = "习题id", required = true)
     @NotNull(message = "习题ID不能为空")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 习题答案

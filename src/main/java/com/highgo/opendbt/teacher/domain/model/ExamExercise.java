@@ -1,12 +1,15 @@
 package com.highgo.opendbt.teacher.domain.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.highgo.opendbt.course.domain.entity.Exercise;
 
 public class ExamExercise {
 
 	private int id = -1; // id
 	private int examId; // 作业id
-	private int exerciseId; // 习题id
+  @JsonSerialize(using = ToStringSerializer.class)
+	private Long exerciseId; // 习题id
 	private Exercise exercise; // 习题
 
 	private int ordinal; // 序号
@@ -28,11 +31,11 @@ public class ExamExercise {
 		this.examId = examId;
 	}
 
-	public int getExerciseId() {
+	public Long getExerciseId() {
 		return exerciseId;
 	}
 
-	public void setExerciseId(int exerciseId) {
+	public void setExerciseId(Long exerciseId) {
 		this.exerciseId = exerciseId;
 	}
 

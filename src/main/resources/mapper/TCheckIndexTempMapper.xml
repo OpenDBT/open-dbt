@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.highgo.opendbt.temp.mapper.TCheckIndexTempMapper">
+
+    <resultMap id="BaseResultMap" type="com.highgo.opendbt.temp.domain.entity.TCheckIndexTemp">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="sceneIndexId" column="scene_index_id" jdbcType="BIGINT"/>
+            <result property="checkStatus" column="check_status" jdbcType="VARCHAR"/>
+            <result property="indexName" column="index_name" jdbcType="VARCHAR"/>
+            <result property="indexFields" column="index_fields" jdbcType="VARCHAR"/>
+            <result property="indexType" column="index_type" jdbcType="VARCHAR"/>
+            <result property="sortNum" column="sort_num" jdbcType="INTEGER"/>
+            <result property="indexUnique" column="index_unique" jdbcType="BOOLEAN"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="tableName" column="table_name" jdbcType="VARCHAR"/>
+            <result property="exerciseId" column="exercise_id" jdbcType="BIGINT"/>
+            <result property="sceneDetailId" column="scene_detail_id" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,scene_index_id,check_status,
+        index_name,index_fields,index_type,
+        sort_num,index_unique,description,
+        table_name,exercise_id,scene_detail_id
+    </sql>
+</mapper>

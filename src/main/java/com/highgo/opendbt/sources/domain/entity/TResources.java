@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import lombok.Data;
 import lombok.ToString;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @TableName(value = "t_resources")
 @Data
 @ToString
-public class TResources extends BaseEntity {
+public class TResources extends MyBaseEntity {
     /**
      * 资源id
      */

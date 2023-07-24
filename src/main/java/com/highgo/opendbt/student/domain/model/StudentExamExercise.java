@@ -2,7 +2,7 @@ package com.highgo.opendbt.student.domain.model;
 
 public class StudentExamExercise {
 
-	private int exerciseId = -1; // 习题id
+	private Long exerciseId = -1L; // 习题id
 	private String exerciseName; // 习题名
 	private String exerciseDesc; // 习题描述
 	private int exerciseScore = 10; // 习题分值
@@ -16,11 +16,11 @@ public class StudentExamExercise {
 
 	private String studentAnswer; // 学生答案
 
-	public int getExerciseId() {
+	public Long getExerciseId() {
 		return exerciseId;
 	}
 
-	public void setExerciseId(int exerciseId) {
+	public void setExerciseId(Long exerciseId) {
 		this.exerciseId = exerciseId;
 	}
 

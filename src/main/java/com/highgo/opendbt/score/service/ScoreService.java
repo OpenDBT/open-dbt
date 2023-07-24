@@ -19,9 +19,7 @@ import javax.servlet.http.HttpServletRequest;
     //查询学生的习题基本信息以及成绩
      StuExerciseInfo getExerciseInfoByStu(HttpServletRequest request, int sclassId, int courseId, int knowledgeId);
 
-    //测试运行，用于学生答题测试提交答案，不需要记录成绩
-     SubmitResult startVerifyAnswerThread(HttpServletRequest request, Score score, int exerciseSource, boolean isSaveSubmitData, int entranceType);
-
     //提交言验证答案返回结果
      SubmitResult submitAnswer(UserInfo loginUser, Score score, int exerciseSource, boolean isSaveSubmitData, int entranceType);
+
 }

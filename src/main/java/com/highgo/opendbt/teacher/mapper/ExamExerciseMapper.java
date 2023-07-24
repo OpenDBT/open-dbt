@@ -45,6 +45,6 @@ public interface ExamExerciseMapper {
 	public Integer updateOrderById(@Param("id") int id,@Param("tarIndex") int tarIndex);
 
 
-	public Integer updateScore(@Param("examId") int id,@Param("exerciseId") int exerciseId,@Param("score") int score);
+	public Integer updateScore(@Param("examId") int id,@Param("exerciseId") Long exerciseId,@Param("score") int score);
 
 }

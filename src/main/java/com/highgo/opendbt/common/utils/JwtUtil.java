@@ -4,7 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
 
 /**
@@ -16,7 +19,7 @@ import java.util.Calendar;
  * @CreateTime: 2022/11/14 13:54
  */
 public class JwtUtil {
-
+  Logger logger = LoggerFactory.getLogger(getClass());
     // 用于JWT进行签名加密的秘钥
     private static String SECRET = "code-duck-*%#@*!&";
     public static final String TOKEN_PREFIX = "Bearer ";
@@ -60,5 +63,12 @@ public class JwtUtil {
         user.setCode(jwt.getClaim(JwtUtil.USER_CODE).asString());
         return user;
     }
-
+  public static String getToken(HttpServletRequest request){
+    String requestTokenHeader = request.getHeader(JwtUtil.HEADER_STRING);
+    if (requestTokenHeader != null && requestTokenHeader.startsWith(JwtUtil.TOKEN_PREFIX)) {
+      String token = requestTokenHeader.replace(JwtUtil.TOKEN_PREFIX, "");
+      return token;
+    }
+    return null;
+  }
 }

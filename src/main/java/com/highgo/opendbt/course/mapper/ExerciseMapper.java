@@ -48,9 +48,9 @@ public interface ExerciseMapper extends BaseMapper<Exercise> {
      * @return
      * @
      */
-     Exercise getExerciseById(@Param("exerciseId") int exerciseId);
+     Exercise getExerciseById(@Param("exerciseId") Long exerciseId);
 
-     Exercise getPublicExerciseById(@Param("exerciseId") int exerciseId);
+     Exercise getPublicExerciseById(@Param("exerciseId") Long exerciseId);
 
     /**
      * 通过场景id获取习题列表
@@ -81,7 +81,7 @@ public interface ExerciseMapper extends BaseMapper<Exercise> {
      * @param: [userId 用户id, sclassId 班级id, courseId 课程id, exerciseId 习题id]
      * @return: java.util.List<com.highgo.opendbt.course.domain.entity.Exercise>
      **/
-    ExerciseDisplay getExerciseInfo(@Param("userId") int userId, @Param("sclassId") int sclassId, @Param("courseId") int courseId, @Param("exerciseId") int exerciseId);
+    ExerciseDisplay getExerciseInfo(@Param("userId") int userId, @Param("sclassId") int sclassId, @Param("courseId") int courseId, @Param("exerciseId") Long exerciseId);
 
     /**
      * 新增习题
@@ -117,7 +117,7 @@ public interface ExerciseMapper extends BaseMapper<Exercise> {
      * @return
      * @
      */
-     Integer deleteExercise(@Param("exerciseId") int exerciseId);
+     Integer deleteExercise(@Param("exerciseId") Long exerciseId);
 
     /**
      * 删除课程的所有习题

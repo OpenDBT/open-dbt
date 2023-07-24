@@ -17,6 +17,7 @@ public interface SceneService {
 
 	public Scene getSceneDetail(int sceneId);
 
+
 	public Integer updateScene(HttpServletRequest request, Scene scene);
 
 	public Integer deleteScene(HttpServletRequest request, int sceneId);

@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -25,7 +25,7 @@ import java.util.Date;
 @ToString
 @NoArgsConstructor
 @Accessors(chain = true)
-public class TCatalogueProcess extends BaseEntity {
+public class TCatalogueProcess extends MyBaseEntity {
     /**
      * 主键
      */

@@ -11,6 +11,6 @@ public interface StudentExamMapper {
 
     List<StudentExamExercise> getExamExerciseList(@Param("userId") int userId, @Param("sclassId") int sclassId, @Param("examId") int examId, @Param("examClassId") int examClassId, @Param("exerciseSource") int exerciseSource);
 
-    StudentExamExercise getExamExerciseById(@Param("userId") int userId, @Param("sclassId") int sclassId, @Param("examId") int examId, @Param("examClassId") int examClassId, @Param("exerciseId") int exerciseId, @Param("exerciseSource") int exerciseSource);
+    StudentExamExercise getExamExerciseById(@Param("userId") int userId, @Param("sclassId") int sclassId, @Param("examId") int examId, @Param("examClassId") int examClassId, @Param("exerciseId") Long exerciseId, @Param("exerciseSource") int exerciseSource);
 
 }

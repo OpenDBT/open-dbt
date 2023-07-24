@@ -6,12 +6,16 @@ import com.highgo.opendbt.course.domain.entity.Exercise;
 import com.highgo.opendbt.course.domain.model.ExerciseDisplay;
 import com.highgo.opendbt.course.domain.model.ExercisePage;
 import com.highgo.opendbt.course.domain.model.ImportExerciseTO;
+import com.highgo.opendbt.verificationSetup.domain.model.ResponseModel;
+import com.highgo.opendbt.verificationSetup.domain.model.TestRunModel;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
+@Service
 public interface ExerciseService extends IService<Exercise> {
 
 	 List<Exercise> getExerciseList(ExercisePage exercisePage);
@@ -20,21 +24,21 @@ public interface ExerciseService extends IService<Exercise> {
 
 	 Integer updateExercise(HttpServletRequest request, Exercise exercise);
 
-	 Integer deleteExercise(HttpServletRequest request, int exerciseId);
+	 Integer deleteExercise(HttpServletRequest request, Long exerciseId);
 
-	 Integer copyExercise(HttpServletRequest request, int exerciseId);
+	 Integer copyExercise(HttpServletRequest request, Long exerciseId);
 
-	 Integer copyExerciseToMyCourse(HttpServletRequest request, int exerciseId, int courseId);
+	 Integer copyExerciseToMyCourse(HttpServletRequest request, Long exerciseId, int courseId);
 
-	 Map<String, Object> testRunAnswer(HttpServletRequest request, Exercise exercise);
+	 ResponseModel testRunAnswer(HttpServletRequest request, TestRunModel exercise) throws Throwable;
 
 	 List<Exercise> getExerciseInfoList(HttpServletRequest request, int sclassId, int courseId, int knowledgeId);
 
 	 List<Exercise> getExerciseListByCourseId(int courseId);
 
-	 Exercise getExerciseById(int exerciseId);
+	 Exercise getExerciseById(Long exerciseId);
 
-	ExerciseDisplay getExerciseInfo(HttpServletRequest request, int sclassId, int courseId, int exerciseId);
+	ExerciseDisplay getExerciseInfo(HttpServletRequest request, int sclassId, int courseId, Long exerciseId);
 
 	 String exportExerciseList(HttpServletRequest request, ExercisePage exercisePage) throws Exception;
 

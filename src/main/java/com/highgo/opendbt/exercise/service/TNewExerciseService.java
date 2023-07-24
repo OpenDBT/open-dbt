@@ -36,22 +36,22 @@ public interface TNewExerciseService extends IService<TNewExercise> {
     TNewExercise saveExercise(HttpServletRequest request, TNewExerciseVo param);
 
     //根据习题id 查询习题内容
-    TNewExercise getExerciseInfo(HttpServletRequest request, int exerciseId);
+    TNewExercise getExerciseInfo(HttpServletRequest request, Long exerciseId);
 
     // 判定是否绑定
-    void decideIsBand(TNewExercise exercise, int exerciseId);
+    void decideIsBand(TNewExercise exercise, Long exerciseId);
 
     //删除习题
-    boolean deleteExercise(HttpServletRequest request, int exerciseId);
+    boolean deleteExercise(HttpServletRequest request, Long exerciseId);
 
     //批量删除习题
     boolean batchDeleteExercise(HttpServletRequest request, TNewExerciseDelVO param);
 
     //复制习题
-    TNewExercise copyExercise(HttpServletRequest request, int exerciseId);
+    TNewExercise copyExercise(HttpServletRequest request, Long exerciseId);
 
     //根据idsid 作业模板id查询习题及详情
-    List<TNewExercise> getExercisesByIds(List<Integer> exerciseIds, int id, int flag);
+    List<TNewExercise> getExercisesByIds(List<Long> exerciseIds, int id, int flag);
 
 
     //导出
@@ -69,4 +69,6 @@ public interface TNewExerciseService extends IService<TNewExercise> {
     //更新保存习题选项
     void saveAndUpdateExerciseInfo(TNewExerciseVo param, UserInfo loginUser, TNewExercise exercise);
 
+    //判断是否存在与习题表
+    boolean isSave(Long exerciseId);
 }

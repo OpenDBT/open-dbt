@@ -11,6 +11,7 @@ import com.highgo.opendbt.feedback.service.FeedbackService;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,45 +21,42 @@ import java.util.List;
 @Service
 public class FeedbackServiceImpl implements FeedbackService {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
+  Logger logger = LoggerFactory.getLogger(getClass());
+
+  @Autowired
+  private FeedbackMapper feedbackMapper;
 
 
-    private final FeedbackMapper feedbackMapper;
+  /**
+   * @description:新增反馈
+   * @author:
+   * @date: 2023/1/9 13:12
+   * @param: [request, feedback 反馈信息]
+   * @return: java.lang.Integer
+   **/
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public Integer add(HttpServletRequest request, Feedback feedback) {
+    // 获取用户信息
+    UserInfo loginUser = Authentication.getCurrentUser(request);
+    feedback.setCreator(loginUser.getUserId());
+    feedback.setCreateTime(TimeUtil.getDateTime());
+    return feedbackMapper.add(feedback);
 
-    public FeedbackServiceImpl(FeedbackMapper feedbackMapper) {
-        this.feedbackMapper = feedbackMapper;
-    }
+  }
 
-    /**
-     * @description:新增反馈
-     * @author:
-     * @date: 2023/1/9 13:12
-     * @param: [request, feedback 反馈信息]
-     * @return: java.lang.Integer
-     **/
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Integer add(HttpServletRequest request, Feedback feedback) {
-        // 获取用户信息
-        UserInfo loginUser = Authentication.getCurrentUser(request);
-        feedback.setCreator(loginUser.getUserId());
-        feedback.setCreateTime(TimeUtil.getDateTime());
-        return feedbackMapper.add(feedback);
-
-    }
-
-    /**
-     * @description:查询反馈
-     * @author:
-     * @date: 2023/1/9 13:12
-     * @param: [pageTO 分页查询条件]
-     * @return: com.github.pagehelper.PageInfo<com.highgo.opendbt.feedback.model.Feedback>
-     **/
-    @Override
-    public PageInfo<Feedback> getFeedbackList(PageTO pageTO) {
-        // 分页查询配置
-        PageMethod.startPage(pageTO.getCurrent(), pageTO.getPageSize());
-        List<Feedback> list = feedbackMapper.getFeedbackList();
-        return new PageInfo<Feedback>(list);
-    }
+  /**
+   * @description:查询反馈
+   * @author:
+   * @date: 2023/1/9 13:12
+   * @param: [pageTO 分页查询条件]
+   * @return: com.github.pagehelper.PageInfo<com.highgo.opendbt.feedback.model.Feedback>
+   **/
+  @Override
+  public PageInfo<Feedback> getFeedbackList(PageTO pageTO) {
+    // 分页查询配置
+    PageMethod.startPage(pageTO.getCurrent(), pageTO.getPageSize());
+    List<Feedback> list = feedbackMapper.getFeedbackList();
+    return new PageInfo<Feedback>(list);
+  }
 }

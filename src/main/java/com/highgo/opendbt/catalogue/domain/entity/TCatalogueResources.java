@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @Data
 @ToString
 @Accessors(chain = true)
-public class TCatalogueResources extends BaseEntity {
+public class TCatalogueResources extends MyBaseEntity {
     /**
      * 主键
      */

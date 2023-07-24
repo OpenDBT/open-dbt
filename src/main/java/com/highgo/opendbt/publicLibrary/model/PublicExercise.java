@@ -1,8 +1,11 @@
 package com.highgo.opendbt.publicLibrary.model;
 
-public class PublicExercise {
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
-	private int exerciseId = -1; // 习题id
+public class PublicExercise {
+  @JsonSerialize(using = ToStringSerializer.class)
+	private Long exerciseId = -1L; // 习题id
 	private int sceneId = -1; // 场景id
 	private String sceneName; // 场景名
 	private String exerciseName; // 习题名
@@ -13,11 +16,11 @@ public class PublicExercise {
 	private String creatorName;
 	private String createTime;
 
-	public int getExerciseId() {
+	public Long getExerciseId() {
 		return exerciseId;
 	}
 
-	public void setExerciseId(int exerciseId) {
+	public void setExerciseId(Long exerciseId) {
 		this.exerciseId = exerciseId;
 	}
 

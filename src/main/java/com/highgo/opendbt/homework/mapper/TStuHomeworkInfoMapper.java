@@ -17,7 +17,7 @@ public interface TStuHomeworkInfoMapper extends RootMapper<TStuHomeworkInfo> {
     List<TStuHomeworkInfoVO> getHomeworkInfos(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);
 
     //根据学生端查询该作业该习题的信息
-    TStuHomeworkInfo getHomeworkInfoAndExercise(@Param("homeworkId") Integer homeworkId, @Param("exerciseId") Integer exerciseId, @Param("studentId") int studentId);
+    TStuHomeworkInfo getHomeworkInfoAndExercise(@Param("homeworkId") Integer homeworkId, @Param("exerciseId") Long exerciseId, @Param("studentId") int studentId);
 
     //查询作业详情
     List<TStuHomeworkInfoVO> review(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);

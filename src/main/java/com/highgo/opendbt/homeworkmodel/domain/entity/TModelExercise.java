@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.highgo.opendbt.common.entity.BaseEntity;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.highgo.opendbt.common.entity.MyBaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,7 +25,7 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @ApiModel(description = "模板习题关联类")
-public class TModelExercise extends BaseEntity {
+public class TModelExercise extends MyBaseEntity {
     /**
      *主键
      */
@@ -42,7 +44,8 @@ public class TModelExercise extends BaseEntity {
     @ApiModelProperty(value = "习题id", required = true)
     @NotNull(message = "习题id不能为空")
     @TableField(value = "exercise_id")
-    private Integer exerciseId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long exerciseId;
 
     /**
      * 习题分数
@@ -73,7 +76,7 @@ public class TModelExercise extends BaseEntity {
     public TModelExercise() {
     }
 
-    public TModelExercise(Integer modelId, @NotNull(message = "习题id不能为空") Integer exerciseId, @NotNull(message = "习题分数不能为空") Double exerciseScore, Integer exerciseStyle, @NotNull(message = "试题类型不能为空") Integer exerciseType, Date createTime, Integer createUser, Integer deleteFlag) {
+    public TModelExercise(Integer modelId, @NotNull(message = "习题id不能为空") Long exerciseId, @NotNull(message = "习题分数不能为空") Double exerciseScore, Integer exerciseStyle, @NotNull(message = "试题类型不能为空") Integer exerciseType, Date createTime, Integer createUser, Integer deleteFlag) {
         this.modelId = modelId;
         this.exerciseId = exerciseId;
         this.exerciseScore = exerciseScore;

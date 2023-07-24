@@ -13,6 +13,7 @@ import com.highgo.opendbt.teacher.mapper.ExamClassMapper;
 import com.highgo.opendbt.teacher.mapper.ExamMapper;
 import com.highgo.opendbt.teacher.service.ExamService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,70 +24,70 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExamServiceImpl implements ExamService {
 
+  @Autowired
+  private ExamMapper examMapper;
+  @Autowired
+  private ExamClassMapper examClassMapper;
+  @Autowired
+  private ScoreMapper scoreMapper;
 
-    private final ExamMapper examMapper;
 
-    private final ExamClassMapper examClassMapper;
+  public List<Exam> getExamList(HttpServletRequest request, int courseId) {
+    // 获取用户信息
+    UserInfo loginUser = Authentication.getCurrentUser(request);
+    return examMapper.getExamList(loginUser.getUserId(), courseId);
+  }
 
-    private final ScoreMapper scoreMapper;
+  @Override
+  public Exam getExamById(HttpServletRequest request, int examId) {
+    return examMapper.getExamById(examId);
+  }
 
-
-    public List<Exam> getExamList(HttpServletRequest request, int courseId) {
-        // 获取用户信息
-        UserInfo loginUser = Authentication.getCurrentUser(request);
-        return examMapper.getExamList(loginUser.getUserId(), courseId);
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public Integer updateExam(HttpServletRequest request, Exam exam) {
+    UserInfo loginUser = Authentication.getCurrentUser(request);
+    // 作业id为-1为新增作业
+    if (exam.getId() == -1) {
+      exam.setCreator(loginUser.getUserId());
+      exam.setCreateTime(TimeUtil.getDateTime());
+      examMapper.addExam(exam);
+      return exam.getId();
+    } else {
+      return examMapper.updateExam(exam);
     }
 
-    @Override
-    public Exam getExamById(HttpServletRequest request, int examId) {
-        return examMapper.getExamById(examId);
-    }
+  }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Integer updateExam(HttpServletRequest request, Exam exam) {
-        UserInfo loginUser = Authentication.getCurrentUser(request);
-        // 作业id为-1为新增作业
-        if (exam.getId() == -1) {
-            exam.setCreator(loginUser.getUserId());
-            exam.setCreateTime(TimeUtil.getDateTime());
-            examMapper.addExam(exam);
-            return exam.getId();
-        } else {
-            return examMapper.updateExam(exam);
-        }
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public Integer deleteExam(int examId) {
+    return examMapper.deleteExam(examId);
+  }
 
-    }
+  @Override
+  public List<StudentReportCard> getExamStudentReportCard(int examClassId) {
+    ExamClass examClass = examClassMapper.getExamClassById(examClassId);
+    BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(examClass);
+    Exam exam = examMapper.getExamById(examClass.getExamId());
+    BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(exam);
+    return examMapper.getExamStudentReportCard(examClass.getClassId(), examClass.getExamId(), examClassId, exam.getExerciseSource());
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Integer deleteExam(int examId) {
-        return examMapper.deleteExam(examId);
-    }
+  }
 
-    @Override
-    public List<StudentReportCard> getExamStudentReportCard(int examClassId) {
-        ExamClass examClass = examClassMapper.getExamClassById(examClassId);
-        BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(examClass);
-        Exam exam = examMapper.getExamById(examClass.getExamId());
-        BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(exam);
-        return examMapper.getExamStudentReportCard(examClass.getClassId(), examClass.getExamId(), examClassId, exam.getExerciseSource());
+  @Override
+  public StudentReportCard getExamDetailByExamClassId(int examClassId) {
+    ExamClass examClass = examClassMapper.getExamClassById(examClassId);
+    BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(examClass);
+    Exam exam = examMapper.getExamById(examClass.getExamId());
+    BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(exam);
+    return examMapper.getExamDetailByExamClassId(examClassId, exam.getExerciseSource());
 
-    }
+  }
 
-    @Override
-    public StudentReportCard getExamDetailByExamClassId(int examClassId) {
-        ExamClass examClass = examClassMapper.getExamClassById(examClassId);
-        BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(examClass);
-        Exam exam = examMapper.getExamById(examClass.getExamId());
-        BusinessResponseEnum.EXAMINFOGETFILE.assertNotNull(exam);
-        return examMapper.getExamDetailByExamClassId(examClassId, exam.getExerciseSource());
-
-    }
-
-    @Override
-    public Score getExerciseScoreById(int scoreId) {
-        return scoreMapper.getStuExamScoreById(scoreId);
-    }
+  @Override
+  public Score getExerciseScoreById(int scoreId) {
+    return scoreMapper.getStuExamScoreById(scoreId);
+  }
 
 }

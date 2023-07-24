@@ -108,7 +108,7 @@ public class MigrationServiceImpl implements MigrationService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean migrationExercise(HttpServletRequest request) {
-        Map<Integer, Integer> cache = new HashMap<>();
+        Map<Long, Long> cache = new HashMap<>();
         //查询历史数据
         List<Exercise> oldExercises = oldExerciseService.list(new QueryWrapper<Exercise>().eq("delete_flag", 0));
         //为空抛出异常
@@ -155,14 +155,14 @@ public class MigrationServiceImpl implements MigrationService {
         detachInsert(newExercises, 23);
     }
 
-    private void cache(Map<Integer, Integer> cache, List<TNewExercise> newExercises, List<Exercise> oldExercises) {
+    private void cache(Map<Long, Long> cache, List<TNewExercise> newExercises, List<Exercise> oldExercises) {
         for (int i = 0; i < newExercises.size(); i++) {
             cache.put(oldExercises.get(i).getExerciseId(), newExercises.get(i).getId());
         }
         logger.info("新旧习题表id对应关系{}", JSON.toJSONString(cache));
     }
 
-    private void knowledgesMigration(Map<Integer, Integer> cache) {
+    private void knowledgesMigration(Map<Long, Long> cache) {
         List<ExerciseKnowledge> knowledges = exerciseKnowledgeService.list();
         if (knowledges != null && !knowledges.isEmpty()) {
             List<ExerciseKnowledge> collect = knowledges.stream().peek(item -> {
@@ -178,7 +178,7 @@ public class MigrationServiceImpl implements MigrationService {
         }
     }
 
-    private void exerciseMigration(Map<Integer, Integer> cache) {
+    private void exerciseMigration(Map<Long, Long> cache) {
         List<TExamExercise> exercises = examExerciseService.list();
         if (exercises != null && !exercises.isEmpty()) {
             List<TExamExercise> collect = exercises.stream().peek(item -> {
@@ -191,7 +191,7 @@ public class MigrationServiceImpl implements MigrationService {
         }
     }
 
-    private void scoreMigration(Map<Integer, Integer> cache) {
+    private void scoreMigration(Map<Long, Long> cache) {
         List<TScore> scores = scoreService.list();
         if (scores != null && !scores.isEmpty()) {
             List<TScore> collect = scores.stream().peek(item -> {
@@ -205,7 +205,7 @@ public class MigrationServiceImpl implements MigrationService {
         }
     }
 
-    private void examScoreMigration(Map<Integer, Integer> cache) {
+    private void examScoreMigration(Map<Long, Long> cache) {
         List<TExamScore> examScores = examScoreService.list();
         if (examScores != null && !examScores.isEmpty()) {
             List<TExamScore> collect = examScores.stream().peek(item -> {

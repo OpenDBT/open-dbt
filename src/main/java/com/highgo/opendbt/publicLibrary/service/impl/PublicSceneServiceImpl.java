@@ -156,9 +156,12 @@ public class PublicSceneServiceImpl implements PublicSceneService {
             logger.error(e.getMessage(), e);
             return ResultTO.FAILURE(e.getMessage());
         } finally {
-            runAnswerService.dropSchema(schemaConnection.getSchemaName());
-            CloseUtil.close(statement);
-            CloseUtil.close(connection);
+          String schemaName=schemaConnection.getSchemaName();
+          CloseUtil.close(statement);
+          CloseUtil.close(connection);
+          logger.info("到达此处1="+schemaConnection.getSchemaName());
+          runAnswerService.dropSchema(schemaName);
+          logger.info("到达此处2="+schemaConnection.getSchemaName());
         }
     }
 

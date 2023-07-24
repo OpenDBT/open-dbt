@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
  public interface KnowledgeMapper extends BaseMapper<Knowledge> {
     //获取新习题表相关知识点
-     List<Knowledge> getKnowledgeByNewExerciseId(@Param("exerciseId") int exerciseId);
+     List<Knowledge> getKnowledgeByNewExerciseId(@Param("exerciseId") Long exerciseId);
 
     /**
      * 获取课程的知识点
@@ -28,7 +28,7 @@ import java.util.List;
      * @return
      * @
      */
-     List<Knowledge> getKnowledgeByExerciseId(@Param("exerciseId") int exerciseId);
+     List<Knowledge> getKnowledgeByExerciseId(@Param("exerciseId") Long exerciseId);
 
     /**
      * 根据知识点id获取知识点

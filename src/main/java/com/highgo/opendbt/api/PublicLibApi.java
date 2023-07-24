@@ -117,7 +117,7 @@ public class PublicLibApi {
      * @return PublicExercise
      */
     @RequestMapping("/getPublicExerciseInfo/{exerciseId}")
-    public PublicExercise getPublicExerciseInfo(@PathVariable("exerciseId") int exerciseId) {
+    public PublicExercise getPublicExerciseInfo(@PathVariable("exerciseId") Long exerciseId) {
         logger.debug("Enter, exerciseId = " + exerciseId);
         return publicExerciseService.getPublicExerciseInfo(exerciseId);
     }
@@ -142,7 +142,7 @@ public class PublicLibApi {
      * @return Integer
      */
     @RequestMapping("/deleteExercise/{exerciseId}")
-    public Integer deleteExercise(@PathVariable("exerciseId") int exerciseId) {
+    public Integer deleteExercise(@PathVariable("exerciseId") Long exerciseId) {
         logger.debug("Enter, exerciseId = " + exerciseId);
         return publicExerciseService.deleteExercise(exerciseId);
     }
