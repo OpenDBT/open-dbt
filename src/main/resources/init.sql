@@ -940,9 +940,9 @@ insert into t_exercise_type("type_code","type_name","type_style")values (4,'填�
 insert into t_exercise_type("type_code","type_name","type_style")values (5,'简答题',1);
 insert into t_exercise_type("type_code","type_name","type_style")values (6,'DMLSQL编程题',2);
 insert into t_exercise_type("type_code","type_name","type_style")values (7,'DDLSQL编程题',2);
-insert into t_exercise_type("type_code","type_name","type_style")values (8,'DDL视图编程题',2);
-insert into t_exercise_type("type_code","type_name","type_style")values (9,'DDL函数编程题',2);
-insert into t_exercise_type("type_code","type_name","type_style")values (10,'DDL触发器编程题',2);
+insert into t_exercise_type("type_code","type_name","type_style")values (8,'视图编程题',2);
+insert into t_exercise_type("type_code","type_name","type_style")values (9,'函数编程题',2);
+insert into t_exercise_type("type_code","type_name","type_style")values (10,'触发器编程题',2);
 
 --习题知识点关联表--
 CREATE TABLE t_new_exercise_knowledge (

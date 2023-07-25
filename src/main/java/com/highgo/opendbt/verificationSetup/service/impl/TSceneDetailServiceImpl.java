@@ -3,16 +3,25 @@ package com.highgo.opendbt.verificationSetup.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.highgo.opendbt.common.utils.CopyUtils;
+import com.highgo.opendbt.course.domain.model.SceneDetail;
+import com.highgo.opendbt.course.mapper.SceneDetailMapper;
+import com.highgo.opendbt.course.service.SceneService;
 import com.highgo.opendbt.exercise.service.TNewExerciseService;
+import com.highgo.opendbt.scene.domain.entity.TScene;
+import com.highgo.opendbt.scene.service.TSceneService;
 import com.highgo.opendbt.temp.domain.entity.TCheckDetailTemp;
 import com.highgo.opendbt.temp.service.TCheckDetailTempService;
 import com.highgo.opendbt.verificationSetup.domain.entity.TCheckDetail;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneDetail;
+import com.highgo.opendbt.verificationSetup.domain.entity.TSceneField;
 import com.highgo.opendbt.verificationSetup.domain.model.TSceneDetailDisplay;
 import com.highgo.opendbt.verificationSetup.domain.model.VerificationList;
 import com.highgo.opendbt.verificationSetup.service.TCheckDetailService;
 import com.highgo.opendbt.verificationSetup.service.TSceneDetailService;
 import com.highgo.opendbt.verificationSetup.mapper.TSceneDetailMapper;
+import com.highgo.opendbt.verificationSetup.tools.SceneUtil;
+import com.highgo.opendbt.verificationSetup.tools.TableInfoUtil;
+import com.highgo.opendbt.verificationSetup.tools.generatorSqlModule.TableInfoEvent;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,12 +45,20 @@ public class TSceneDetailServiceImpl extends ServiceImpl<TSceneDetailMapper, TSc
   TCheckDetailTempService checkDetailTempService;
   @Autowired
   private TNewExerciseService exerciseService;
+  @Autowired
+  private TSceneService sceneService;
+  @Autowired
+  private  SceneDetailMapper sceneDetailMapper;
   @Override
   public VerificationList getSceneDetailList(HttpServletRequest request, Integer sceneId, Long exerciseId) {
     List<TSceneDetail> sceneDetails =null;
     if(sceneId!=-1){
       //场景详情表信息
       sceneDetails = sceneDetailService.list(new QueryWrapper<TSceneDetail>().eq("scene_id", sceneId));
+      if ( sceneDetails==null||sceneDetails.isEmpty()) {
+        //场景字段为空时，重新提取
+        initDetail(sceneId);
+        sceneDetails = sceneDetailService.list(new QueryWrapper<TSceneDetail>().eq("scene_id", sceneId));      }
     }
 
    //该题目所有校验信息
@@ -95,6 +112,17 @@ public class TSceneDetailServiceImpl extends ServiceImpl<TSceneDetailMapper, TSc
     }
     verificationList.setSceneDetailDisplays(models);
     return verificationList;
+  }
+
+  //提取sceneDetail
+  private void initDetail(Integer sceneId) {
+    TScene scene = sceneService.getById(sceneId);
+    if (scene.getInitShell().length() > 0) {
+      List<SceneDetail> sceneDetailList = SceneUtil.parsSQLGetTableName(sceneId, scene.getInitShell());
+      if (sceneDetailList != null && !sceneDetailList.isEmpty()) {
+        sceneDetailMapper.addSceneDetail(sceneId, sceneDetailList);
+      }
+    }
   }
 }
 

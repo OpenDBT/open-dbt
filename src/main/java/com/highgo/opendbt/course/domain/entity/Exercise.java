@@ -33,8 +33,8 @@ public class Exercise {
 	@TableField(value = "answer")
 	private String answer; // 参考答案
   //习题类型
-  @TableField(value = "exercise_type")
-  private int exerciseType; // 课程
+//  @TableField(value = "exercise_type")
+//  private int exerciseType; // 课程
 
 	@TableField(exist = false)
 	private int[] knowledgeIds = new int[0]; // 关联知识点的id的数组
