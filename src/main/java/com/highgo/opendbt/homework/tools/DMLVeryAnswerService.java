@@ -120,7 +120,6 @@ public class DMLVeryAnswerService {
           studentResultSet = statement.executeQuery(studentAnswer);
           long endTime = System.currentTimeMillis();
           result.setAnswerExecuteTime((int) (endTime - startTime));
-
           ResultSetInfo studentResult = runAnswerService.resultSetConvertList(studentResultSet);
           studentAndTeacherResult.setStudentResult(studentResult);
 

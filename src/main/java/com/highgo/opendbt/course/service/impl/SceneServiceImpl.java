@@ -160,12 +160,13 @@ public class SceneServiceImpl implements SceneService {
   }
 
   private void delSceneInfo(List<TSceneDetail> details) {
+    if(details!=null&&details.size()>0){
     sceneFieldService.remove(new QueryWrapper<TSceneField>().in("scene_detail_id",details.stream().map(item->item.getId()).collect(Collectors.toList())));
     sceneIndexService.remove(new QueryWrapper<TSceneIndex>().in("scene_detail_id",details.stream().map(item->item.getId()).collect(Collectors.toList())));
     sceneConstraintService.remove(new QueryWrapper<TSceneConstraint>().in("scene_detail_id",details.stream().map(item->item.getId()).collect(Collectors.toList())));
     sceneForeignKeyService.remove(new QueryWrapper<TSceneFk>().in("scene_detail_id",details.stream().map(item->item.getId()).collect(Collectors.toList())));
     sceneSeqService.remove(new QueryWrapper<TSceneSeq>().in("scene_detail_id",details.stream().map(item->item.getId()).collect(Collectors.toList())));
-
+    }
   }
 
   //判断场景是否在使用中是否允许修改删除

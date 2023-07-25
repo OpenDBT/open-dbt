@@ -96,7 +96,8 @@ public class MigrationServiceImpl implements MigrationService {
     private TStuHomeworkMapper stuHomeworkMapper;
     @Autowired
     private TStuHomeworkInfoMapper stuHomeworkInfoMapper;
-    private final int numberBatch = 32767; //每一次插入的最大数
+    //private final int numberBatch = 32767; //每一次插入的最大数
+    private final int numberBatch = 16383; //每一次插入的最大数
 
     /**
      * @description:习题历史数据迁移
@@ -122,13 +123,13 @@ public class MigrationServiceImpl implements MigrationService {
         // 习题知识点关联表
         knowledgesMigration(cache);
         // 习题作业关联表
-        exerciseMigration(cache);
+       // exerciseMigration(cache);
         //  作业分数表
-        examScoreMigration(cache);
+       // examScoreMigration(cache);
         // 分数表
         //scoreMigration(cache);
         // 作业相关迁移
-        homeWorkMigration();
+       // homeWorkMigration();
         return true;
     }
 
@@ -144,6 +145,8 @@ public class MigrationServiceImpl implements MigrationService {
                     .setAuthType(2)
                     .setExerciseType(6)
                     .setExerciseLevel(1)
+                    .setShowAnswer(0)
+                    .setExerciseStatus(0)
                     .setStandardAnswser(exercise.getAnswer())
                     .setCreateTime(TimeUtil.converTODate(exercise.getCreateTime()))
                     .setCreateUser(exercise.getCreator())
