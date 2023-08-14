@@ -161,14 +161,14 @@ public class TCourseContentsServiceImpl extends ServiceImpl<TCourseContentsMappe
         List<Integer> collect = courseResources.stream().map(TCatalogueResources::getResourcesId).distinct().collect(Collectors.toList());
         BusinessResponseEnum.NOTSAMERES.assertIsFalse(collect.size() != courseContents.getAttachments().size());
         //目录资源表中存在和当前相同的资源且id不同
-        courseResources.forEach(item -> {
-            TCatalogueResources res = catalogueResourcesService.getOne(new QueryWrapper<TCatalogueResources>()
-                    .eq("delete_flag", 0)
-                    .eq("course_id", item.getCourseId())
-                    .eq("catalogue_id", item.getCatalogueId())
-                    .eq("resources_id", item.getResourcesId()));
-            BusinessResponseEnum.NOTSAMERES.assertIsFalse(res != null && !res.getId().equals(item.getId()));
-        });
+//        courseResources.forEach(item -> {
+//            TCatalogueResources res = catalogueResourcesService.getOne(new QueryWrapper<TCatalogueResources>()
+//                    .eq("delete_flag", 0)
+//                    .eq("course_id", item.getCourseId())
+//                    .eq("catalogue_id", item.getCatalogueId())
+//                    .eq("resources_id", item.getResourcesId()));
+//            BusinessResponseEnum.NOTSAMERES.assertIsFalse(res != null && !res.getId().equals(item.getId()));
+//        });
     }
 
 

@@ -2,6 +2,7 @@ package com.highgo.opendbt.progress.service;
 
 import com.highgo.opendbt.common.bean.ResultTO;
 import com.highgo.opendbt.exercise.domain.model.PublishExercise;
+import com.highgo.opendbt.exercise.domain.model.SharedExercise;
 import com.highgo.opendbt.score.domain.model.SubmitResult;
 import com.highgo.opendbt.progress.model.*;
 import com.highgo.opendbt.sclass.domain.entity.Sclass;
@@ -83,4 +84,7 @@ public interface ProgressService {
 
   //学生端测试运行
   SubmitResult testStudentAnswer(HttpServletRequest request, Score score) throws Throwable;
+
+  //共享习题
+  Integer sharedExercise(HttpServletRequest request, SharedExercise param);
 }
