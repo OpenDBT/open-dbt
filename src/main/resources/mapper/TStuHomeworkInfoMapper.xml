@@ -16,6 +16,33 @@
             <association property="exercise"  select="com.highgo.opendbt.exercise.mapper.TNewExerciseMapper.getExerciseById"
                          column="{exerciseId=exercise_id,modelId=model_id}"/>
     </resultMap>
+  <resultMap id="StuHomeWorkResultMap" type="com.highgo.opendbt.homework.domain.entity.TStuHomeworkInfo">
+    <id property="id" column="id" jdbcType="INTEGER"/>
+    <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+    <result property="homeworkId" column="homework_id" jdbcType="INTEGER"/>
+    <result property="homeworkName" column="homework_name" jdbcType="VARCHAR"/>
+    <result property="modelId" column="model_id" jdbcType="INTEGER"/>
+    <result property="modelName" column="model_name" jdbcType="VARCHAR"/>
+    <result property="studentId" column="student_id" jdbcType="INTEGER"/>
+    <result property="studentName" column="student_name" jdbcType="VARCHAR"/>
+    <result property="studentCode" column="student_code" jdbcType="VARCHAR"/>
+    <result property="classId" column="class_id" jdbcType="INTEGER"/>
+    <result property="className" column="class_name" jdbcType="VARCHAR"/>
+    <result property="exerciseId" column="exercise_id" jdbcType="INTEGER"/>
+    <result property="exerciseType" column="exercise_type" jdbcType="INTEGER"/>
+    <result property="exerciseScore" column="exercise_score" jdbcType="DOUBLE"/>
+    <result property="exerciseActualScore" column="exercise_actual_score" jdbcType="INTEGER"/>
+    <result property="exerciseResult" column="exercise_result" jdbcType="VARCHAR"/>
+    <result property="isCorrect" column="is_correct" jdbcType="INTEGER"/>
+    <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+    <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+    <result property="deleteFlag" column="delete_flag" jdbcType="SMALLINT"/>
+    <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
+    <result property="deleteUser" column="delete_user" jdbcType="INTEGER"/>
+    <result property="exerciseOrder" column="exercise_order" jdbcType="INTEGER"/>
+  </resultMap>
     <resultMap id="UnAnswerBaseResultMap" type="com.highgo.opendbt.homework.domain.model.TStuHomeworkInfoVO">
         <result property="exerciseId" column="exercise_id" jdbcType="INTEGER"/>
         <result property="exerciseScore" column="exercise_score" jdbcType="DOUBLE"/>
@@ -132,4 +159,22 @@
             and info.delete_flag=0
             order by ex.exercise_order asc
     </select>
+
+    <select id="getStuHomeworkInfos" resultMap="StuHomeWorkResultMap">
+        select
+            info.*,
+            ex.exercise_type as exercise_type,
+            ex.exercise_order as exercise_order
+        from
+            t_stu_homework_info info
+            left join t_model_exercise ex
+            on info.model_id=ex.model_id
+            and info.exercise_id=ex.exercise_id
+            where homework_id=#{homeworkId}
+            and info.delete_flag=0
+      </select>
+
+
+
+
 </mapper>

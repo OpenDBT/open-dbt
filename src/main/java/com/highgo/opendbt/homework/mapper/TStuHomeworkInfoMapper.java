@@ -13,17 +13,20 @@ import java.util.List;
  */
 @Repository
 public interface TStuHomeworkInfoMapper extends RootMapper<TStuHomeworkInfo> {
-    //根据作业id，学生id查询学生作业
-    List<TStuHomeworkInfoVO> getHomeworkInfos(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);
+  //根据作业id，学生id查询学生作业
+  List<TStuHomeworkInfoVO> getHomeworkInfos(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);
 
-    //根据学生端查询该作业该习题的信息
-    TStuHomeworkInfo getHomeworkInfoAndExercise(@Param("homeworkId") Integer homeworkId, @Param("exerciseId") Long exerciseId, @Param("studentId") int studentId);
+  //根据学生端查询该作业该习题的信息
+  TStuHomeworkInfo getHomeworkInfoAndExercise(@Param("homeworkId") Integer homeworkId, @Param("exerciseId") Long exerciseId, @Param("studentId") int studentId);
 
-    //查询作业详情
-    List<TStuHomeworkInfoVO> review(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);
+  //查询作业详情
+  List<TStuHomeworkInfoVO> review(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);
 
-    //学生端查看详情没有答案
-    List<TStuHomeworkInfoVO> UnAnswerreview(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);
+  //学生端查看详情没有答案
+  List<TStuHomeworkInfoVO> UnAnswerreview(@Param("studentId") int studentId, @Param("homeworkId") int homeworkId);
+
+  //根据作业id作业
+  List<TStuHomeworkInfo> getStuHomeworkInfos(@Param("homeworkId") int homeworkId);
 }
 
 
