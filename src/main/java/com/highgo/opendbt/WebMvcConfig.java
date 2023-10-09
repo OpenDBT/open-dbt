@@ -3,6 +3,7 @@ package com.highgo.opendbt;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.servlet.config.annotation.*;
@@ -17,6 +18,10 @@ import java.net.URLDecoder;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 	Logger logger = LoggerFactory.getLogger(getClass());
+  @Value("${baseDir}")
+  private String staticResourcesLocation;
+  @Value("${upload.dir}")
+  private String staticResourcesImgLocation;
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
@@ -36,7 +41,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new JwtInterceptor()) //注册自定义拦截器
 				.addPathPatterns("/**") //拦截所有路径
-				.excludePathPatterns("/login"); //排除登陆请求
+				.excludePathPatterns("/login") //排除登陆请求
+        .excludePathPatterns("/stomp/**");
 	}
 	@SneakyThrows
 	@Override
@@ -50,5 +56,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/readResourse/word/**").addResourceLocations("file:"+folderPath+File.separator+"word/");
 		registry.addResourceHandler("/readResourse/pdf/**").addResourceLocations("file:"+folderPath+File.separator+"pdf/");
 		registry.addResourceHandler("/readResourse/ppt/**").addResourceLocations("file:"+folderPath+File.separator+"ppt/");
-	}
-}
+    registry.addResourceHandler("/readResourse/upload/**").addResourceLocations("file:"+ staticResourcesLocation +"/");
+    registry.addResourceHandler("/readResourse/img/**").addResourceLocations("file:"+ staticResourcesImgLocation +"/");
+    registry.addResourceHandler("/readResourse/ppt/**").addResourceLocations("file:"+ staticResourcesLocation +"/");
+  }
+
+  }

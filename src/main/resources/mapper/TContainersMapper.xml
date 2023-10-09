@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.highgo.opendbt.experiment.mapper.TContainersMapper">
+
+    <resultMap id="BaseResultMap" type="com.highgo.opendbt.experiment.domain.TContainers">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="containerId" column="container_id" jdbcType="VARCHAR"/>
+            <result property="containerPort" column="container_port" jdbcType="VARCHAR"/>
+            <result property="code" column="code" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,container_id,container_port,
+        code
+    </sql>
+</mapper>

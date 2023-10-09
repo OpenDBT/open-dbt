@@ -1,0 +1,8 @@
+version: '2'  # 使用的 Docker Compose 格式的版本
+services:    # 定义要运行的容器/服务
+  centos7:       # 服务/容器的名称
+    image: zzw:latest  # 用于此服务的 Docker 镜像
+    container_name: "001-container"
+    ports:
+      - "9001:9001"
+
