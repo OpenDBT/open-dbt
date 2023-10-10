@@ -10,6 +10,7 @@ import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
 import com.highgo.opendbt.common.utils.AnswerSimilarityCalculator;
 import com.highgo.opendbt.common.utils.Authentication;
+import com.highgo.opendbt.common.utils.CamelCaseToUnderscoreConverter;
 import com.highgo.opendbt.exercise.domain.entity.TExerciseType;
 import com.highgo.opendbt.exercise.service.TExerciseTypeService;
 import com.highgo.opendbt.homework.domain.entity.*;
@@ -221,7 +222,7 @@ public class THomeworkServiceImpl extends ServiceImpl<THomeworkMapper, THomework
   public PageInfo<TStuHomework> getApprovalList(HttpServletRequest request, @Valid PageParam<ApprovalList> param) {
 
     //分页查询
-    return PageMethod.startPage(param.getPageNum(), param.getPageSize()).setOrderBy(param.getOrderBy())
+    return PageMethod.startPage(param.getPageNum(), param.getPageSize()).setOrderBy(CamelCaseToUnderscoreConverter.convert(param.getOrderBy()))
       .doSelectPageInfo(() -> listApprovalList(param.getParam()));
   }
 

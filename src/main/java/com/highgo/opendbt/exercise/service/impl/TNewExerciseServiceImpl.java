@@ -10,6 +10,7 @@ import com.highgo.opendbt.common.bean.PageParam;
 import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
 import com.highgo.opendbt.common.utils.Authentication;
+import com.highgo.opendbt.common.utils.CamelCaseToUnderscoreConverter;
 import com.highgo.opendbt.common.utils.ExcelUtil;
 import com.highgo.opendbt.course.domain.entity.ExerciseKnowledge;
 import com.highgo.opendbt.course.domain.entity.Knowledge;
@@ -82,7 +83,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
     if (StringUtils.isBlank(param.getOrderBy())) {
       param.setOrderBy("element_type desc,id desc");
     } else {
-      param.setOrderBy("element_type desc," + param.getOrderBy() + ",id desc");
+      param.setOrderBy("element_type desc " + (CamelCaseToUnderscoreConverter.convert(param.getOrderBy()) == null ? "" : "," + CamelCaseToUnderscoreConverter.convert(param.getOrderBy())) + ",id desc");
     }
     //题目总数量
     AtomicInteger exerciseCount = new AtomicInteger(0);
@@ -576,8 +577,6 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
   }
 
 
-
-
   /**
    * @description: 更新习题
    * @author:
@@ -656,10 +655,10 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
     TNewExercise tNewExercise = new TNewExercise();
     BeanUtils.copyProperties(param, tNewExercise);
     //题目id
-    Long exerciseId=tNewExercise.getId();
+    Long exerciseId = tNewExercise.getId();
     TNewExercise newExercise = exerciseService.getById(exerciseId);
     //判断该题目id在习题中是否存在
-    determineId(tNewExercise,newExercise);
+    determineId(tNewExercise, newExercise);
     //新增题目
     if (tNewExercise.getId() == null || tNewExercise.getId() == -1) {
       tNewExercise.setCreateUser(loginUser.getUserId()).setCreateTime(new Date());
@@ -673,16 +672,16 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
       BusinessResponseEnum.SAVEORUPDATEFAIL.assertIsTrue(exerciseService.saveOrUpdate(tNewExercise));
     }
     // 迁移临时表到正式表
-    if(newExercise==null){
+    if (newExercise == null) {
       //真实习题id
-      Long realityExerciseId=tNewExercise.getId();
-      verifyCommonService.migrateTOrealityTable(realityExerciseId,exerciseId);
+      Long realityExerciseId = tNewExercise.getId();
+      verifyCommonService.migrateTOrealityTable(realityExerciseId, exerciseId);
     }
     return tNewExercise;
   }
 
   private void determineId(TNewExercise tNewExercise, TNewExercise newExercise) {
-    if(newExercise==null){
+    if (newExercise == null) {
       //新增习题
       tNewExercise.setId(null);
     }
@@ -739,7 +738,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
     List<TNewExercise> tNewExercises = exerciseMapper.listExercises(param);
     if (tNewExercises != null && !tNewExercises.isEmpty()) {
       //设置文件夹下题目数量
-     // setExerciseCount(tNewExercises, param);
+      // setExerciseCount(tNewExercises, param);
     }
     return tNewExercises;
   }
@@ -826,6 +825,7 @@ public class TNewExerciseServiceImpl extends ServiceImpl<TNewExerciseMapper, TNe
     }
     return ideq && typeeq && knowledgeeq;
   }
+
   //判断是否存在与习题表
   @Override
   public boolean isSave(Long exerciseId) {

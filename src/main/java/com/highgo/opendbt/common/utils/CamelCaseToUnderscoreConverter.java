@@ -36,9 +36,9 @@ public class CamelCaseToUnderscoreConverter {
       String underscoreFieldName = convertToUnderscore(fieldName);
 
       // 组合成新的排序字符串
-      return underscoreFieldName + " " + direction;
+      return underscoreFieldName.concat(" ").concat(direction);
     }
-    return originalOrderBy;
+    return null;
   }
   public static boolean isSort(String originalOrderBy) {
     String[] parts = originalOrderBy.split(" "); // 拆分排序字段和排序方向
