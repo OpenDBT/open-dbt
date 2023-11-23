@@ -8,7 +8,7 @@
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="experimentName" column="experiment_name" jdbcType="VARCHAR"/>
             <result property="imagePort" column="image_port" jdbcType="VARCHAR"/>
-            <result property="imageId" column="image_id" jdbcType="INTEGER"/>
+            <result property="imageId" column="image_id" jdbcType="VARCHAR"/>
             <result property="imageName" column="image_name" jdbcType="VARCHAR"/>
             <result property="containerPort" column="container_port" jdbcType="VARCHAR"/>
             <result property="releaseStatus" column="release_status" jdbcType="BOOLEAN"/>
@@ -32,7 +32,7 @@
 
   <select id="getExperimentInfo" resultType="com.highgo.opendbt.experiment.model.ExperimentInfo">
   select  a.id,a.experiment_name,c.image_port,
-          a.image_id,c.image_name,d.container_port,d.container_id,
+          a.image_id,c.image_name,d.container_port,d.container_id,d.container_name,d.cpu,d.memory,
           a.release_status,a.course_id,a.create_user,
           a.create_time,a.update_time,a.update_user,
           a.delete_flag,a.delete_time,a.delete_user,
@@ -43,7 +43,7 @@
           left join  t_images c
           on a.image_id=c.id
           left join  t_containers d
-          on a.image_id=d.image_id and d.code=#{code}
+          on a.image_id=d.image_id and a.course_id=d.course_id and a.id=d.experiment_id and d.code=#{code} and d.delete_flag=0
           where a.id=#{id}
   </select>
 

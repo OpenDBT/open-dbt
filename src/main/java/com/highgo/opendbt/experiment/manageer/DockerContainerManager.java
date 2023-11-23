@@ -18,6 +18,7 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.highgo.opendbt.ApplicationContextRegister;
 import com.highgo.opendbt.common.exception.APIException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -105,19 +106,35 @@ public class DockerContainerManager {
     return path;
   }
 
-  public static String getPath(String studentCode, String imageName, String containerPort) {
+  public static void main(String[] args) {
+    String aa="61_js_feixiangdexiaozhidan_kylin-v10-docker_v1.0_service";
+  }
+  public static String getPath(Long experimentId,int courseId,String studentCode, String imageName, String containerPort,String cpu,String memory) {
     // 获取资源文件的输入流
-    String dockerComposeConfig = "version: '2'\n" +
+    String dockerComposeConfig = "version: '3.9'\n" +
       "services:\n" +
-      "  " + studentCode + "_service:\n" +
+      "  " +experimentId+"_"+ courseId+"_"+studentCode.concat("_").concat(imageName.replace(":", "_").replace("/", "_")) + "_service:\n" +
       "    image: " + imageName + "\n" +
-      "    container_name: " + studentCode.concat("_").concat(imageName.replace(":", "_")) + "_container\n";
+      "    tty: " + true + "\n" +
+      "    container_name: "+experimentId+"_"+courseId+"_"+studentCode.concat("_").concat(imageName.replace(":", "_").replace("/", "_")) + "_container\n"+
+      "    deploy:" + "\n" +
+      "     resources:" + "\n"+
+      "       reservations:" + "\n" +
+      "         memory: 2G" + "\n";
+    if (StringUtils.isNotBlank(cpu)&&StringUtils.isNotBlank(memory)) {
+      dockerComposeConfig += "       limits:" + "\n" +
+        "         cpus: '" + cpu + "'\n" +
+        "         memory: " + memory + "\n";
+    }
     if (containerPort != null) {
       dockerComposeConfig += "    ports:\n" +
         "      - '" + containerPort + "'\n";
 
     }
+    dockerComposeConfig += "    command: /bin/bash\n" +
+    "    user: root\n";
 
+    logger.info(dockerComposeConfig);
     // 将Docker Compose配置字符串转换为InputStream
     InputStream inputStream = new ByteArrayInputStream(dockerComposeConfig.getBytes());
 
@@ -171,23 +188,19 @@ public class DockerContainerManager {
         if (item.getStream() != null) {
           logger.info(item.getStream());
         }
-
       }
-
       @Override
       public void onComplete() {
         // 构建完成时的日志
         logger.info("镜像构建完成：" + imageName);
       }
-
       @Override
       public void onError(Throwable throwable) {
         // 构建失败时的日志
-        System.err.println("镜像构建失败：" + imageName);
+        logger.error("镜像构建失败：" + imageName);
         throwable.printStackTrace();
       }
     };
-
     logger.info("开始构建镜像：" + imageName);
     String imageId = dockerClient.buildImageCmd()
       .withDockerfile(new File(dockerfilePath)) // 使用 Dockerfile 内容

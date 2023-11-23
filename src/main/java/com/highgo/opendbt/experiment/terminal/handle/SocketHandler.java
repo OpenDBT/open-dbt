@@ -74,7 +74,7 @@ public class SocketHandler extends DefaultHandshakeHandler implements WebSocketH
   @Override
   public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws IOException {
     logger.info("断开连接");
-    String containerId = session.getAttributes().get(Constants.CONTAINER_ID).toString();
+    String containerId = session.getAttributes().get(Constants.CONTAINER_NAME).toString();
     DockerComposeBuilder composeBuilder = new DockerComposeBuilder(dockerHost, dockerPort);
     composeBuilder.stopContainer(containerId);
     //调用service关闭连接

@@ -38,10 +38,10 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
             // 设置连接标志
             attributes.put(Constants.CONTAINER_EXEC, false);
 
-            String containerId = ((ServletServerHttpRequest) request).getServletRequest().getParameter("containerId");
+            String containerName = ((ServletServerHttpRequest) request).getServletRequest().getParameter("containerName");
 
-            if (StringUtils.isNotBlank(containerId)){
-                attributes.put(Constants.CONTAINER_ID, containerId);
+            if (StringUtils.isNotBlank(containerName)){
+                attributes.put(Constants.CONTAINER_NAME, containerName);
                 attributes.put(Constants.CONTAINER_EXEC, true);
             }
         }

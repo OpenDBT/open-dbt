@@ -39,7 +39,7 @@ public class TExperiment implements Serializable {
   /**
    * 镜像id
    */
-  private Integer imageId;
+  private String imageId;
 
   /**
    * 镜像名称

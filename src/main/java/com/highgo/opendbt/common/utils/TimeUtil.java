@@ -18,6 +18,7 @@ public class TimeUtil {
     static SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     static SimpleDateFormat timeStrFormat = new SimpleDateFormat("yyyyMMddHHmmss");
     static SimpleDateFormat timeStrFormat1 = new SimpleDateFormat("MMddHHmmss");
+    static SimpleDateFormat timeStrFormatDay = new SimpleDateFormat("yyyyMMdd");
 
     /**
      * 获取当前日期时间，格式：2020-08-26 09:00:00
@@ -36,7 +37,14 @@ public class TimeUtil {
     public static String getDateTimeStr() {
         return timeStrFormat.format(new Date());
     }
-
+  /**
+   * 获取当前的日期串，格式：20210826
+   *
+   * @return
+   */
+    public static String getDateTimeDay() {
+      return timeStrFormatDay.format(new Date());
+    }
     /**
      * 获取当前的日期串，格式：0826090000
      *

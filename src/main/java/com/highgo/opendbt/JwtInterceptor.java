@@ -39,6 +39,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 				|| request.getRequestURI().contains("/swagger")
 				|| request.getRequestURI().contains("/webjars")
 				|| request.getRequestURI().contains("/migration/migrationExercise")
+      || request.getRequestURI().contains("/image/")
 		) {
 			return true;
 		}

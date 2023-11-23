@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.ToString;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -18,7 +19,8 @@ import javax.validation.constraints.NotNull;
 @Data
 @ToString
 public class ContainerConfig  {
-
+  @NotNull(message = "实验ID不能为空")
+  private Long experimentId;
   //镜像名称
   @NotNull(message = "镜像名称不能为空")
   private String imageName;
@@ -29,9 +31,13 @@ public class ContainerConfig  {
   @NotNull(message = "课程ID不能为空")
   private int courseId;
   //实验id
-  @NotNull(message = "镜像id不能为空")
-  private int imageId;
+  @NotBlank(message = "镜像id不能为空")
+  private String imageId;
   //容器暴露端口
   @NotNull(message = "镜像端口不能为空")
   private String imagePort;
+  //cpu内核数
+  private String cpu;
+  //内存大小
+  private String memory;
 }

@@ -22,12 +22,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author highgo
@@ -49,12 +45,12 @@ public class WebDockerServiceImpl implements WebDockerService {
 
   @Override
   public void createExec(WebSocketSession session) throws Exception {
-    String containerId = session.getAttributes().get(Constants.CONTAINER_ID).toString();
-    logger.info("containerId=" + containerId);
+    String containerName = session.getAttributes().get(Constants.CONTAINER_NAME).toString();
+    logger.info("containerName=" + containerName);
     String execId = DockerUtil.query(ip, docker -> {
-      ExecCreation execCreation = docker.execCreate(containerId, new String[]{"/bin/bash"},
+      ExecCreation execCreation = docker.execCreate(containerName, new String[]{"/bin/bash"},
         DockerClient.ExecCreateParam.attachStdin(), DockerClient.ExecCreateParam.attachStdout(), DockerClient.ExecCreateParam.attachStderr(),
-        DockerClient.ExecCreateParam.tty(true));
+        DockerClient.ExecCreateParam.tty(true),DockerClient.ExecCreateParam.user("root"));
       return execCreation.id();
     });
     session.getAttributes().put(EXEC_ID, execId);
@@ -156,7 +152,7 @@ public class WebDockerServiceImpl implements WebDockerService {
     pw.append("Connection: keep-alive\r\n");
     JSONObject obj = new JSONObject();
     obj.put("Detach", false);
-    obj.put("Tty", false);
+    obj.put("Tty", true);
     String json = obj.toJSONString();
     pw.append("Content-Length: " + json.length() + "\r\n");
     pw.append("\r\n");

@@ -68,7 +68,7 @@ public class UploadUtils {
 
       // 获取命令执行的输出流
       InputStream in = channelExec.getInputStream();
-// 获取命令执行的错误流
+      // 获取命令执行的错误流
       InputStream errorStream = channelExec.getErrStream();
       // 连接并执行命令
       channelExec.connect();
@@ -87,7 +87,7 @@ public class UploadUtils {
       }
       // 等待命令执行完成
       int exitCode = channelExec.getExitStatus();
-      logger.error("Docker Compose 构建返回信息, 信息输出: " + errorOutput.toString());
+      logger.info("Docker Compose 构建返回信息, 信息输出: " + errorOutput.toString());
       if (exitCode != 0) {
         throw new DockerClientException("Docker Compose 构建失败");
       }else{
@@ -116,7 +116,7 @@ public class UploadUtils {
    * @return
    * @throws Exception
    */
-  public static UploadUtils getSftpUtil(String host, int port, String username, String password) throws Exception {
+  public static UploadUtils getSftpUtil(String host, int port, String username, String password) {
     //获取本地线程
     UploadUtils sftpUtil = sftpLocal.get();
     if (null == sftpUtil || !sftpUtil.isConnected()) {

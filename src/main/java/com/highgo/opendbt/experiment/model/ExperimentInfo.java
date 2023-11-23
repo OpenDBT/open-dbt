@@ -38,8 +38,8 @@ public class ExperimentInfo {
   /**
    * 镜像id
    */
-  @NotNull(message = "镜像不能为空")
-  private Integer imageId;
+  @NotBlank(message = "镜像不能为空")
+  private String imageId;
 
   /**
    * 镜像名称
@@ -55,7 +55,10 @@ public class ExperimentInfo {
    * 容器id
    */
   private String containerId;
-
+  /**
+   * 容器name
+   */
+  private String containerName;
   /**
    * 发布状态true:发布，false:未发布
    */
@@ -105,4 +108,12 @@ public class ExperimentInfo {
    * 文档内容
    */
   private String experimentContent;
+  /**
+   * 内核
+   */
+  private String cpu;
+  /**
+   * 内存大小
+   */
+  private String memory;
 }

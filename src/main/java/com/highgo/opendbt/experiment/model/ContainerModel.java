@@ -15,5 +15,6 @@ import lombok.ToString;
 @ToString
 public class ContainerModel {
   private String containerId;
+  private String containerName;
   private String containerPort;
 }

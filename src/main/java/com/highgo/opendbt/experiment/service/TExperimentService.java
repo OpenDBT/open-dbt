@@ -11,7 +11,11 @@ import java.util.List;
  */
 public interface TExperimentService extends IService<TExperiment> {
   //在线实验详情查询
-  ExperimentInfo getExperiment(long id,String code);
+  ExperimentInfo getExperiment(long id, String code);
+
   //实验列表查询
-  List<TExperiment>  listExperiment(Integer courseId, String experimentName);
+  List<TExperiment> listExperiment(Integer courseId, String experimentName);
+
+  //删除实验
+  boolean delExperiment(long id);
 }

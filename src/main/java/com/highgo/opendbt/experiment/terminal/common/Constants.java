@@ -8,9 +8,9 @@ public class Constants {
   public static final String USER_KEY = "user_key";
 
   /**
-   * 容器 id
+   * 容器 名称
    */
-  public static final String CONTAINER_ID = "container_id";
+  public static final String CONTAINER_NAME = "container_name";
 
   /**
    * 连接容器 exec 标志
