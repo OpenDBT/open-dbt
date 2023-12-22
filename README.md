@@ -41,7 +41,7 @@
 * 统计: 对练习题目答题情况的统计
 * 作业: 学生通过此模块完成教师发放的作业以及在批阅完成后查看作业的答题情况
 ## 在线体验
-* 演示地址：http://124.133.18.222:59005/user/login
+* 演示地址：http://124.133.18.218:8900/user/login
 * 账号密码: admin/admin，js/js,kczj/kczj
 * 文档地址：https://github.com/OpenDBT/open-dbt/wiki
 ## 项目结构
