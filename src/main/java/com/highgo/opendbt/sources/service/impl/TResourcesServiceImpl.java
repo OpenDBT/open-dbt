@@ -18,6 +18,7 @@ import org.bytedeco.javacv.FrameGrabber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -41,6 +42,10 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
   private TResourcesMapper resourcesMapper;
   @Autowired
   private TCatalogueResourcesService catalogueResourcesService;
+
+  @Value("${upload.dir}")
+  private String staticResourcesImgLocation;
+
   /**
    * @description: 上传资源
    * @author:
@@ -51,10 +56,12 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
   @Override
   @Transactional(rollbackFor = Exception.class)
   public TResources uploadResources(HttpServletRequest request, MultipartFile file) throws IOException {
+
     // 获取用户信息
     UserInfo loginUser = Authentication.getCurrentUser(request);
     //md5校验码
     String md5 = MD5Util.getMd5(file);
+    logger.info("开始上传");
     //资源类型参数
     String resourcesType = request.getParameter("resourcesType");
     String resourcesSize = request.getParameter("resourcesSize");
@@ -64,8 +71,9 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
     List<TResources> resources = this.list(new QueryWrapper<TResources>()
       .eq("course_id", courseId)
       .eq("md5", md5));
-    if(resources!=null&&resources.size()>0){
-      throw new APIException(resources.get(0).getResourcesName()+"资源已存在");
+    logger.info("判断重复资源"+ resources.size());
+    if (resources != null && resources.size() > 0) {
+      throw new APIException(resources.get(0).getResourcesName() + "资源已存在");
     }
 
     //文件名
@@ -78,11 +86,12 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
     String name = getFileRename(fileName);
     //存储文件路径地址
     String filePath = folderPath + File.separator + name;
-
+    logger.info("路径拼接重命名后".concat(filePath));
     //上传
     uploadFile(folderPath, filePath, file);
+    logger.info("上传完成".concat(filePath));
     //保存到资源表
-    return saveResources(fileName, name, filePath, loginUser, resourcesType, resourcesSize, folderPath, resourcesAdditional, md5,courseId);
+    return saveResources(fileName, name, filePath, loginUser, resourcesType, resourcesSize, folderPath, resourcesAdditional, md5, courseId);
 
   }
 
@@ -115,9 +124,9 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
     // 查询所有资源
     List<TResources> resourcesList = this.list(new QueryWrapper<TResources>().ne("resources_additional", 1)
       .eq("delete_flag", 0).and(wrapper -> wrapper
-        .eq("course_id",resources.getCourseId())
+        .eq("course_id", resources.getCourseId())
         .or()
-        .eq("auth_type",2))
+        .eq("auth_type", 2))
       .eq("resources_retype", resources.getResourcesRetype())
       .like(StringUtils.isNoneBlank(resources.getResourcesName()), "resources_name", resources.getResourcesName()));
     // 循环过滤形成树形结构
@@ -145,11 +154,11 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
   public boolean updateAuthType(HttpServletRequest request, TResources resources) {
     UserInfo loginUser = Authentication.getCurrentUser(request);
     TResources tResources = this.getById(resources.getId());
-    if(!resources.getCourseId().equals(tResources.getCourseId())){
+    if (!resources.getCourseId().equals(tResources.getCourseId())) {
       throw new APIException("非本课程下的资源，无修改权限！");
     }
     tResources.setAuthType(resources.getAuthType());
-    logger.info("用户"+ loginUser.getUserName()+"("+loginUser.getCode()+")更改资源"+resources.getId()+tResources.getResourcesName()+"权限为"+resources.getAuthType());
+    logger.info("用户" + loginUser.getUserName() + "(" + loginUser.getCode() + ")更改资源" + resources.getId() + tResources.getResourcesName() + "权限为" + resources.getAuthType());
     return this.saveOrUpdate(tResources);
   }
 
@@ -158,13 +167,13 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
     // 获取用户信息
     UserInfo loginUser = Authentication.getCurrentUser(request);
     TResources tResources = this.getById(resources.getId());
-    if(!resources.getCourseId().equals(tResources.getCourseId())){
+    if (!resources.getCourseId().equals(tResources.getCourseId())) {
       throw new APIException("非本课程下的资源，无删除权限！");
     }
-    if(catalogueResourcesService.resourcesUse(resources.getId())){
+    if (catalogueResourcesService.resourcesUse(resources.getId())) {
       throw new APIException("资源正在使用中，无法权限！");
     }
-    logger.info("用户"+ loginUser.getUserName()+"("+loginUser.getCode()+")删除资源"+resources.getId()+tResources.getResourcesName());
+    logger.info("用户" + loginUser.getUserName() + "(" + loginUser.getCode() + ")删除资源" + resources.getId() + tResources.getResourcesName());
     return this.removeById(resources.getId());
   }
 
@@ -177,6 +186,7 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
    **/
 
   private void uploadFile(String folderPath, String filePath, MultipartFile file) {
+    logger.info("开始上传", folderPath);
     File folderPathFile = new File(folderPath);
     //文件目录不存在循环创建目录结构
     if (!folderPathFile.exists()) {
@@ -345,23 +355,17 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
   private String packUrl(String fileName, String resourcesType) {
     //存储根路径
     String path;
-    try {
-      path = new File(ResourceUtils.getURL("classpath:")
-        .getPath()).getParentFile().getParentFile().getParentFile().getParentFile().getParent();
-    } catch (FileNotFoundException e) {
-      logger.error(e.getMessage(), e);
-      throw new APIException(e.getMessage());
-    }
+    //logger.info("路径拼接1",ResourceUtils.getURL("classpath:").getPath());
+//      path = new File(ResourceUtils.getURL("classpath:")
+//        .getPath()).getParent();
+    path = staticResourcesImgLocation;
+    logger.info("路径拼接2"+ path);
+
     //存储分类路径
     String catalogueName = "flv".equalsIgnoreCase(fileName.substring(fileName.lastIndexOf(".") + 1)) ? "video" : switchResourcesTypeToCatalogue(resourcesType);
     //路径拼装后最终路径
-    String folderPath;
-    try {
-      folderPath = URLDecoder.decode(path, "UTF-8") + File.separator + "resourcesStore" + File.separator + catalogueName;
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage(), e);
-      throw new APIException(e.getMessage());
-    }
+    String folderPath = path + File.separator + "resourcesStore" + File.separator + catalogueName;
+    logger.info("路径拼接后"+folderPath);
     return folderPath;
   }
 
@@ -387,6 +391,8 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
    * @return: void
    **/
   private void switchToPDF(TResources resources, String filePath, String pdfPath) throws IOException {
+    logger.info("开始转换pdf".concat(filePath).concat(pdfPath));
+
     //文档ddd类型转pdf
     if ("doc".equalsIgnoreCase(resources.getResourcesSuffix()) || "docx".equalsIgnoreCase(resources.getResourcesSuffix())) {
       FileConvertUtil.wordBytes2PdfFile(FileUtil.readBytes(filePath),
@@ -416,6 +422,8 @@ public class TResourcesServiceImpl extends ServiceImpl<TResourcesMapper, TResour
    * @return: com.highgo.opendbt.resources.model.TResources
    **/
   private TResources saveResources(String fileName, String name, String filePath, UserInfo loginUser, String resourcesType, String resourcesSize, String folderPath, String resourcesAdditional, String md5, int courseId) throws IOException {
+    logger.info("开始保存资源fileName".concat(fileName));
+    logger.info("开始保存资源filePath".concat(filePath));
     TResources resources = new TResources();
     resources.setCreateUser(loginUser.getUserId());
     resources.setCreateTime(new Date());

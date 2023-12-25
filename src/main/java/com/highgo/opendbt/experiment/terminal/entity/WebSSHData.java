@@ -7,40 +7,42 @@ import lombok.ToString;
 @ToString
 public class WebSSHData {
 
-    /**
-     * 操作
-     */
-    private String operate;
+  /**
+   * 操作
+   */
+  private String operate;
 
-    /**
-     * ip地址
-     */
-    private String host;
+  /**
+   * ip地址
+   */
+  private String host;
 
-    /**
-     * 端口号
-     */
-    private Integer port;
+  /**
+   * 端口号
+   */
+  private Integer port;
 
-    /**
-     * 用户名
-     */
-    private String username;
+  /**
+   * 用户名
+   */
+  private String username;
 
-    /**
-     * 密码
-     */
-    private String password;
+  /**
+   * 密码
+   */
+  private String password;
 
-    /**
-     * 指令
-     */
-    private String command;
+  /**
+   * 指令
+   */
+  private String command;
   /**
    * 上传
    */
-    private String fileData;
+  private String fileData;
 
-
-
+  /**
+   * zmodemData
+   */
+  public String zmodemData;
 }

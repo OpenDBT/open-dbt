@@ -1,0 +1,70 @@
+version: '3.8'
+services:
+  postgresdb:
+    image: "pg:latest"
+    restart: always
+    volumes:
+      - "./pg/init:/docker-entrypoint-initdb.d"
+    ports:
+      - "5431:5432"
+    networks:
+      - my-network
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123QWEasd@"
+
+
+  open-dbt:
+    image: "open-dbt:latest"
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+    volumes:
+      - "./open-dbt/app/sdnlog:/app/sdnlog/"
+      - "./open-dbt/app/upload/file:/app/upload/file/"
+      - "./open-dbt/app/upload/directory:/app/upload/directory/"
+      - "./open-dbt/app/upload/doc2html:/app/upload/doc2html/"
+      - "./open-dbt/app/avatar:/app/avatar/"
+      - "./open-dbt/app/backup:/app/backup/"
+    command:
+    #  - /usr/bin/bash
+    #  - -c
+    #  - |
+    #    supervisord -c /app/insight2/supervisord.conf
+    #    while true;do sleep 100;done
+    depends_on:
+      - postgresdb
+    links:
+      - postgresdb
+    environment:
+      spring.datasource.url: jdbc:postgresql://postgresdb:5432/postgres
+      spring.datasource.username: postgres
+      spring.datasource.password: 123QWEasd@
+      DOCKER.CONNECT.HOST: 192.168.110.229
+      DOCKER.CONNECT.PORT: 2375
+      DOCKER.CONNECT.USERNAME: root
+      DOCKER.CONNECT.KEY: highgo@123
+      DOCKER.CONNECT.UPLOAD.PATH: /upload/file/
+      docker.container.backup: /app/backup/
+      SSH.PORT: 2202
+      UPLOAD.DIR: /app/upload/directory
+      BASEDIR: /app/upload/doc2html
+      wshost:  ws://192.168.110.229:8080
+  open-dbt-web:
+    image: "open-dbt-web:latest"
+    restart: always
+    ports:
+      - "8900:8900"
+    networks:
+      - my-network
+    volumes:
+      - "./open-dbt-web/log:/var/log/nginx"
+    depends_on:
+      - open-dbt
+    links:
+      - open-dbt
+networks:
+  my-network:

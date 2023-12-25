@@ -34,11 +34,16 @@ import com.highgo.opendbt.sclass.mapper.SclassMapper;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -513,7 +518,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         }
     }
 
-
+/*
     @Override
     public List<String> getCourseCoverImageList(HttpServletRequest request) {
         List<String> courseCoverImageList = new ArrayList<>();
@@ -530,7 +535,29 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             }
         }
         return courseCoverImageList;
+    }*/
+
+  @Override
+  public List<String> getCourseCoverImageList(HttpServletRequest request) {
+    List<String> courseCoverImageList = new ArrayList<>();
+    String staticPath = "classpath:static/cover/";
+
+    try {
+      ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+      Resource[] resources = resolver.getResources(staticPath + "*.*");
+
+      for (Resource resource : resources) {
+        String filename = StringUtils.getFilename(resource.getFilename());
+        courseCoverImageList.add("/cover/" + filename);
+      }
+    } catch (IOException e) {
+      // Handle exception, e.g., log or throw a custom exception
+      logger.error("获取封面异常",e);
+      e.printStackTrace();
     }
+
+    return courseCoverImageList;
+  }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

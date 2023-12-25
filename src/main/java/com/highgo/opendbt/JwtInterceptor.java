@@ -29,13 +29,15 @@ public class JwtInterceptor implements HandlerInterceptor {
 			response.setStatus(HttpServletResponse.SC_OK);
 			return true;
 		}
-
+    logger.info("Request URL = " + request.getRequestURL());
+    logger.info("Request URI = " + request.getRequestURI());
 		if (request.getRequestURI().contains("/avatar/")
 				|| request.getRequestURI().contains("/files/")
 				|| request.getRequestURI().contains("/cover/")
 				|| request.getRequestURI().contains("/dataTypeImg/")
 				|| request.getRequestURI().contains("/temp/")
 				|| request.getRequestURI().contains("/readResourse/")
+        || request.getRequestURI().contains("/uploadedavatar/")
 				|| request.getRequestURI().contains("/swagger")
 				|| request.getRequestURI().contains("/webjars")
 				|| request.getRequestURI().contains("/migration/migrationExercise")

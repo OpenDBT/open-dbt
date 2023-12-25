@@ -14,8 +14,12 @@ import com.highgo.opendbt.experiment.model.ExperimentInfo;
 import com.highgo.opendbt.experiment.service.*;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +39,9 @@ import java.util.List;
  */
 @Service
 public class TDockerCommandServiceImpl implements TDockerCommandService {
+  Logger logger = LoggerFactory.getLogger(getClass());
+  @Value("${docker.container.backup}")
+  private String backup;
   @Autowired
   private TExperimentDocumentsService documentsService;
   @Autowired
@@ -71,7 +78,7 @@ public class TDockerCommandServiceImpl implements TDockerCommandService {
 //      .eq("code", loginUser.getCode())
 //      .eq("image_id", tExperiment.getImageId())
 //      .eq("delete_flag",0));
-    TContainers container = containersService.getById(tExperiment.getId());
+    TContainers container = containersService.getOne(new QueryWrapper<TContainers>().eq("experiment_id",tExperiment.getId()).eq("delete_flag",0));
     if (container == null) {
       TContainers tContainers = new TContainers()
         .setCode(loginUser.getCode())
@@ -137,12 +144,12 @@ public class TDockerCommandServiceImpl implements TDockerCommandService {
    * @return: void
    **/
   @Override
-  @Transactional(rollbackFor = Exception.class)
+  @Async
   public void backUpContainer(HttpServletRequest request, String dockerHost, int dockerPort, String containerName, String imageName) {
     DockerComposeBuilder composeBuilder = new DockerComposeBuilder(dockerHost, dockerPort);
     //备份地址
-   String dataBackupPath= (File.separator).concat("path").concat(File.separator).concat("to").concat(File.separator)
-      .concat(TimeUtil.getDateTimeDay()).concat(File.separator).concat(TimeUtil.getDateTimeStr());
+   String dataBackupPath= backup
+     .concat(TimeUtil.getDateTimeDay()).concat(File.separator).concat(TimeUtil.getDateTimeStr());
    //判断路径是否存在
     checkAndCreateDirectoryIfNotExists(dataBackupPath);
     //备份容器信息
@@ -161,14 +168,14 @@ public class TDockerCommandServiceImpl implements TDockerCommandService {
 
     // 判断路径是否存在
     if (directory.exists()) {
-      System.out.println("路径已经存在");
+      logger.info("路径已经存在");
     } else {
       // 如果路径不存在，尝试创建它
       boolean created = directory.mkdirs();
       if (created) {
-        System.out.println("路径已创建");
+       logger.info("路径已创建");
       } else {
-        System.out.println("无法创建路径");
+        logger.info("无法创建路径");
       }
     }
   }
@@ -181,13 +188,15 @@ public class TDockerCommandServiceImpl implements TDockerCommandService {
    * @return: void
    **/
   @Override
-  @Transactional(rollbackFor = Exception.class)
+  @Async
   public void restoreContainer(HttpServletRequest request,String userName, String key, String path, String dockerHost, int dockerPort,int port, String containerName, String imageName, String dataBackupPath) {
     DockerComposeBuilder composeBuilder = new DockerComposeBuilder(dockerHost, dockerPort);
     String containerId = composeBuilder.restoreContainerWithData(containerName, imageName, dataBackupPath, userName,  key,  path,  dockerHost,  port);
     TContainers containers = containersService.getOne(new QueryWrapper<TContainers>().eq("container_name", containerName)
       .eq("delete_flag",0));
-    boolean res = containersService.saveOrUpdate(containers.setContainerId(containerId));
+    containers.setContainerId(containerId);
+    containers.setUpdateTime(new Date());
+    boolean res = containersService.saveOrUpdate(containers);
     if(!res){
       throw new APIException("更新备份结果失败，请联系管理员！");
     }

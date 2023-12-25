@@ -33,11 +33,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class DockerComposeBuilder {
@@ -150,6 +152,7 @@ public class DockerComposeBuilder {
   // 备份容器数据
   public String backupContainerWithData(String containerName, String imageName, String dataBackupPath) {
     try {
+      logger.info("容器数据开始备份，备份文件路径: " + dataBackupPath);
       // 创建容器快照
       //CommitCmd commitCmd = dockerClient.commitCmd(containerName).withRepository(imageName);
       //String imageId = commitCmd.exec();
@@ -166,13 +169,19 @@ public class DockerComposeBuilder {
 
   // 备份容器内的数据
   private void backupContainerData(String imageId, String backupPath) {
+//    try (InputStream inputStream = dockerClient.copyArchiveFromContainerCmd(imageId, "/").exec();
+//         FileOutputStream outputStream = new FileOutputStream(new File(backupPath.concat(File.separator).concat("backup_data.tar")))) {
+//      byte[] buffer = new byte[4096];
+//      int bytesRead;
+//      while ((bytesRead = inputStream.read(buffer)) != -1) {
+//        outputStream.write(buffer, 0, bytesRead);
+//      }
+
     try (InputStream inputStream = dockerClient.copyArchiveFromContainerCmd(imageId, "/").exec();
-         FileOutputStream outputStream = new FileOutputStream(new File(backupPath.concat(File.separator).concat("backup_data.tar")))) {
-      byte[] buffer = new byte[4096];
-      int bytesRead;
-      while ((bytesRead = inputStream.read(buffer)) != -1) {
-        outputStream.write(buffer, 0, bytesRead);
-      }
+         FileOutputStream outputStream = new FileOutputStream(new File(backupPath, "backup_data.tar"));
+         ReadableByteChannel inChannel = Channels.newChannel(inputStream);
+         FileChannel outChannel = outputStream.getChannel()) {
+         outChannel.transferFrom(inChannel, 0, Long.MAX_VALUE);
     } catch (IOException e) {
       logger.error("容器备份失败: " + e.getMessage());
       throw new APIException("容器备份失败: " + e.getMessage());

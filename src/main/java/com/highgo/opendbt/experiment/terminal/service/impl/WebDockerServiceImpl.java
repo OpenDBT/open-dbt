@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -20,8 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -113,12 +116,32 @@ public class WebDockerServiceImpl implements WebDockerService {
         socket.close();
         session.close();
       }
-    } else {
+    }else  if (Constants.OPERATE_ZMODEM.equals(webSSHData.getOperate())) {
+      // 如果是 ZMODEM 请求
+      Socket socket = (Socket) session.getAttributes().get(SOCKET);
+      try {
+        // 处理 ZMODEM 数据
+        handleZMODEMData(socket, webSSHData);
+      } catch (IOException e) {
+        logger.error("ZMODEM 数据处理异常");
+        logger.error("异常信息:{}", e.getMessage());
+        socket.close();
+        session.close();
+      }
+    }else {
       logger.error("不支持的操作");
       session.close();
     }
   }
-
+  private void handleZMODEMData(Socket socket, WebSSHData webSSHData) throws IOException {
+    if (socket != null) {
+      OutputStream outputStream = socket.getOutputStream();
+      String zmodemData = webSSHData.getZmodemData();
+      byte[] data = Base64.getDecoder().decode(zmodemData);
+      outputStream.write(data);
+      outputStream.flush();
+    }
+  }
   @Override
   public void recvHandle(byte[] fileData, WebSocketSession session) throws IOException {
     // 如果是上传文件的请求
@@ -179,13 +202,25 @@ public class WebDockerServiceImpl implements WebDockerService {
    * @throws IOException
    */
   private void sendMessage(WebSocketSession session, byte[] buffer) throws IOException {
-    session.sendMessage(new TextMessage(buffer));
     logger.info("返回客户端的信息：".concat(new String(buffer, "UTF-8")));
-
+    if (!isAscii(buffer)) {
+      logger.info("返回客户端二进制消息"+new String(buffer, StandardCharsets.UTF_8));
+      session.sendMessage(new BinaryMessage(buffer));
+    }else{
+      logger.info("返回客户端文本消息"+new String(buffer, StandardCharsets.UTF_8));
+      session.sendMessage(new TextMessage(buffer));
+    }
   }
 
 
-
+  public static boolean isAscii(byte[] byteArray) {
+    for (byte b : byteArray) {
+      if (b < 0 || b > 127) {
+        return false; // 如果字节值不在0-127范围内，则不是ASCII
+      }
+    }
+    return true; // 所有字节值都在0-127范围内，是ASCII
+  }
   /**
    * 将消息转发到终端
    */

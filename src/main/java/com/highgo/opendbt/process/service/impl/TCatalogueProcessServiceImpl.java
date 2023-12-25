@@ -61,17 +61,41 @@ public class TCatalogueProcessServiceImpl extends ServiceImpl<TCatalogueProcessM
                 .eq("resources_id", progress.getResourcesId())
                 .eq("class_id", classId)
                 .eq("user_id", loginUser.getUserId()));
-        BusinessResponseEnum.FAILSEARCHSTUDYPROCESS.assertNotNull(process);
-        //变更进度内容的观看时长等信息
-        //观看时长
-        process.setDuration(process.getDuration() != null ? (process.getDuration() + progress.getDuration()) : progress.getDuration())
-                //观看进度
-                .setProgress(progress.getProgress())
-                //是否完成
-                .setStudyStatus((short) ((process.getDuration() >= progress.getResourcesTime()) ? 2 : 1))
-                .setUpdateTime(new Date())
-                .setUpdateUser(loginUser.getUserId());
-        BusinessResponseEnum.UPDATEFAIL.assertIsTrue(this.updateById(process));
+       // BusinessResponseEnum.FAILSEARCHSTUDYPROCESS.assertNotNull(process);
+        //首次进行任务学习
+        if(process==null){
+           process = new TCatalogueProcess(
+            progress.getCourseId()
+            , progress.getCatalogueId()
+            , classId, loginUser.getUserId()
+            , progress.getResourcesId()
+            , (short) 1
+            , 0
+            , 0L
+            , 0
+            , new Date()
+            , loginUser.getUserId());
+          //变更进度内容的观看时长等信息
+          //观看时长
+          process.setDuration(process.getDuration() != null ? (process.getDuration() + progress.getDuration()) : progress.getDuration())
+            //观看进度
+            .setProgress(progress.getProgress())
+            //是否完成
+            .setStudyStatus((short) ((process.getDuration() >= progress.getResourcesTime()) ? 2 : 1));
+          BusinessResponseEnum.SAVEFAIL.assertIsTrue(this.save(process));
+        }else{
+          //变更进度内容的观看时长等信息
+          //观看时长
+          process.setDuration(process.getDuration() != null ? (process.getDuration() + progress.getDuration()) : progress.getDuration())
+            //观看进度
+            .setProgress(progress.getProgress())
+            //是否完成
+            .setStudyStatus((short) ((process.getDuration() >= progress.getResourcesTime()) ? 2 : 1))
+            .setUpdateTime(new Date())
+            .setUpdateUser(loginUser.getUserId());
+          BusinessResponseEnum.UPDATEFAIL.assertIsTrue(this.updateById(process));
+        }
+
         return progress;
     }
 }

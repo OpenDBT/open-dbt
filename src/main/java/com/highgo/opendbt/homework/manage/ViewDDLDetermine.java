@@ -91,7 +91,8 @@ public class ViewDDLDetermine extends Determine {
     //返回结果
     ResponseModel result = new ResponseModel();
     try {
-      veryVIEWDDLTypeExercise(model, loginUser, result);
+      //veryVIEWDDLTypeExercise(model, loginUser, result);
+      result = FunctionUtil.veryTrigger(model, loginUser);
       result.setExecuteRs(true);
       result.setScoreRs(true);
     } catch (Exception e) {

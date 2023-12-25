@@ -76,7 +76,10 @@ public class DockerContainerManager {
     if (inputStream != null) {
       try {
         // 创建临时文件
-        File tempFile = File.createTempFile(name.substring(0, name.lastIndexOf(".")), name.substring(name.lastIndexOf(".")));
+       // File tempFile = File.createTempFile(name.substring(0, name.lastIndexOf(".")), name.substring(name.lastIndexOf(".")));
+        // 指定目录为项目的工作目录
+        File tempFile = new File("E://tempFile", name);
+
 
         // 将资源文件内容复制到临时文件中
         try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {

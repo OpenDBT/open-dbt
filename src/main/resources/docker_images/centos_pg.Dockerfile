@@ -8,8 +8,8 @@ RUN yum install -y --nogpgcheck cyrus-sasl perl-ExtUtils-Embed readline-devel zl
 RUN groupadd postgres && useradd -m -g postgres postgres  && mkdir -p /pgdata/data && chown postgres:postgres -R /pgdata/
 
 # 使用 curl 下载 PostgreSQL 源代码并解压
-RUN mkdir -p /tmp/postgresql-src &&  chmod 755 /tmp/postgresql-src && \
-    curl -L https://ftp.postgresql.org/pub/source/v14.1/postgresql-14.1.tar.gz | tar -xz -C /tmp/postgresql-src --strip-components=1 \
+RUN mkdir -p /tmp/postgresql-src &&  chmod 755 /tmp/postgresql-src
+RUN curl -L https://ftp.postgresql.org/pub/source/v14.1/postgresql-14.1.tar.gz | tar -xz -C /tmp/postgresql-src --strip-components=1
 
 # 配置、编译并安装 PostgreSQL
 RUN cd /tmp/postgresql-src && \
@@ -29,10 +29,11 @@ RUN cd /tmp/postgresql-src && \
                 --enable-thread-safety \
                 --enable-nls=en_US.UTF-8 && \
     make -j4  && make install
+
 USER postgres
 # 初始化数据库并生成配置文件
 RUN /usr/local/pgsql-14.1/bin/initdb -D /pgdata/data
-
+COPY file/* /pgdata/data/
 
 
 

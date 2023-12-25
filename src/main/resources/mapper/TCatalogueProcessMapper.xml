@@ -218,7 +218,11 @@ WHERE
         delete_time,delete_user) values
         <foreach collection="param" item="item" index="index" separator=",">
             ( #{item.courseId}, #{item.catalogueId}, #{item.classId}, #{item.userId}, #{item.resourcesId},
-            #{item.studyStatus}, #{item.progress}, #{item.duration}, #{item.taskType}, #{item.createTime},
+            #{item.studyStatus},
+            COALESCE(#{item.progress}, 0),
+          <!-- 使用 COALESCE 函数将 null 转换为默认值 0 -->
+            COALESCE(#{item.duration}, 0),
+            #{item.taskType}, #{item.createTime},
             #{item.createUser}
             , #{item.deleteFlag}, #{item.deleteTime}, #{item.deleteUser})
         </foreach>
@@ -235,8 +239,8 @@ WHERE
             user_id = #{cus.userId},
             resources_id = #{cus.resourcesId},
             study_status = #{cus.studyStatus},
-            progress = #{cus.progress},
-            duration = #{cus.duration},
+            progress = COALESCE(#{cus.progress}, 0),
+            duration = COALESCE(#{cus.duration}, 0),
             task_type = #{cus.taskType},
             update_time = #{cus.updateTime},
             update_user = #{cus.updateUser},

@@ -24,6 +24,5 @@ public class WebSshConfig implements WebSocketConfigurer {
         registry.addHandler(socketHandler, "/stomp/websocketJS")
                 .addInterceptors(new WebSocketHandshakeInterceptor())
                 .setAllowedOriginPatterns("*");
-                //.withSockJS();
     }
 }

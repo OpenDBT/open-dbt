@@ -24,8 +24,11 @@ public class MD5Util {
   public static String getMd5(MultipartFile file) {
     try {
       byte[] uploadBytes = file.getBytes();
-      //file->byte[],生成md5
-      String md5Hex = DigestUtils.md5Hex(uploadBytes);
+      // 将文件名和文件内容合并
+      byte[] combinedBytes = combineBytes(file.getOriginalFilename().getBytes(), uploadBytes);
+
+      // 使用DigestUtils计算MD5值
+      String md5Hex = DigestUtils.md5Hex(combinedBytes);
       //file->InputStream,生成md5
      // String md5Hex1 = DigestUtils.md5Hex(file.getInputStream());
       //对字符串生成md5
@@ -35,5 +38,11 @@ public class MD5Util {
       logger.error(e.getMessage());
     }
     return null;
+  }
+  private static byte[] combineBytes(byte[] array1, byte[] array2) {
+    byte[] combined = new byte[array1.length + array2.length];
+    System.arraycopy(array1, 0, combined, 0, array1.length);
+    System.arraycopy(array2, 0, combined, array1.length, array2.length);
+    return combined;
   }
 }

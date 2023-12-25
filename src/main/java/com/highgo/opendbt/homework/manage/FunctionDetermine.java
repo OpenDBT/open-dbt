@@ -80,6 +80,7 @@ public class FunctionDetermine extends Determine {
     ResponseModel result = new ResponseModel();
     try {
       result = veryFUNCTIONDDLTypeExercise(model, loginUser);
+     // result = FunctionUtil.veryTrigger(model, loginUser);
       result.setExecuteRs(true);
       result.setScoreRs(true);
     } catch (Exception e) {

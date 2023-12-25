@@ -174,7 +174,7 @@ public class DockerCommandController {
   @GetMapping({"/image/{imageName}"})
   public void image(@PathVariable("imageName") String imageName) {
     DockerContainerManager dockerContainerManager = DockerContainerManager.getInstance();
-    dockerContainerManager.buildImage(getPath("postgres_hg.Dockerfile"), imageName);
+    dockerContainerManager.buildImage(getPath("kylin-highgo.Dockerfile"), imageName);
     logger.info("成功创建镜像！");
   }
 
@@ -198,7 +198,7 @@ public class DockerCommandController {
         FileUtils.writeByteArrayToFile(targetFile, file.getBytes());
         DocHtmlDto docHtmlDto = null;
         //视频类型
-        String[] array = {"mp4", "avi", "mkv", "mov", "wmv"};
+        String[] array = {"video/mp4", "video/avi", "video/x-matroska", "video/mov", "video/wmv"};
         List<String> videoExtensions = Arrays.asList(array); // 将数组转换为列表
         //判断图片类型
         String fileType = file.getContentType();

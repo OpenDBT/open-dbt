@@ -1,16 +1,10 @@
 package com.highgo.opendbt;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.util.WebAppRootListener;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.servlet.ServletContextInitializer;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -27,7 +21,7 @@ import javax.servlet.ServletException;
 
 
 @Configuration
-@ComponentScan
+//@ComponentScan
 @EnableAutoConfiguration
 public class WebAppRootContext implements ServletContextInitializer {
 

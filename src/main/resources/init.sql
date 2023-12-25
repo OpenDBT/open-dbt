@@ -85,35 +85,36 @@ WITH (
 
 --习题表--
 DROP TABLE IF EXISTS "t_new_exercise";
-create table t_new_exercise (
-id bigserial primary key ,
-course_id integer not null,
-parent_id integer not null default 0,
-scene_id integer,
-scene_name varchar(200),
-element_type integer not null,
-exercise_name varchar not null,
-exercise_desc text,
-auth_type integer default 2,
-exercise_type integer,
-exercise_level integer default 1,
-stem text,
-standard_answser text,
-answer text ,
-exercise_analysis text null,
-sort_num integer DEFAULT 0,
-exercise_status integer DEFAULT 0,
-show_answer integer DEFAULT 0,
-execute_sql varchar,
-very_sql varchar,
-create_user integer,
-create_time timestamp(6),
-update_time timestamp(6),
-update_user integer,
-delete_flag integer DEFAULT 0,
-delete_time timestamp(6),
-delete_user integer
-);
+CREATE TABLE "t_new_exercise" (
+  id bigserial primary key ,
+  "course_id" int4 NOT NULL,
+  "parent_id" int4 NOT NULL DEFAULT 0,
+  "scene_id" int4,
+  "scene_name" varchar(200) COLLATE "pg_catalog"."default",
+  "element_type" int4 NOT NULL,
+  "exercise_name" varchar COLLATE "pg_catalog"."default" NOT NULL,
+  "exercise_desc" text COLLATE "pg_catalog"."default",
+  "auth_type" int4 DEFAULT 1,
+  "exercise_type" int4,
+  "exercise_level" int4 DEFAULT 1,
+  "stem" text COLLATE "pg_catalog"."default",
+  "standard_answser" text COLLATE "pg_catalog"."default",
+  "answer" text COLLATE "pg_catalog"."default",
+  "exercise_analysis" text COLLATE "pg_catalog"."default",
+  "sort_num" int4 DEFAULT 0,
+  "create_user" int4,
+  "create_time" timestamp(6),
+  "update_time" timestamp(6),
+  "update_user" int4,
+  "delete_flag" int4 DEFAULT 0,
+  "delete_time" timestamp(6),
+  "delete_user" int4,
+  "exercise_status" int4 DEFAULT 0,
+  "show_answer" int4 DEFAULT 0,
+  "execute_sql" varchar(255) COLLATE "pg_catalog"."default",
+  "very_sql" text COLLATE "pg_catalog"."default"
+)
+;
 COMMENT ON COLUMN "t_new_exercise"."course_id" IS '课程id';
 COMMENT ON COLUMN "t_new_exercise"."parent_id" IS '父类id';
 COMMENT ON COLUMN "t_new_exercise"."scene_id" IS '场景id';
@@ -122,24 +123,24 @@ COMMENT ON COLUMN "t_new_exercise"."element_type" IS '0:试题，1:文件夹';
 COMMENT ON COLUMN "t_new_exercise"."exercise_name" IS '习题名称';
 COMMENT ON COLUMN "t_new_exercise"."exercise_desc" IS '习题描述';
 COMMENT ON COLUMN "t_new_exercise"."auth_type" IS '1:私有，2:共享';
-COMMENT ON COLUMN "t_new_exercise"."exercise_type" IS '试题类型 1：单选2：多选3：判断4：填空5：简答6：数据库题';
+COMMENT ON COLUMN "t_new_exercise"."exercise_type" IS '试题类型 1：单选2：多选3：判断4：填空5：简答6：DML数据库题7:DDL数据库题8：视图DDL9:函数题10：触发器题';
 COMMENT ON COLUMN "t_new_exercise"."exercise_level" IS '试题难度 1：简单 2：一般3：困难';
 COMMENT ON COLUMN "t_new_exercise"."stem" IS '题干';
 COMMENT ON COLUMN "t_new_exercise"."standard_answser" IS '选择题为prefix，多选逗号隔开。判断题答案只有true false,简答程序题答具体案描';
 COMMENT ON COLUMN "t_new_exercise"."answer" IS '数据库答案';
 COMMENT ON COLUMN "t_new_exercise"."exercise_analysis" IS '答案解析';
 COMMENT ON COLUMN "t_new_exercise"."sort_num" IS '序号';
-COMMENT ON COLUMN "t_new_exercise"."exercise_status" IS '练习题状态 0：是练习题 1：非练习题';
-COMMENT ON COLUMN "t_new_exercise"."show_answer" IS '是否显示答案 0：显示答案 1：不显示答案';
-COMMENT ON COLUMN "t_new_exercise"."execute_sql" IS '函数执行语句';
-COMMENT ON COLUMN "t_new_exercise"."very_sql" IS '函数验证语句';
+COMMENT ON COLUMN "t_new_exercise"."create_user" IS '创建人员';
+COMMENT ON COLUMN "t_new_exercise"."create_time" IS '创建时间';
 COMMENT ON COLUMN "t_new_exercise"."update_time" IS '修改时间';
 COMMENT ON COLUMN "t_new_exercise"."update_user" IS '修改人员';
-COMMENT ON COLUMN "t_new_exercise"."create_time" IS '创建时间';
-COMMENT ON COLUMN "t_new_exercise"."create_user" IS '创建人员';
 COMMENT ON COLUMN "t_new_exercise"."delete_flag" IS '删除标志0：未删除1：已删除';
 COMMENT ON COLUMN "t_new_exercise"."delete_time" IS '删除时间';
 COMMENT ON COLUMN "t_new_exercise"."delete_user" IS '删除人员';
+COMMENT ON COLUMN "t_new_exercise"."exercise_status" IS '练习题状态 0：是练习题 1：非练习题';
+COMMENT ON COLUMN "t_new_exercise"."show_answer" IS '是否显示答案 0：显示答案 1：不显示答案';
+COMMENT ON COLUMN "t_new_exercise"."execute_sql" IS '函数执行语句';
+COMMENT ON COLUMN "t_new_exercise"."very_sql" IS '函数验证sql';
 --习题明细表--
 create table t_exercise_info (
 id serial primary key,
@@ -186,16 +187,19 @@ user_id integer not null,
 notice_id integer not null
 );
 --场景表--
-create table t_scene (
-id serial primary key,
-course_id integer not null,
-scene_name varchar not null,
-scene_desc text,
-init_shell text,
-delete_time timestamp,
-delete_flag integer not null default 0,
-parent_id integer not null default 0
+DROP TABLE IF EXISTS "t_scene";
+CREATE TABLE "t_scene" (
+  id serial primary key,
+  "course_id" int4 NOT NULL,
+  "scene_name" varchar COLLATE "pg_catalog"."default" NOT NULL,
+  "scene_desc" text COLLATE "pg_catalog"."default",
+  "init_shell" text COLLATE "pg_catalog"."default",
+  "delete_time" timestamp(6),
+  "delete_flag" int4 NOT NULL DEFAULT 0,
+  "parent_id" int4 NOT NULL DEFAULT 0,
+  "auth_type" int4 DEFAULT 1
 );
+COMMENT ON COLUMN "t_scene"."auth_type" IS '1:私有，2:共享';
 --场景详情表---
 create table t_scene_detail (
 id serial primary key,
@@ -267,10 +271,10 @@ role_id integer not null,
 resource_id integer not null
 );
 insert into t_sys_role_resource (role_id, resource_id) values (1, 1);--首页--
-insert into t_sys_role_resource (role_id, resource_id) values (1, 2);--学生课程--
-insert into t_sys_role_resource (role_id, resource_id) values (1, 3);--教师课程--
-insert into t_sys_role_resource (role_id, resource_id) values (1, 4);--班级列表--
-insert into t_sys_role_resource (role_id, resource_id) values (1, 5);--课程专家课程--
+-- insert into t_sys_role_resource (role_id, resource_id) values (1, 2);--学生课程--
+-- insert into t_sys_role_resource (role_id, resource_id) values (1, 3);--教师课程--
+-- insert into t_sys_role_resource (role_id, resource_id) values (1, 4);--班级列表--
+-- insert into t_sys_role_resource (role_id, resource_id) values (1, 5);--课程专家课程--
 insert into t_sys_role_resource (role_id, resource_id) values (1, 10);--个人中心--
 insert into t_sys_role_resource (role_id, resource_id) values (1, 20);--系统设置--
 insert into t_sys_role_resource (role_id, resource_id) values (1, 21);--模块管理--
@@ -463,30 +467,34 @@ COMMENT ON COLUMN "t_course_catalogue"."delete_user" IS '删除人员';
 COMMENT ON COLUMN "t_course_catalogue"."update_time" IS '更新时间';
 COMMENT ON COLUMN "t_course_catalogue"."update_user" IS '更新人员';
 --资源库表--
+DROP TABLE IF EXISTS "t_resources";
 CREATE TABLE "t_resources" (
   "id" serial primary key,
-  "resources_name" varchar ,
-  "resources_rename" varchar ,
-  "resources_type" varchar ,
-  "resources_url" varchar ,
+  "resources_name" varchar COLLATE "pg_catalog"."default",
+  "resources_rename" varchar COLLATE "pg_catalog"."default",
+  "resources_type" varchar COLLATE "pg_catalog"."default",
+  "resources_url" varchar COLLATE "pg_catalog"."default",
   "resources_time" int4 DEFAULT 0,
-  "resources_suffix" varchar ,
-  "screenshot" varchar ,
+  "resources_suffix" varchar COLLATE "pg_catalog"."default",
+  "screenshot" varchar COLLATE "pg_catalog"."default",
   "page_num" int4,
-  "resources_additional" integer default 2,
+  "resources_additional" int4 DEFAULT 2,
   "create_time" timestamp(6),
   "create_user" int4,
   "delete_flag" int4 DEFAULT 0,
   "delete_time" timestamp(6),
-  "delete_user" int4 ,
+  "delete_user" int4,
   "update_time" timestamp(6),
   "update_user" int4,
-  "resources_type_name" varchar(100) ,
-  "resources_pdf_url" varchar(255),
-  "sort_num" integer DEFAULT 0,
+  "resources_type_name" varchar(100) COLLATE "pg_catalog"."default",
+  "resources_pdf_url" varchar(255) COLLATE "pg_catalog"."default",
+  "sort_num" int4 DEFAULT 0,
   "parent_id" int4 DEFAULT 0,
   "resources_size" int4 DEFAULT 0,
-  "resources_retype" int4
+  "resources_retype" int4,
+  "md5" varchar(255) COLLATE "pg_catalog"."default",
+  "auth_type" int4 DEFAULT 1,
+  "course_id" int4
 )
 ;
 COMMENT ON COLUMN "t_resources"."resources_name" IS '资源名称';
@@ -497,13 +505,16 @@ COMMENT ON COLUMN "t_resources"."resources_time" IS '资源时长';
 COMMENT ON COLUMN "t_resources"."resources_suffix" IS '资源后缀';
 COMMENT ON COLUMN "t_resources"."screenshot" IS '视频缩略图路径';
 COMMENT ON COLUMN "t_resources"."page_num" IS 'ppt页数';
-COMMENT ON COLUMN "t_resources"."sort_num" IS '排序';
-COMMENT ON COLUMN "t_resources"."parent_id" IS '上层目录id';
+COMMENT ON COLUMN "t_resources"."resources_additional" IS '是否为其他资源 1：是 2：否';
 COMMENT ON COLUMN "t_resources"."resources_type_name" IS '资源类型名称';
 COMMENT ON COLUMN "t_resources"."resources_pdf_url" IS '文档类型资源转pdf后的路径';
-COMMENT ON COLUMN "t_resources"."resources_additional" IS '是否为其他资源 1：是 2：否';
+COMMENT ON COLUMN "t_resources"."sort_num" IS '排序';
+COMMENT ON COLUMN "t_resources"."parent_id" IS '上层目录id';
 COMMENT ON COLUMN "t_resources"."resources_size" IS '资源大小';
 COMMENT ON COLUMN "t_resources"."resources_retype" IS '转换后的资源类型';
+COMMENT ON COLUMN "t_resources"."md5" IS 'md5校验码';
+COMMENT ON COLUMN "t_resources"."auth_type" IS '1:私有，2:共享';
+COMMENT ON COLUMN "t_resources"."course_id" IS '课程id';
 --内容表--
 CREATE TABLE "t_course_contents" (
   "id" serial primary key,
@@ -1544,27 +1555,50 @@ COMMENT ON COLUMN "t_scene_seq"."cache_size" IS '缓冲尺寸';
 -- ----------------------------
 DROP TABLE IF EXISTS "t_images";
 CREATE TABLE "t_images" (
-  "id" serial primary key,
-  "image_name" varchar(255),
-  "image_port" varchar(20),
-  "image_path" varchar(255)
+  "id" varchar primary key,
+  "image_name" varchar(255) COLLATE "pg_catalog"."default",
+  "image_port" varchar(20) COLLATE "pg_catalog"."default",
+  "image_path" varchar(255) COLLATE "pg_catalog"."default",
+  "course_id" int4,
+  "create_time" timestamp(6),
+  "create_user" int4,
+  "update_time" timestamp(6),
+  "update_user" int4,
+  "delete_flag" int4 DEFAULT 0,
+  "delete_time" timestamp(6),
+  "delete_user" int4,
+  "description" varchar(255) COLLATE "pg_catalog"."default"
 )
 ;
 COMMENT ON COLUMN "t_images"."image_name" IS '镜像名称';
 COMMENT ON COLUMN "t_images"."image_port" IS '镜像端口号';
 COMMENT ON COLUMN "t_images"."image_path" IS '镜像存放地址';
+COMMENT ON COLUMN "t_images"."course_id" IS '课程id';
+COMMENT ON COLUMN "t_images"."create_time" IS '创建时间';
+COMMENT ON COLUMN "t_images"."create_user" IS '创建人员';
+COMMENT ON COLUMN "t_images"."update_time" IS '修改时间';
+COMMENT ON COLUMN "t_images"."update_user" IS '修改人员';
+COMMENT ON COLUMN "t_images"."delete_flag" IS '删除标志0：未删除1：已删除';
+COMMENT ON COLUMN "t_images"."delete_time" IS '删除时间';
+COMMENT ON COLUMN "t_images"."delete_user" IS '删除人员';
+COMMENT ON COLUMN "t_images"."description" IS '描述';
 
+INSERT INTO "t_images" VALUES ('17', 'feixiangdexiaozhidan/ky10-server-sp2:v11.0', '80', NULL, 61, NULL, NULL, NULL, NULL, 0, NULL, NULL, '银河麒麟v10-server-sp2');
+INSERT INTO "t_images" VALUES ('4', 'centos:7.9.2009', '80', NULL, 61, NULL, NULL, NULL, NULL, 0, NULL, NULL, 'centos:7.9.2009');
+INSERT INTO "t_images" VALUES ('5', 'feixiangdexiaozhidan/kylin-v10-hg:v5.0', '5866', NULL, 61, NULL, NULL, NULL, NULL, 0, NULL, NULL, '银河麒麟v10-server-sp2和瀚高安全版HighGo4.5.7（用户名:sysdba密码:Hello@123）(pg_ctl start 启动数据库 psql -U sysdba进入命令行)');
+INSERT INTO "t_images" VALUES ('3', 'feixiangdexiaozhidan/centos7.9.2009_pg:v2.0', '5433', NULL, 61, NULL, NULL, NULL, NULL, 0, NULL, NULL, 'centos:7.9.2009和PostgreSQL14.1(su postgres切换用户，pg_ctl start 启动数据库 psql免密进入命令行)');
+INSERT INTO "t_images" VALUES ('18', 'feixiangdexiaozhidan/kylin-v10-pg:v1.0', '5433', NULL, 61, NULL, NULL, NULL, NULL, 0, NULL, NULL, '银河麒麟v10-server-sp2和PostgreSQL14.1(su postgres切换用户，pg_ctl start 启动数据库 psql免密进入命令行)');
 -- ----------------------------
 -- 实验列表
 -- ----------------------------
 DROP TABLE IF EXISTS "t_experiment";
 CREATE TABLE "t_experiment" (
   "id" bigserial primary key,
-  "experiment_name" varchar(255),
-  "image_id" int4,
-  "release_status"  bool default false,
+  "experiment_name" varchar(255) COLLATE "pg_catalog"."default",
+  "image_id" varchar(32) COLLATE "pg_catalog"."default",
+  "release_status" bool DEFAULT false,
   "course_id" int4,
-  create_user int4,
+  "create_user" int4,
   "create_time" timestamp(6),
   "update_time" timestamp(6),
   "update_user" int4,
@@ -1577,11 +1611,10 @@ COMMENT ON COLUMN "t_experiment"."experiment_name" IS '实验名称';
 COMMENT ON COLUMN "t_experiment"."image_id" IS '镜像id';
 COMMENT ON COLUMN "t_experiment"."release_status" IS '发布状态true:发布，false:未发布';
 COMMENT ON COLUMN "t_experiment"."course_id" IS '课程id';
-
+COMMENT ON COLUMN "t_experiment"."create_user" IS '创建人员';
+COMMENT ON COLUMN "t_experiment"."create_time" IS '创建时间';
 COMMENT ON COLUMN "t_experiment"."update_time" IS '修改时间';
 COMMENT ON COLUMN "t_experiment"."update_user" IS '修改人员';
-COMMENT ON COLUMN "t_experiment"."create_time" IS '创建时间';
-COMMENT ON COLUMN "t_experiment"."create_user" IS '创建人员';
 COMMENT ON COLUMN "t_experiment"."delete_flag" IS '删除标志0：未删除1：已删除';
 COMMENT ON COLUMN "t_experiment"."delete_time" IS '删除时间';
 COMMENT ON COLUMN "t_experiment"."delete_user" IS '删除人员';
@@ -1592,9 +1625,10 @@ COMMENT ON COLUMN "t_experiment"."delete_user" IS '删除人员';
 DROP TABLE IF EXISTS "t_experiment_documents";
 CREATE TABLE "t_experiment_documents" (
   "id" bigserial primary key,
-  "experiment_content" TEXT,
+  "experiment_content" text COLLATE "pg_catalog"."default",
   "experiment_id" int8
-  );
+)
+;
 COMMENT ON COLUMN "t_experiment_documents"."experiment_content" IS '实验文档内容';
 COMMENT ON COLUMN "t_experiment_documents"."experiment_id" IS '实验id';
 -- ----------------------------
@@ -1602,14 +1636,57 @@ COMMENT ON COLUMN "t_experiment_documents"."experiment_id" IS '实验id';
 -- ----------------------------
 DROP TABLE IF EXISTS "t_containers";
 CREATE TABLE "t_containers" (
-  "id" bigserial primary key,
-  "container_id" varchar(100),
-  "container_port" varchar(50),
-  "code" varchar(50),
-  "image_id" int4
+ "id" bigserial primary key,
+  "container_id" varchar(100) COLLATE "pg_catalog"."default",
+  "container_port" varchar(20) COLLATE "pg_catalog"."default",
+  "code" varchar(50) COLLATE "pg_catalog"."default",
+  "image_id" varchar(32) COLLATE "pg_catalog"."default",
+  "cpu" varchar(255) COLLATE "pg_catalog"."default",
+  "memory" varchar(255) COLLATE "pg_catalog"."default",
+  "course_id" int4,
+  "create_time" timestamp(6),
+  "create_user" int4,
+  "update_time" timestamp(6),
+  "update_user" int4,
+  "delete_flag" int4 DEFAULT 0,
+  "delete_time" timestamp(6),
+  "delete_user" int4,
+  "container_name" varchar(255) COLLATE "pg_catalog"."default",
+  "experiment_id" int8
 )
 ;
 COMMENT ON COLUMN "t_containers"."container_id" IS '容器id';
 COMMENT ON COLUMN "t_containers"."container_port" IS '容器端口号';
 COMMENT ON COLUMN "t_containers"."code" IS '学号';
 COMMENT ON COLUMN "t_containers"."image_id" IS '镜像id';
+COMMENT ON COLUMN "t_containers"."cpu" IS '内核数';
+COMMENT ON COLUMN "t_containers"."memory" IS '内存大小';
+COMMENT ON COLUMN "t_containers"."course_id" IS '课程id';
+COMMENT ON COLUMN "t_containers"."create_time" IS '创建时间';
+COMMENT ON COLUMN "t_containers"."create_user" IS '创建人员';
+COMMENT ON COLUMN "t_containers"."update_time" IS '修改时间';
+COMMENT ON COLUMN "t_containers"."update_user" IS '修改人员';
+COMMENT ON COLUMN "t_containers"."delete_flag" IS '删除标志0：未删除1：已删除';
+COMMENT ON COLUMN "t_containers"."delete_time" IS '删除时间';
+COMMENT ON COLUMN "t_containers"."delete_user" IS '删除人员';
+COMMENT ON COLUMN "t_containers"."container_name" IS '容器名称';
+COMMENT ON COLUMN "t_containers"."experiment_id" IS '实验id';
+
+
+-- ----------------------------
+-- 备份表
+-- ----------------------------
+DROP TABLE IF EXISTS "t_backup";
+CREATE TABLE "t_backup" (
+    "id" bigserial primary key,
+    "container_name" varchar(255) COLLATE "pg_catalog"."default",
+    "backup_path" varchar(255) COLLATE "pg_catalog"."default",
+    "backup_time" timestamp(6),
+    "image_name" varchar(255) COLLATE "pg_catalog"."default"
+)
+;
+COMMENT ON COLUMN "t_backup"."id" IS '主键';
+COMMENT ON COLUMN "t_backup"."container_name" IS '容器名称';
+COMMENT ON COLUMN "t_backup"."backup_path" IS '备份路径';
+COMMENT ON COLUMN "t_backup"."backup_time" IS '备份时间';
+COMMENT ON COLUMN "t_backup"."image_name" IS '镜像名称';

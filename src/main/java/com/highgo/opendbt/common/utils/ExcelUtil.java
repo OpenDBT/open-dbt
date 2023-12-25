@@ -13,6 +13,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 import javax.servlet.ServletOutputStream;
@@ -34,10 +36,17 @@ import java.util.Map;
  * @Copyright 版权归HIGHGO企业所有
  * @CreateTime: 2022/11/14 13:54
  */
+@Component
 public class ExcelUtil {
 
     static Logger logger = LoggerFactory.getLogger(ExcelUtil.class);
+  // 静态字段保存注入的属性值
+  public static String staticResourcesImgLocation;
 
+  @Value("${upload.dir}")
+  public void setStaticResourcesImgLocation(String uploadDir) {
+    staticResourcesImgLocation = uploadDir;
+  }
     private static final String EXCEL_XLS = "xls";
     private static final String EXCEL_XLSX = "xlsx";
 
@@ -80,23 +89,24 @@ public class ExcelUtil {
 
     public static String getProjectPath() {
 
-        File file = null;
-        try {
-            file = new File(ResourceUtils.getURL("classpath:").getPath());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new APIException(e.getMessage());
-
-        }
-        String path = file.getAbsolutePath();
-        try {
-            path = java.net.URLDecoder.decode(path, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new APIException(e.getMessage());
-        }
-        String projectPath = path.substring(0, path.lastIndexOf(File.separator + "WEB-INF" + File.separator + "classes"));
-        return projectPath;
+//        File file = null;
+//        try {
+//            file = new File(ResourceUtils.getURL("classpath:").getPath());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            throw new APIException(e.getMessage());
+//
+//        }
+       // String path = file.getAbsolutePath();
+      String path =  staticResourcesImgLocation;
+//        try {
+//            path = java.net.URLDecoder.decode(path, "utf-8");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//            throw new APIException(e.getMessage());
+//        }
+        //String projectPath = path.substring(0, path.lastIndexOf("open-dbt"));
+        return path;
     }
 
     public static void writeXLS(String fileName, String[] columnNameArray, List<Map<Integer, Object>> mapList){

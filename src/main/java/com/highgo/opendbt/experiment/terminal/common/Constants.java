@@ -32,4 +32,10 @@ public class Constants {
    * 发送指令：上传
    */
   public static final String OPERATE_UPLOAD = "upload";
+
+  /**
+   * 发送指令：ZMODEM
+   */
+  public static final String OPERATE_ZMODEM = "zmodem";
+
 }

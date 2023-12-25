@@ -10,8 +10,8 @@
   </parent>
   <groupId>open-dbt</groupId>
   <artifactId>open-dbt</artifactId>
-  <version>1.0</version>
-  <packaging>war</packaging>
+  <version>2.2</version>
+  <packaging>jar</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -64,6 +64,7 @@
           <include>**/*.txt</include>
           <include>**/*.Dockerfile</include>
           <include>**/*.yml</include>
+          <include>static/**</include>
         </includes>
         <filtering>false</filtering>
       </resource>
@@ -229,13 +230,25 @@
       <version>${poi.version}</version>
     </dependency>
 
+    <!-- itextpdf -->
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itextpdf</artifactId>
+      <version>5.4.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itext-asian</artifactId>
+      <version>5.2.0</version>
+    </dependency>
+
+
 
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <!--      <version>3.0.0-RC1</version>-->
       <version>2.0.9</version>
-
     </dependency>
     <dependency>
       <groupId>fr.opensagres.xdocreport</groupId>
@@ -340,9 +353,22 @@
       <version>4.3.0</version>
       <exclusions>
         <exclusion>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi-ooxml-schemas</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi-ooxml</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.apache.xmlbeans</groupId>
           <artifactId>xmlbeans</artifactId>
         </exclusion>
+
       </exclusions>
     </dependency>
     <!-- BeanUtils的依赖 -->

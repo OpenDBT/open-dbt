@@ -9,7 +9,7 @@ RUN yum install -y --nogpgcheck \
  && yum clean all
 
 # 复制HighGo数据库安装包
-COPY /hgdb4.5.7-see-kyl-server10sp1-x86-64-20211021/hgdb4.5.7-see-kyl-server10sp1-x86-64-20211021.rpm  /tmp
+COPY hgdb4.5.7-see-kyl-server10sp1-x86-64-20211021.rpm  /tmp
 RUN ls -l /tmp
 # 安装HighGo数据库、清理临时文件、创建密码文件、初始化数据库
 RUN rpm -ivh /tmp/hgdb4.5.7-see-kyl-server10sp1-x86-64-20211021.rpm \
@@ -23,6 +23,8 @@ RUN rpm -ivh /tmp/hgdb4.5.7-see-kyl-server10sp1-x86-64-20211021.rpm \
  && initdb -D $PGDATA --pwfile=/opt/HighGo4.5.7-see/pwfile.txt \
  && cp /opt/HighGo4.5.7-see/etc/server.* $PGDATA \
  && chmod 0600 $PGDATA/server.*
+COPY file/* /opt/HighGo4.5.7-see/data/
+RUN chmod 0600 /opt/HighGo4.5.7-see/data/hgdb_0_o.lic
 
 ENV HG_BASE=/opt/HighGo4.5.7-see
 ENV HGDB_HOME=/opt/HighGo4.5.7-see
