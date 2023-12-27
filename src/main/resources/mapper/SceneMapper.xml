@@ -18,7 +18,13 @@
 			t_scene.scene_desc
 			--t_scene.init_shell
 		from t_scene
-		where t_scene.course_id = #{courseId} and t_scene.delete_flag = 0
+		where
+		(t_scene.course_id = #{courseId}
+		or
+		t_scene.auth_type=2
+		)
+
+		and t_scene.delete_flag = 0
 		order by t_scene.id desc
 	</select>
 

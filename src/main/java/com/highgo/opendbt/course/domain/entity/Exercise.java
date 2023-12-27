@@ -11,9 +11,9 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 @TableName(value = "t_exercise")
-@Data
 @ToString
 @Accessors(chain = true)
+@Data
 public class Exercise {
 	@TableId(value = "id", type = IdType.AUTO)
   @JsonSerialize(using = ToStringSerializer.class)
@@ -34,7 +34,7 @@ public class Exercise {
 	private String answer; // 参考答案
   //习题类型
 //  @TableField(value = "exercise_type")
-//  private int exerciseType; // 课程
+//  private int exerciseType;
 
 	@TableField(exist = false)
 	private int[] knowledgeIds = new int[0]; // 关联知识点的id的数组

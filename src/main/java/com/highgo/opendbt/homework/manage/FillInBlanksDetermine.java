@@ -45,13 +45,14 @@ public class FillInBlanksDetermine extends Determine {
     cellNum = actualAnswer.size();
     for (int i = 0; i < actualAnswer.size(); i++) {
       //一个空格可能有多个答案
-      String[] answers = actualAnswer.get(i).getContent().split("@_@");
+      String[] answers = actualAnswer.get(i).getContent().split(";");
       for (int n = 0; n < answers.length; n++) {
         //有一个答案正确即为正确
         if (answers[n].equals(studentAnswer[i])) {
           rightNum += 1;
+          break;
         }
-        break;
+
       }
     }
     if (cellNum == rightNum) {

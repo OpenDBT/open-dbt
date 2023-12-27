@@ -5,7 +5,7 @@
 <mapper namespace="com.highgo.opendbt.scene.mapper.TSceneMapper">
 
     <resultMap id="BaseResultMap" type="com.highgo.opendbt.scene.domain.entity.TScene">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="sceneId" column="id" jdbcType="INTEGER"/>
             <result property="courseId" column="course_id" jdbcType="INTEGER"/>
             <result property="sceneName" column="scene_name" jdbcType="VARCHAR"/>
             <result property="sceneDesc" column="scene_desc" jdbcType="VARCHAR"/>
@@ -13,11 +13,12 @@
             <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
             <result property="deleteFlag" column="delete_flag" jdbcType="INTEGER"/>
             <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+            <result property="authType" column="auth_type" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,course_id,scene_name,
         scene_desc,init_shell,delete_time,
-        delete_flag,parent_id
+        delete_flag,parent_id,auth_type
     </sql>
 </mapper>

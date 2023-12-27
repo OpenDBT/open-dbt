@@ -7,6 +7,7 @@ import com.github.pagehelper.page.PageMethod;
 import com.highgo.opendbt.common.bean.PageParam;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
 import com.highgo.opendbt.common.utils.Authentication;
+import com.highgo.opendbt.common.utils.CamelCaseToUnderscoreConverter;
 import com.highgo.opendbt.course.domain.entity.Course;
 import com.highgo.opendbt.course.domain.entity.TCourseUser;
 import com.highgo.opendbt.course.service.CourseService;
@@ -105,7 +106,7 @@ public class THomeworkModelServiceImpl extends ServiceImpl<THomeworkModelMapper,
         if (StringUtils.isBlank(param.getOrderBy())) {
             param.setOrderBy("element_type desc,id desc");
         } else {
-            param.setOrderBy("element_type desc," + param.getOrderBy() + ",id desc");
+            param.setOrderBy("element_type desc" + (CamelCaseToUnderscoreConverter.convert(param.getOrderBy()) == null ? "" : "," + CamelCaseToUnderscoreConverter.convert(param.getOrderBy())) + ",id desc");
         }
         //分页查询
         PageInfo<THomeworkModel> objectPageInfo = PageMethod.startPage(param.getPageNum(), param.getPageSize())

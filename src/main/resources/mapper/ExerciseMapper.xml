@@ -204,8 +204,8 @@
 			t_new_exercise.course_id,
 			t_course.course_name,
 			t_new_exercise.scene_id,
-			t_new_exercise.exercise_name,
-      t_new_exercise.exercise_type
+			t_new_exercise.exercise_name
+--     ,t_new_exercise.exercise_type
 <!-- 			t_exercise.exercise_desc, -->
 <!-- 			t_scene.*, -->
 <!-- 			(select answer from t_score where exercise_id=t_exercise.id and class_id=#{sclassId} and user_id=#{userId} order by create_time desc limit 1) as stu_answer	 -->

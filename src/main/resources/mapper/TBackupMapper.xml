@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.highgo.opendbt.experiment.mapper.TBackupMapper">
+
+    <resultMap id="BaseResultMap" type="com.highgo.opendbt.experiment.domain.TBackup">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="containerName" column="container_name" jdbcType="VARCHAR"/>
+            <result property="backupPath" column="backup_path" jdbcType="VARCHAR"/>
+            <result property="backupTime" column="backup_time" jdbcType="DATE"/>
+            <result property="imageName" column="image_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,container_name,backup_path,
+        backup_time
+    </sql>
+
+</mapper>

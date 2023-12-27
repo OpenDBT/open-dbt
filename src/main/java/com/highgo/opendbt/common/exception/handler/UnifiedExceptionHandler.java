@@ -86,13 +86,13 @@ public class UnifiedExceptionHandler {
     public ResultTO handleException(Exception e) {
         logger.error(e.getMessage(), e);
 
-        if (ENV_PROD.equals(profile)) {
-            // 当为生产环境, 不适合把具体的异常信息展示给用户, 比如数据库异常信息.
-            int code = CommonResponseEnum.SERVER_ERROR.getCode();
-            BaseException baseException = new BaseException(CommonResponseEnum.SERVER_ERROR);
-            String message = getMessage(baseException);
-            return ResultTO.FAILURE(message, code);
-        }
+//        if (ENV_PROD.equals(profile)) {
+//            // 当为生产环境, 不适合把具体的异常信息展示给用户, 比如数据库异常信息.
+//            int code = CommonResponseEnum.SERVER_ERROR.getCode();
+//            BaseException baseException = new BaseException(CommonResponseEnum.SERVER_ERROR);
+//            String message = getMessage(baseException);
+//            return ResultTO.FAILURE(message, code);
+//        }
         //return ResultTO.FAILURE(e.getMessage(), CommonResponseEnum.SERVER_ERROR.getCode());
         return ResultTO.FAILURE(e.getMessage());
 

@@ -137,6 +137,10 @@ public class TStuHomeworkInfo extends MyBaseEntity {
      */
     @TableField(exist = false)
     private Integer exerciseType;
+
+
+    @TableField(exist = false)
+    private Integer exerciseOrder;
     /**
      * 是否填空题不区分大小写1：是2：否
      */

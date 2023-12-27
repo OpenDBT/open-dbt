@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
     <!-- 日志文件名 -->
-    <property name="LOG_FILE" value="sdnuLog" />
+    <property name="LOG_FILE" value="/app/sdnuLog" />
     <!-- 日志文件路径 -->
-    <property name="LOG_PATH" value="../sdnlog/log" />
+    <property name="LOG_PATH" value="/app/sdnlog/log" />
     <!-- 错误日志文件路径 -->
-    <property name="LOG_PATH2" value="..sdnlog/errorLog" />
+    <property name="LOG_PATH2" value="/app/sdnlog/errorLog" />
     <!-- 控制台日志输出格式 -->
     <property name="LOG_PATTERN_CONSOLE" value="%yellow(%d{yyyy-MM-dd HH:mm:ss}) [%thread] %highlight(%-5level) %green(%logger{50}) --> %msg%n" />
     <!-- 文件日志输出格式 -->

@@ -38,7 +38,7 @@
         coures.*,res.resources_type,res.resources_url,res.screenshot
         from
         t_catalogue_resources coures join t_resources res on coures.resources_id=res.id
-        where coures.delete_flag=0 and coures.course_id=#{courseId} and coures.catalogue_id =#{catalogueId}
+        where  coures.course_id=#{courseId} and coures.catalogue_id =#{catalogueId}
     </select>
     <select id="findTCatalogueResourcesbyStudent"
             resultType="com.highgo.opendbt.catalogue.domain.entity.TCatalogueResources">

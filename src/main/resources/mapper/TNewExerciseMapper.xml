@@ -233,11 +233,14 @@
     SELECT COUNT(*) AS totalExercises
     FROM RecursiveQuery
     WHERE element_type = 0 -- 只统计题目
-    AND ( course_id in
+    AND (
+    (course_id in
     <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
       '${item}'
     </foreach>
-
+    or
+    auth_type=2
+    )
     <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
       and exercise_type in
       <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">
@@ -273,11 +276,13 @@
     AND (
     (e.element_type = 0
     AND
-    ( e.course_id in
+    ( (e.course_id in
     <foreach collection="param.courseIdList" close=")" open="(" item="item" separator=",">
       '${item}'
     </foreach>
-
+    or
+    auth_type=2
+    )
     <if test="param.exerciseTypeList != null and param.exerciseTypeList.size() > 0 ">
       and e.exercise_type in
       <foreach collection="param.exerciseTypeList" close=")" open="(" item="item" separator=",">

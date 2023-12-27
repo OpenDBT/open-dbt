@@ -292,7 +292,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             String fileName = file.getOriginalFilename();
             String[] fileNameArray = fileName.split("\\.");
             String newFileName = loginUser.getUserId() + "_" + loginUser.getCode() + "." + fileNameArray[fileNameArray.length - 1];
-            String folderPath = ExcelUtil.getProjectPath() + File.separator + "avatar";
+            String folderPath = ExcelUtil.getProjectPath() + File.separator + "uploadedavatar";
+            logger.info("getProjectPath=".concat(ExcelUtil.getProjectPath()));
             File folderPathFile = new File(folderPath);
             if (!folderPathFile.exists()) {
                 folderPathFile.mkdir();
@@ -306,7 +307,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             fos.write(file.getBytes());
             fos.close();
             UserInfo newUserInfo = getCurrentUser(request, true);
-            newUserInfo.setAvatar("/avatar/" + newFileName);
+            newUserInfo.setAvatar("/uploadedavatar/" + newFileName);
             return newUserInfo;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

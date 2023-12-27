@@ -3,6 +3,7 @@ package com.highgo.opendbt.api;
 import com.highgo.opendbt.common.bean.ResultTO;
 import com.highgo.opendbt.common.utils.ValidationUtil;
 import com.highgo.opendbt.exercise.domain.model.PublishExercise;
+import com.highgo.opendbt.exercise.domain.model.SharedExercise;
 import com.highgo.opendbt.score.domain.model.SubmitResult;
 import com.highgo.opendbt.progress.model.*;
 import com.highgo.opendbt.progress.service.ProgressService;
@@ -207,7 +208,14 @@ public class ProgressApi {
     logger.debug("Enter,param={}", param.toString());
     return progressService.publishExercise(request, param);
   }
-
+  @ApiOperation(value = "题库习题设置为共享")
+  @PostMapping("/sharedExercise")
+  public Integer sharedExercise(HttpServletRequest request, @RequestBody @Valid SharedExercise param, BindingResult result) {
+    //校验
+    ValidationUtil.Validation(result);
+    logger.debug("Enter,param={}", param.toString());
+    return progressService.sharedExercise(request, param);
+  }
   /**
    * 测试运行，用于学生答题测试提交答案，不需要记录成绩
    *
