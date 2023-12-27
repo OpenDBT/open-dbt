@@ -2,6 +2,7 @@ package com.highgo.opendbt.api;
 
 import com.highgo.opendbt.sources.domain.entity.TResources;
 import com.highgo.opendbt.sources.service.TResourcesService;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,5 +73,19 @@ public class ResourcesApi {
         logger.info("Enter, resources={}", resources.toString());
         return resourcesService.listResourcesTree(request, resources);
     }
+  @ApiOperation(value = "修改共享状态")
+  @RequestMapping("/updateAuthType")
+  @ResponseBody
+  public boolean updateAuthType(HttpServletRequest request, @RequestBody TResources resources) {
+    logger.info("Enter, resources = {}", resources.toString());
+    return resourcesService.updateAuthType(request,resources);
+  }
 
+  @ApiOperation(value = "删除资源")
+  @RequestMapping("/delResources")
+  @ResponseBody
+  public boolean delResources(HttpServletRequest request, @RequestBody TResources resources) {
+    logger.info("Enter, resources = {}", resources.toString());
+    return resourcesService.delResources(request,resources);
+  }
 }

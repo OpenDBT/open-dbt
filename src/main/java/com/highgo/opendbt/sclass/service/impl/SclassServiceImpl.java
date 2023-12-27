@@ -1,5 +1,6 @@
 package com.highgo.opendbt.sclass.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.page.PageMethod;
@@ -59,6 +60,7 @@ public class SclassServiceImpl extends ServiceImpl<SclassMapper, Sclass> impleme
     private SclassService sclassService;
     @Autowired
     private TClassStuService classStuService;
+
 
     public SclassServiceImpl(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -169,7 +171,11 @@ public class SclassServiceImpl extends ServiceImpl<SclassMapper, Sclass> impleme
             sclassMapper.addSclassStu(new SclassStu(sclassStu.getSclassId(), user.getUserId()));
             userId = user.getUserId();
         } else {
-            // 已注册学生信息，验证是否绑定到当前班级
+
+          // 同一课程下，同一学生不能同时存在于两个不同班级
+          studentExistsInAnotherClass(sclassStu, userList);
+
+          // 已注册学生信息，验证是否绑定到当前班级
             SclassStu stu = new SclassStu(sclassStu.getSclassId(), userList.get(0).getUserId());
             List<SclassStu> stuInfo = sclassMapper.getSclassStuByUserId(stu);
             BusinessResponseEnum.STUDENTALREADYCLASS
@@ -186,8 +192,24 @@ public class SclassServiceImpl extends ServiceImpl<SclassMapper, Sclass> impleme
         applicationContext.publishEvent(new AddUserEvent(this, sclassStu.getSclassId(), userId, request));
     }
 
+  private void studentExistsInAnotherClass(SclassStu sclassStu, List<UserInfo> userList) {
+    Sclass sclass = sclassService.getById(sclassStu.getSclassId());
+    //课程id
+    int courseId = sclass.getCourseId();
+    //用户id
+    Integer id = userList.get(0).getUserId();
+    //获取班级id
+    List<Integer> classIds = classStuService.list(new QueryWrapper<TClassStu>().eq("user_id", id)).stream().map(item -> item.getSclassId()).collect(Collectors.toList());
+    if (classIds.size() > 0) {
+      List<Sclass> list = sclassService.list(new QueryWrapper<Sclass>().eq("course_id", courseId).in("id", classIds));
+      if (list.size() == 1 && sclassStu.getSclassId() != list.get(0).getId()) {
+        throw new APIException("同一课程下，同一学生不能同时存在于两个不同班级");
+      }
+    }
+  }
 
-    @Override
+
+  @Override
     public PageInfo<Sclass> getSclassByStuPage(HttpServletRequest request, SclassPageTO pageTO) {
         // 获取用户信息
         UserInfo loginUser = Authentication.getCurrentUser(request);

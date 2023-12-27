@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Description: 作业相关接口类
@@ -162,5 +163,12 @@ public class HomeWorkApi {
     logger.debug("Enter,param={}", resiveStudentScore.toString());
     ValidationUtil.Validation(result);
     return homeworkService.reviseStudentScore(request, resiveStudentScore);
+  }
+
+  @ApiOperation(value = "查重")
+  @GetMapping("/duplicateCheck/{homeworkId}/{studentId}")
+  public List<Map> duplicateCheck(HttpServletRequest request, @ApiParam(value = "作业id", required = true) @PathVariable("homeworkId") int homeworkId, @ApiParam(value = "学生id", required = true) @PathVariable("studentId") int studentId) {
+    logger.debug("Enter,studentId={},homeworkId={}", studentId, homeworkId);
+    return homeworkService.duplicateCheck(request, studentId, homeworkId);
   }
 }

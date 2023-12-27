@@ -24,7 +24,6 @@ public class PGInsertOrUpdateBath extends InsertOrUpdateBathAbstract {
         final String modelValuesSql = prepareModelValuesSql(tableInfo);
         final String duplicateKeySql = prepareDuplicateKeySql(tableInfo);
         final String sqlResult = String.format(sql, tableName, filedSql, modelValuesSql, duplicateKeySql);
-        logger.info("sql=={}",sqlResult);
         return languageDriver.createSqlSource(configuration, sqlResult, modelClass);
     }
 

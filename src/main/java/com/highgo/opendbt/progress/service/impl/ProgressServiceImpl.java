@@ -9,9 +9,12 @@ import com.highgo.opendbt.common.utils.*;
 import com.highgo.opendbt.exam.service.TScoreService;
 import com.highgo.opendbt.exercise.domain.entity.TNewExercise;
 import com.highgo.opendbt.exercise.domain.model.PublishExercise;
+import com.highgo.opendbt.exercise.domain.model.SharedExercise;
 import com.highgo.opendbt.exercise.mapper.TNewExerciseMapper;
 import com.highgo.opendbt.exercise.service.TNewExerciseService;
-import com.highgo.opendbt.homework.domain.entity.TStuHomeworkInfo;
+import com.highgo.opendbt.scene.domain.entity.TScene;
+import com.highgo.opendbt.scene.mapper.TSceneMapper;
+import com.highgo.opendbt.scene.service.TSceneService;
 import com.highgo.opendbt.score.domain.model.SubmitResult;
 import com.highgo.opendbt.progress.manage.AsyncSubmitAnswer;
 import com.highgo.opendbt.progress.mapper.ProgressMapper;
@@ -60,6 +63,10 @@ public class ProgressServiceImpl implements ProgressService {
   private AsyncSubmitAnswer asyncSubmitAnswer;
   @Autowired
   private AsyncSubmitExerciseAnswer asyncSubmitExerciseAnswer;
+  @Autowired
+  private TSceneService sceneService;
+  @Autowired
+  private TSceneMapper sceneMapper;
 
   @Override
   public Sclass getCourseProgressByStu(HttpServletRequest request, int classId, int courseId) {
@@ -252,7 +259,6 @@ public class ProgressServiceImpl implements ProgressService {
   }
 
 
-
   /**
    * @description: 学生练习答题情况重置
    * @author:
@@ -342,6 +348,118 @@ public class ProgressServiceImpl implements ProgressService {
     }
   }
 
+  /**
+   * @description: 共享习题
+   * @author:
+   * @date: 2023/7/31 14:42
+   * @param: [request, param]
+   * @return: java.lang.Integer
+   **/
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public Integer sharedExercise(HttpServletRequest request, SharedExercise param) {
+    //获取文件夹下的所有习题
+    List<TNewExercise> publicise = gettNewExercises(param);
+    //设置习题共享属性并保存
+    Integer saveNum = null;
+    //需要更新的场景
+    List<TScene> tScenes = new ArrayList<>();
+    if (!publicise.isEmpty()) {
+      //更新习题共享属性
+      saveNum = updateExerciseAuthType(param, publicise);
+
+      //筛选出同时需要更新的场景id
+      List<Integer> sceneIds = publicise.stream()
+        .map(item -> item.getSceneId())
+        .filter(Objects::nonNull)
+        .distinct()
+        .collect(Collectors.toList());
+      //查询所有场景信息
+      long a=System.currentTimeMillis();
+      List<TScene> sceneList = sceneService.list();
+      long b=System.currentTimeMillis();
+     logger.info("查询场景用时="+(b-a));
+      //设置为共享，直接设置
+      if (param.getAuthType() == 2) {
+        for (int sceneId : sceneIds) {
+          updateSceneAuthType(sceneId, 2, tScenes,sceneList);
+        }
+      } else {
+        //设置为私有 先查询有无其他题目使用该场景且为共享状态，是：不做设置，否：设置为私有
+        for (int sceneId : sceneIds) {
+          // 查询是否有其他题目使用了该场景且为共享状态
+          boolean match = isMatch(publicise, sceneId);
+
+          if (!match) {
+            updateSceneAuthType(sceneId, 1, tScenes, sceneList);
+          }
+        }
+      }
+      if (tScenes.size() > 0) {
+        sceneMapper.pgInsertOrUpdateBatch(tScenes);
+      }
+    }
+    //更新题目
+    return saveNum;
+  }
+
+  private Integer updateExerciseAuthType(SharedExercise param, List<TNewExercise> publicise) {
+    Integer saveNum;
+    List<TNewExercise> exerciseList = publicise.stream()
+      .map(item -> item.setAuthType(param.getAuthType()))
+      .collect(Collectors.toList());
+    //保存
+    saveNum = exerciseMapper.pgInsertOrUpdateBatch(exerciseList);
+    return saveNum;
+  }
+
+  private List<TNewExercise> gettNewExercises(SharedExercise param) {
+    //查询需要设置的习题
+    List<TNewExercise> exercises_all = exerciseService.listByIds(param.getIds());
+    List<TNewExercise> exercises = exercises_all.stream()
+      .filter(exercise -> exercise.getCourseId() == param.getCourseId())
+      .collect(Collectors.toList());
+
+    //需要更新的题目
+    List<TNewExercise> publicise = new ArrayList<>();
+    //判空
+    BusinessResponseEnum.UNEXERCISE.assertIsNotEmpty(exercises, Arrays.toString(param.getIds().toArray()));
+    //获取需要更新的题目
+    childExercises(exercises, publicise);
+    return publicise;
+  }
+
+  // 查询是否有其他题目使用了该场景且为共享状态
+  private boolean isMatch(List<TNewExercise> publicise, Integer sceneId) {
+    //当前使用需要变更共享状态的题目
+    List<TNewExercise> currentExercises = publicise.stream()
+      .filter(exercise -> sceneId.equals(exercise.getSceneId())).collect(Collectors.toList());
+    //所有当前场景下的题目
+    List<TNewExercise> list = exerciseService.list(new QueryWrapper<TNewExercise>()
+      .eq("scene_id", sceneId).eq("delete_flag", 0));
+    //去掉当前需要变更的题目
+    if (list != null && list.size() > 0) {
+      list.removeAll(currentExercises);
+    }
+    //判断是否还有当前场景的私有共享状态的题目
+    return list.stream().anyMatch(ex -> ex.getSceneId() == sceneId && ex.getAuthType() == 2);
+  }
+
+  /**
+   * @description: 更新场景的共享状态
+   * @author:
+   * @date: 2023/8/1 10:35
+   * @param: [sceneId, authType, scenes 需要更新的场景, tScenes 所有的场景]
+   * @return: void
+   **/
+  private void updateSceneAuthType(int sceneId, int authType, List<TScene> scenes, List<TScene> tScenes) {
+    TScene scene = tScenes.stream().filter(item -> item.getSceneId() == sceneId).findFirst()
+      .orElse(null);
+    if (scene != null) {
+      scene.setAuthType(authType);
+      scenes.add(scene);
+    }
+  }
 
   private void childExercises(List<TNewExercise> exercises, List<TNewExercise> publicise) {
     //筛选出文件夹

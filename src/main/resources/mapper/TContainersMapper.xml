@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.highgo.opendbt.experiment.mapper.TContainersMapper">
+
+  <resultMap id="BaseResultMap" type="com.highgo.opendbt.experiment.domain.TContainers">
+    <id property="id" column="id" jdbcType="BIGINT"/>
+    <result property="containerId" column="container_id" jdbcType="VARCHAR"/>
+    <result property="containerPort" column="container_port" jdbcType="VARCHAR"/>
+    <result property="code" column="code" jdbcType="VARCHAR"/>
+    <result property="imageId" column="image_id" jdbcType="VARCHAR"/>
+    <result property="cpu" column="cpu" jdbcType="VARCHAR"/>
+    <result property="memory" column="memory" jdbcType="VARCHAR"/>
+    <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+  </resultMap>
+  <resultMap id="ListBaseResultMap" type="com.highgo.opendbt.experiment.model.ContainersInfo">
+    <id property="id" column="id" jdbcType="BIGINT"/>
+    <result property="containerId" column="container_id" jdbcType="VARCHAR"/>
+    <result property="containerName" column="container_name" jdbcType="VARCHAR"/>
+    <result property="containerPort" column="container_port" jdbcType="VARCHAR"/>
+    <result property="code" column="code" jdbcType="VARCHAR"/>
+    <result property="imageId" column="image_id" jdbcType="VARCHAR"/>
+    <result property="cpu" column="cpu" jdbcType="VARCHAR"/>
+    <result property="memory" column="memory" jdbcType="VARCHAR"/>
+    <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+    <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+    <result property="imageName" column="image_name" jdbcType="VARCHAR"/>
+    <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+    <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+    <result property="deleteFlag" column="delete_flag" jdbcType="INTEGER"/>
+    <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
+    <result property="deleteUser" column="delete_user" jdbcType="INTEGER"/>
+    <result property="experimentId" column="experiment_id" jdbcType="BIGINT"/>
+    <result property="experimentName" column="experiment_name" jdbcType="VARCHAR"/>
+
+
+  </resultMap>
+  <sql id="Base_Column_List">
+        id,container_id,container_port,
+        code,image_id,cpu,
+        memory,course_id
+    </sql>
+  <select id="listContainer" resultMap="ListBaseResultMap">
+        select c.id,c.container_id,c.container_name,c.container_port,c.code,c.experiment_id,t.experiment_name,
+        c.cpu,c.memory,c.delete_flag,c.update_time,c.create_time,s.user_name,i.image_name
+        from t_containers c
+        left join t_sys_user s on s.code=c.code
+        left join t_images i on c.image_id=i.id
+        left join t_experiment t on c.experiment_id=t.id
+        where c.course_id=#{courseId}
+        and c.delete_flag=0
+        and c.container_name is not null
+        and c.container_name !=''
+        <if test="containerName!=null and containerName!=''">
+          and c.container_name  like '%${containerName}%'
+        </if>
+        <if test="code!=null and code!=''">
+          and c.code = #{code}
+        </if>
+    </select>
+</mapper>

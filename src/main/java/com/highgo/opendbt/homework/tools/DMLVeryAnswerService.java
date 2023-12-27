@@ -166,7 +166,7 @@ public class DMLVeryAnswerService {
     return studentAndTeacherResult;
   }
 
-  private UpdateRowAndResultSetTO getUpdateRowAndResultSet(UserInfo loginUser, int sceneId, Long exerciseId, String answer, boolean isStudent, SubmitResult result, int exerciseSource) {
+  private UpdateRowAndResultSetTO getUpdateRowAndResultSet(UserInfo loginUser, Integer sceneId, Long exerciseId, String answer, boolean isStudent, SubmitResult result, int exerciseSource) {
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;

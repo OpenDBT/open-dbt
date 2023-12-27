@@ -3,8 +3,14 @@ package com.highgo.opendbt.test;
 import com.alibaba.fastjson.JSONObject;
 import com.highgo.opendbt.common.bean.DataTypeAndImg;
 import com.highgo.opendbt.common.exception.APIException;
+import com.highgo.opendbt.homework.service.impl.THomeworkServiceImpl;
+import com.sun.javafx.scene.web.Debugger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.core.DebuggingClassWriter;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -50,7 +56,13 @@ public class Demo {
   }
 
   public static void main(String[] args) throws Exception {
-    getBookNameById("444444");
+    //getBookNameById("444444");
+    System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY,"d:\\code");
+    AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
+    applicationContext.scan("com.highgo.opendb");
+    applicationContext.refresh();
+    THomeworkServiceImpl bean = applicationContext.getBean(THomeworkServiceImpl.class);
+    System.out.println(bean);
   }
 
 

@@ -8,12 +8,13 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.highgo.opendbt.common.bean.PageParam;
 import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
+import com.highgo.opendbt.common.utils.AnswerSimilarityCalculator;
 import com.highgo.opendbt.common.utils.Authentication;
+import com.highgo.opendbt.common.utils.CamelCaseToUnderscoreConverter;
 import com.highgo.opendbt.exercise.domain.entity.TExerciseType;
 import com.highgo.opendbt.exercise.service.TExerciseTypeService;
 import com.highgo.opendbt.homework.domain.entity.*;
 import com.highgo.opendbt.homework.domain.model.*;
-import com.highgo.opendbt.homework.manage.DetermineService;
 import com.highgo.opendbt.homework.mapper.THomeworkDistributionMapper;
 import com.highgo.opendbt.homework.mapper.THomeworkMapper;
 import com.highgo.opendbt.homework.mapper.TStuHomeworkInfoMapper;
@@ -35,17 +36,13 @@ import com.highgo.opendbt.system.service.UserInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -91,7 +88,9 @@ public class THomeworkServiceImpl extends ServiceImpl<THomeworkMapper, THomework
   private TClassStuService classStuService;
 
   @Autowired
-  private  AsyncSaveHomeWork asyncSaveHomeWork;
+  private AsyncSaveHomeWork asyncSaveHomeWork;
+
+
   /**
    * @description: 查询作业列表
    * @author:
@@ -223,7 +222,7 @@ public class THomeworkServiceImpl extends ServiceImpl<THomeworkMapper, THomework
   public PageInfo<TStuHomework> getApprovalList(HttpServletRequest request, @Valid PageParam<ApprovalList> param) {
 
     //分页查询
-    return PageMethod.startPage(param.getPageNum(), param.getPageSize()).setOrderBy(param.getOrderBy())
+    return PageMethod.startPage(param.getPageNum(), param.getPageSize()).setOrderBy(CamelCaseToUnderscoreConverter.convert(param.getOrderBy()))
       .doSelectPageInfo(() -> listApprovalList(param.getParam()));
   }
 
@@ -485,7 +484,6 @@ public class THomeworkServiceImpl extends ServiceImpl<THomeworkMapper, THomework
   }
 
 
-
   /**
    * @description: 学生作业提交
    * @author:
@@ -557,6 +555,79 @@ public class THomeworkServiceImpl extends ServiceImpl<THomeworkMapper, THomework
     BusinessResponseEnum.SAVEORUPDATEFAIL.assertIsTrue(stuHomeworkService.saveOrUpdate(homework));
     return homework;
   }
+
+  /**
+   * @description: 查重
+   * @author:
+   * @date: 2023/8/15 10:48
+   * @param: [request, studentId 学生id, homeworkId作业id]
+   * @return: boolean
+   **/
+  @Override
+  public List<Map> duplicateCheck(HttpServletRequest request, int studentId, int homeworkId) {
+    //根据homeworkId查询作业详情列表
+    List<TStuHomeworkInfo> infos = stuHomeworkInfoService.searchStuHomeworkInfo(homeworkId);
+    if (infos == null || infos.size() == 0) {
+      return null;
+    }
+    //根据题型提取答案
+    return duplicateCheckByinfos(infos,studentId);
+  }
+
+  //根据题型查重
+  private List<Map> duplicateCheckByinfos(List<TStuHomeworkInfo> infos, int studentId) {
+    List<Map> maps = new ArrayList<>();
+    Map<Integer, Map<Integer, String>> exerciseTypeMerged = infos.stream()
+      .sorted(Comparator.comparing(TStuHomeworkInfo::getExerciseId))
+      .collect(Collectors.groupingBy(TStuHomeworkInfo::getStudentId,
+        Collectors.groupingBy(info -> {
+          int exerciseType = info.getExerciseType();
+          if (exerciseType >= 1 && exerciseType <= 3) {
+            return 1;
+          } else if (exerciseType == 4) {
+            return 2;
+          } else if (exerciseType == 5) {
+            return 3;
+          } else {
+            return 4;
+          }
+        }, Collectors.mapping(info -> info.getExerciseResult() != null && !"".equals(info.getExerciseResult().trim()) ? info.getIsCorrect()+""+info.getExerciseResult() : "", Collectors.joining(" ")))))
+      .entrySet().stream()
+      .filter(entry -> entry.getValue().values().stream().anyMatch(result -> result != null && !result.isEmpty() && !"".equals(result.trim())))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+
+    // 获取给定学生的 typeMap
+    Map<Integer, String> givenStudentTypeMap = exerciseTypeMerged.get(studentId);
+
+    // 遍历其他学生，计算相似度
+    exerciseTypeMerged.entrySet().stream()
+      .filter(entry -> entry.getKey() != studentId) // 排除给定的学生
+      .forEach(entry -> {
+        int otherStudentId = entry.getKey();
+        Map<Integer, String> otherStudentTypeMap = entry.getValue();
+        double similarity = AnswerSimilarityCalculator.calculateSimilarity(givenStudentTypeMap, otherStudentTypeMap);
+        System.out.println("Similarity between Student " + studentId + " and Student " + otherStudentId + ": " + similarity);
+        HashMap map = new HashMap();
+        map.put("studentId",studentId);
+        map.put("studentName",getStuName(infos,studentId));
+        map.put("otherStudentId",otherStudentId);
+        map.put("otherStudentName",getStuName(infos,otherStudentId));
+        BigDecimal two1 = new BigDecimal(similarity);
+        map.put("similarity",two1.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+        maps.add(map);
+      });
+    maps.sort((map1, map2) -> Double.compare((Double) map2.get("similarity"), (Double) map1.get("similarity")));
+    return maps;
+  }
+
+public String getStuName(List<TStuHomeworkInfo> homeworkInfos,int targetStudentId){
+  Optional<String> targetStudentName = homeworkInfos.stream()
+    .filter(info -> info.getStudentId() == targetStudentId)
+    .map(TStuHomeworkInfo::getStudentName)
+    .findFirst();
+  return targetStudentName.get();
+}
 
   /**
    * @description: 组装作业相关信息

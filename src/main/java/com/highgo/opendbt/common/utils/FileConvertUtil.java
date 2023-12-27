@@ -1,23 +1,36 @@
 
 package com.highgo.opendbt.common.utils;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.poi.xslf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+//import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
+
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-
-
 /**
  * <p>
  * 文件转换工具类$
@@ -30,7 +43,7 @@ import java.nio.file.Files;
 
 @Slf4j
 public class FileConvertUtil {
-
+  static Logger logger = LoggerFactory.getLogger(FileConvertUtil.class);
 
   /**
    * `word` 转 `pdf`
@@ -101,6 +114,8 @@ public class FileConvertUtil {
    * @return: void
    **/
   public static void convertPPTtoPDF(String pptxFilePath, String pdfFilePath) {
+    logger.info("pptxFilePath"+pptxFilePath);
+    logger.info("pdfFilePath"+pdfFilePath);
     try (FileInputStream inputStream = new FileInputStream(pptxFilePath);
          FileOutputStream outputStream = new FileOutputStream(pdfFilePath)) {
 
@@ -118,6 +133,7 @@ public class FileConvertUtil {
             for (XSLFTextParagraph textParagraph : textShape.getTextParagraphs()) {
               for (XSLFTextRun textRun : textParagraph.getTextRuns()) {
                 textRun.setFontFamily("宋体");
+
               }
             }
           }
@@ -155,9 +171,10 @@ public class FileConvertUtil {
       }
       imageTempDir.delete();
 
-      System.out.println("PPTX to PDF conversion completed successfully.");
+      logger.info("PPTX to PDF conversion completed successfully.");
     } catch (IOException e) {
       e.printStackTrace();
+      logger.error("转换报错",e);
     }
   }
 

@@ -76,7 +76,7 @@ public class TriggerDetermine extends Determine {
     ResponseModel result = new ResponseModel();;
 
     try {
-      result = veryTrigger(model, loginUser);
+      result = FunctionUtil.veryTrigger(model, loginUser);
       result.setExecuteRs(true);
       result.setScoreRs(true);
     } catch (Exception e) {

@@ -8,6 +8,8 @@ import com.highgo.opendbt.common.exception.APIException;
 import com.highgo.opendbt.common.exception.enums.BusinessResponseEnum;
 import com.highgo.opendbt.common.service.RunAnswerService;
 import com.highgo.opendbt.common.utils.CloseUtil;
+import com.highgo.opendbt.exercise.domain.entity.TNewExercise;
+import com.highgo.opendbt.exercise.service.TNewExerciseService;
 import com.highgo.opendbt.system.domain.entity.UserInfo;
 import com.highgo.opendbt.test.DataTableHelper;
 import com.highgo.opendbt.verificationSetup.domain.entity.TSceneField;
@@ -47,10 +49,15 @@ public class FunctionUtil {
   private RunAnswerService runAnswerService2;
   private static RunAnswerService runAnswerService;
 
+  @Autowired
+  private TNewExerciseService exerciseService2;
+  private static TNewExerciseService exerciseService;
+
 
   @PostConstruct
   public void beforeInit() {
     runAnswerService = runAnswerService2;
+    exerciseService=exerciseService2;
   }
 
 
@@ -313,6 +320,24 @@ public class FunctionUtil {
     }
     return true;
   }
-
+  //校验实验题型答案
+  public static ResponseModel veryTrigger(TestRunModel model, UserInfo loginUser) {
+    ResponseModel teacherAnswerResultMap = new ResponseModel();
+    ResponseModel studentAnswerResultMap = new ResponseModel();
+    //查询习题标准答案
+    TNewExercise exercise = exerciseService.getById(model.getExerciseId());
+    //习题不能为空
+    BusinessResponseEnum.UNEXERCISE.assertNotNull(exercise, model.getExerciseId());
+    model.setSceneId(exercise.getSceneId()==null?-1:exercise.getSceneId());
+    model.setVerySql(exercise.getVerySql());
+    //执行学生答案返回
+    FunctionUtil.executeSql(loginUser, model, studentAnswerResultMap);
+    model.setStandardAnswer(exercise.getStandardAnswser());
+    //执行正确答案返回
+    FunctionUtil.executeSql(loginUser, model, teacherAnswerResultMap);
+    //比较教师和学生的结果集是否一样
+    FunctionUtil.compareResultSet(teacherAnswerResultMap.getResultSetInfo(), studentAnswerResultMap.getResultSetInfo());
+    return studentAnswerResultMap;
+  }
 
 }
